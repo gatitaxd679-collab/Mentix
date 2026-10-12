@@ -62,15 +62,38 @@ window.GameView = {
     this.startCountdownIntro();
   },
 
+  isSelfPaced() {
+    return this.room?.roomType === 'normal' && !this.isSolo;
+  },
+
   initHostGame(room) {
     this.isSolo = false;
     this.isHost = true;
     this.room = room;
+    if (this.room && !this.room.questionResponses) {
+      this.room.questionResponses = {};
+    }
     this.challenge = room.challenge;
     this.gameMode = room.gameMode || 'clasico';
     this.modeConfig = room.modeConfig || {};
     this.currentQuestionIndex = 0;
     this.setupHostListeners();
+
+    if (this.isSelfPaced()) {
+      if (!this.challenge || !Array.isArray(this.challenge.questions) || this.challenge.questions.length === 0) {
+        if (typeof DEFAULT_CHALLENGES !== 'undefined' && DEFAULT_CHALLENGES[0]) {
+          this.challenge = { ...(this.challenge || {}), questions: DEFAULT_CHALLENGES[0].questions };
+          this.room.challenge = this.challenge;
+        }
+      }
+      this.room.status = 'self_paced';
+      window.realtimeEngine.currentRoom = this.room;
+      window.realtimeEngine.syncRoomState();
+      window.realtimeEngine.simulateSelfPacedBots(this.challenge?.questions || []);
+      this.renderHostSelfPacedDashboard();
+      return;
+    }
+
     this.startCountdownIntro();
   },
 
@@ -92,26 +115,27 @@ window.GameView = {
       if (this.room) this.room.challenge = this.challenge;
     }
     let detectedMode = this.room?.gameMode;
-    if (!detectedMode || detectedMode === 'clasico') {
-      const pin = this.room?.pin || window.realtimeEngine.currentRoom?.pin;
-      if (pin) {
-        try {
-          const stored = localStorage.getItem(`te_reto_room_${pin}`) || localStorage.getItem(`mentix_room_${pin}`);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (parsed.gameMode) {
-              detectedMode = parsed.gameMode;
-              this.room.gameMode = parsed.gameMode;
-              this.room.modeConfig = parsed.modeConfig || this.room.modeConfig;
-            }
+    const pin = this.room?.pin || window.realtimeEngine.currentRoom?.pin;
+    if (pin) {
+      try {
+        const stored = localStorage.getItem(`te_reto_room_${pin}`) || localStorage.getItem(`mentix_room_${pin}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.gameMode && (!detectedMode || detectedMode === 'clasico')) {
+            detectedMode = parsed.gameMode;
+            this.room.gameMode = parsed.gameMode;
+            this.room.modeConfig = parsed.modeConfig || this.room.modeConfig;
           }
-        } catch (e) {}
-      }
+          if (parsed.roomType && !this.room.roomType) {
+            this.room.roomType = parsed.roomType;
+          }
+        }
+      } catch (e) {}
     }
 
     this.gameMode = detectedMode || 'clasico';
     this.modeConfig = this.room?.modeConfig || {};
-    this.currentQuestionIndex = this.room?.currentQuestionIndex || 0;
+    this.currentQuestionIndex = this.isSelfPaced() ? 0 : (this.room?.currentQuestionIndex || 0);
 
     // Aplicar diseño y colores configurados para este juego
     const activeDesign = this.room?.design || window.realtimeEngine?.currentRoom?.design || (window.AdminView && window.AdminView.getSavedDesign());
@@ -121,7 +145,7 @@ window.GameView = {
 
     this.setupPlayerListeners();
 
-    if (this.room?.status === 'intro' || this.currentQuestionIndex === 0) {
+    if (this.room?.status === 'intro' || this.room?.status === 'self_paced' || this.currentQuestionIndex === 0) {
       this.startCountdownIntro();
     } else {
       this.renderQuestionScreen();
@@ -136,10 +160,44 @@ window.GameView = {
       const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
       if (myPin && dataPin === myPin) {
+        if (this.isSelfPaced()) {
+          const qIdx = typeof data.questionIndex === 'number' ? data.questionIndex : 0;
+          const qObj = this.challenge?.questions?.[qIdx] || this.challenge?.questions?.[0];
+          if (!data.isBot && qObj) {
+            window.realtimeEngine.processAnswer(data.playerId, data.answerIndex, data.timeTaken, qObj, qIdx);
+          }
+          if (data.completedExam && this.room?.players) {
+            const pl = this.room.players.find(p => p.id === data.playerId);
+            if (pl) pl.completedExam = true;
+          }
+          if (window.soundEngine && window.soundEngine.playPop) {
+            window.soundEngine.playPop();
+          }
+          this.renderHostSelfPacedDashboard();
+          return;
+        }
         if (!data.isBot) {
           window.realtimeEngine.processAnswer(data.playerId, data.answerIndex, data.timeTaken, this.challenge.questions[this.currentQuestionIndex]);
         }
         this.onAnswerReceived(data);
+      }
+    });
+
+    window.realtimeEngine.on('PLAYER_EXAM_FINISHED', (data) => {
+      const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
+      const dataPin = String(data?.pin || '').replace(/\D/g, '');
+      if (myPin && dataPin === myPin && this.room?.players) {
+        const pl = this.room.players.find(p => p.id === data.playerId);
+        if (pl) {
+          pl.completedExam = true;
+          if (typeof data.score === 'number') pl.score = Math.max(pl.score || 0, data.score);
+          if (typeof data.correctCount === 'number') pl.correctCount = Math.max(pl.correctCount || 0, data.correctCount);
+          if (typeof data.answersCount === 'number') pl.answersCount = Math.max(pl.answersCount || 0, data.answersCount);
+          window.realtimeEngine.syncRoomState();
+        }
+        if (this.isSelfPaced()) {
+          this.renderHostSelfPacedDashboard();
+        }
       }
     });
 
@@ -156,6 +214,10 @@ window.GameView = {
           }
         }
         if (this.isHost) {
+          if (this.isSelfPaced()) {
+            this.renderHostSelfPacedDashboard();
+            return;
+          }
           this.modeActionsCount = (this.modeActionsCount || 0) + 1;
           const totalPlayers = this.room?.players?.length || 1;
           this.updateHostModeActivityBanner(this.modeActionsCount, totalPlayers);
@@ -183,6 +245,7 @@ window.GameView = {
     });
 
     window.realtimeEngine.on('ROOM_ANSWER_PROGRESS', (data) => {
+      if (this.isSelfPaced()) return;
       const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
       if (myPin && dataPin === myPin) {
@@ -191,6 +254,7 @@ window.GameView = {
     });
 
     window.realtimeEngine.on('SHOW_QUESTION_RESULTS', (data) => {
+      if (this.isSelfPaced()) return;
       const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
       if (myPin && dataPin === myPin) {
@@ -223,6 +287,7 @@ window.GameView = {
     });
 
     window.realtimeEngine.on('NEXT_QUESTION', (data) => {
+      if (this.isSelfPaced()) return;
       const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
       if (myPin && dataPin === myPin) {
@@ -247,6 +312,7 @@ window.GameView = {
     });
 
     window.realtimeEngine.on('SHOW_LEADERBOARD', (data) => {
+      if (this.isSelfPaced()) return;
       const myPin = String(this.room?.pin || window.realtimeEngine.currentRoom?.pin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
       if (myPin && dataPin === myPin) {
@@ -1152,14 +1218,17 @@ window.GameView = {
       chosenBtn.classList.add('selected');
     }
 
-    if (this.isSolo) {
-      // ⚡ MODO SOLITARIO:
+    if (this.isSolo || (!this.isHost && this.isSelfPaced())) {
+      // ⚡ MODO SOLITARIO O SALA NORMAL (EXAMEN INDIVIDUAL A SU RITMO):
       // Se detiene el reloj inmediatamente (aunque falten 20s)
       if (this.timerInterval) clearInterval(this.timerInterval);
       this.questionFinished = true;
 
-      const p = this.room.players[0];
-      const res = window.realtimeEngine.processAnswer('solo_player', originalIndex, timeTaken, q);
+      const p = this.isSolo ? this.room.players[0] : window.realtimeEngine.localPlayer;
+      const playerKey = this.isSolo ? 'solo_player' : (p?.id || 'local_player');
+      const res = this.isSolo
+        ? window.realtimeEngine.processAnswer('solo_player', originalIndex, timeTaken, q, this.currentQuestionIndex)
+        : null;
 
       let isCorr = false;
       if (q.type === 'poll' || q.type === 'open') {
@@ -1174,31 +1243,55 @@ window.GameView = {
       } else {
         isCorr = originalIndex === q.correctAnswer;
       }
-      let ptsEarned = (isCorr || q.type === 'poll' || q.type === 'open') ? Math.round((q.points !== undefined ? q.points : 1000) * (0.5 + 0.5 * Math.max(0, (q.timeLimit || 20) - timeTaken) / (q.timeLimit || 20))) : 0;
       let comboMult = 1;
+      let ptsEarned = 0;
 
       if (res) {
         isCorr = res.isCorrect;
         ptsEarned = res.pointsEarned;
         comboMult = res.comboMultiplier || 1;
-      } else {
-        // Fallback directo sobre el objeto de jugador local
+      } else if (p) {
         if (isCorr) {
           p.streak = (p.streak || 0) + 1;
           p.correctCount = (p.correctCount || 0) + 1;
+          if (p.streak >= 10) comboMult = 10;
+          else if (p.streak >= 6) comboMult = 5;
+          else if (p.streak >= 4) comboMult = 3;
+          else if (p.streak >= 2) comboMult = 2;
+          const maxTime = q.timeLimit || 20;
+          const basePoints = q.points !== undefined ? q.points : 1000;
+          const speedBonus = 0.5 + 0.5 * (Math.max(0, maxTime - timeTaken) / maxTime);
+          ptsEarned = Math.round(basePoints * speedBonus * comboMult);
           p.score = (p.score || 0) + ptsEarned;
           if (p.streak > (p.maxStreak || 0)) p.maxStreak = p.streak;
         } else {
           p.streak = 0;
         }
         p.answersCount = (p.answersCount || 0) + 1;
+        p.currentQuestionIndex = this.currentQuestionIndex + 1;
+        if (this.currentQuestionIndex >= this.challenge.questions.length - 1) {
+          p.completedExam = true;
+        }
         if (!p.answers) p.answers = [];
-        p.answers.push({ questionId: q.id, answerIndex: index, isCorrect: isCorr, pointsEarned: ptsEarned, timeTaken });
+        p.answers.push({ questionId: q.id, questionIndex: this.currentQuestionIndex, answerIndex: originalIndex, isCorrect: isCorr, pointsEarned: ptsEarned, timeTaken, comboMultiplier: comboMult });
+      }
+
+      // Si es Sala Normal, enviar progreso de esta pregunta al profesor en tiempo real
+      if (!this.isSolo && this.isSelfPaced()) {
+        window.realtimeEngine.broadcast({
+          type: 'PLAYER_ANSWER',
+          pin: this.room.pin,
+          playerId: p?.id,
+          questionIndex: this.currentQuestionIndex,
+          answerIndex: originalIndex,
+          timeTaken: timeTaken,
+          completedExam: this.currentQuestionIndex >= this.challenge.questions.length - 1
+        });
       }
 
       const responses = {
-        'solo_player': {
-          answerIndex: index,
+        [playerKey]: {
+          answerIndex: originalIndex,
           isCorrect: isCorr,
           pointsEarned: ptsEarned,
           timeTaken: timeTaken,
@@ -1208,15 +1301,12 @@ window.GameView = {
       this.room.responses = responses;
 
       if (this.gameMode && this.gameMode !== 'clasico') {
-        // En modo solo con experiencia especial (ej: tiro_perfecto):
-        // Permitir que el estudiante interactúe con el minijuego del modo antes de ver estadísticas
         this.pendingSoloResults = {
           responses: responses,
           correctAnswer: q.correctAnswer
         };
         this.showWaitingFeedback();
       } else {
-        // Muestra feedback y estadísticas de inmediato sin demoras
         this.revealQuestionResults({
           responses: responses,
           correctAnswer: q.correctAnswer
@@ -1226,7 +1316,7 @@ window.GameView = {
       // 👥 MODO MULTIJUGADOR (ANFITRIÓN):
       // El host no responde
     } else {
-      // 👥 MODO MULTIJUGADOR (CLIENTE REMOTO):
+      // 👥 MODO MULTIJUGADOR CON PREGUNTAS PRESENTADAS (CLIENTE REMOTO):
       if (window.realtimeEngine.sendAnswer) {
         window.realtimeEngine.sendAnswer(originalIndex, timeTaken);
       }
@@ -1234,6 +1324,7 @@ window.GameView = {
         type: 'PLAYER_ANSWER',
         pin: this.room.pin,
         playerId: window.realtimeEngine.localPlayer?.id,
+        questionIndex: this.currentQuestionIndex,
         answerIndex: originalIndex,
         timeTaken: timeTaken
       });
@@ -1281,7 +1372,7 @@ window.GameView = {
           ${modeActionHtml}
         </div>
 
-        ${this.isSolo ? `
+        ${(this.isSolo || this.isSelfPaced()) ? `
           <button 
             type="button" 
             id="btn-solo-skip-to-results" 
@@ -1289,7 +1380,7 @@ window.GameView = {
             style="width: 100%; margin-top: 0.6rem; padding: 0.6rem; font-size: 0.9rem; font-weight: 800;"
             onclick="window.GameView.continueSoloToResults()"
           >
-            ➡️ Continuar a Estadísticas
+            ➡️ Continuar a Resultado
           </button>
         ` : ''}
       </div>
@@ -1417,6 +1508,11 @@ window.GameView = {
         bonusPoints: bonusPts,
         detail: hitTitle
       });
+      if (this.isSelfPaced()) {
+        setTimeout(() => {
+          this.continueSoloToResults();
+        }, 1900);
+      }
     }
   },
 
@@ -1547,6 +1643,11 @@ window.GameView = {
         bonusPoints: bonusPts,
         detail: actionTitle
       });
+      if (this.isSelfPaced()) {
+        setTimeout(() => {
+          this.continueSoloToResults();
+        }, 1900);
+      }
     }
   },
 
@@ -1942,8 +2043,43 @@ window.GameView = {
 
   timeExpired() {
     if (this.questionFinished) return;
-    if (this.isHost) {
+    if (this.isHost && !this.isSolo) {
+      if (this.isSelfPaced()) return;
       this.finishQuestionHost();
+    } else if (!this.isHost && this.isSelfPaced()) {
+      const p = window.realtimeEngine.localPlayer;
+      const q = this.challenge.questions[this.currentQuestionIndex];
+      if (p) {
+        p.streak = 0;
+        p.answersCount = (p.answersCount || 0) + 1;
+        p.currentQuestionIndex = this.currentQuestionIndex + 1;
+        if (this.currentQuestionIndex >= this.challenge.questions.length - 1) {
+          p.completedExam = true;
+        }
+        if (!p.answers) p.answers = [];
+        p.answers.push({
+          questionId: q?.id,
+          questionIndex: this.currentQuestionIndex,
+          answerIndex: -1,
+          isCorrect: false,
+          pointsEarned: 0,
+          timeTaken: this.totalTime,
+          comboMultiplier: 1
+        });
+      }
+      window.realtimeEngine.broadcast({
+        type: 'PLAYER_ANSWER',
+        pin: this.room?.pin,
+        playerId: p?.id,
+        questionIndex: this.currentQuestionIndex,
+        answerIndex: -1,
+        timeTaken: this.totalTime,
+        completedExam: this.currentQuestionIndex >= this.challenge.questions.length - 1
+      });
+      this.revealQuestionResults({
+        responses: {},
+        correctAnswer: q?.correctAnswer
+      });
     } else {
       this.revealQuestionResults({
         responses: this.room?.responses || {},
@@ -1963,6 +2099,10 @@ window.GameView = {
 
     // 🎓 1. PANTALLA DEL PROFESOR / CREADOR DE LA SALA:
     if (this.isHost && !this.isSolo) {
+      if (this.isSelfPaced()) {
+        this.renderHostSelfPacedDashboard();
+        return;
+      }
       window.soundEngine.playFanfare();
       // El creador de la sala ve la pantalla completa con el histograma desahogado y la tabla de resumen
       this.renderFullStatsScreen(responses, correctIdx, q, null, null);
@@ -2089,7 +2229,7 @@ window.GameView = {
   },
 
   // ==========================================
-  // 📱 PANTALLA DEL ALUMNO (SIN GRÁFICAS)
+  // 📱 PANTALLA DEL ALUMNO (CON FONDO AZUL + AMARILLO Y VERDE NEÓN)
   // ==========================================
   renderStudentFeedbackScreen(q, localResp, isCorrect, correctIdx, isTimeout) {
     const container = document.getElementById('view-game');
@@ -2103,48 +2243,305 @@ window.GameView = {
     if (q.type === 'text') {
       correctText = q.correctAnswer || (q.acceptedAnswers && q.acceptedAnswers[0]) || '';
     } else if (Array.isArray(correctIdx)) {
-      correctText = correctIdx.map(i => q.options[i]?.text).filter(Boolean).join(', ');
+      correctText = correctIdx.map(i => this.getOptionText(q.options[i])).filter(Boolean).join(', ');
     } else if (q.options && q.options[correctIdx]) {
-      correctText = q.options[correctIdx].text;
+      correctText = this.getOptionText(q.options[correctIdx]);
     }
 
     const isPollOrOpen = q.type === 'poll' || q.type === 'open';
+    const accentBorder = (isPollOrOpen || isCorrect) ? '#00ff88' : '#ffe600';
+    const accentGlow = (isPollOrOpen || isCorrect) ? 'rgba(0, 255, 136, 0.5)' : 'rgba(255, 230, 0, 0.45)';
+    const titleColor = (isPollOrOpen || isCorrect) ? '#00ff88' : '#ffe600';
 
     container.innerHTML = `
       <div class="student-feedback-container">
-        <!-- Tarjeta de Resultado Individual del Alumno -->
-        <div class="student-feedback-card ${isPollOrOpen || isCorrect ? 'is-correct' : 'is-wrong'}" style="background: #060913 !important; border: 2.5px solid ${isPollOrOpen || isCorrect ? '#00f5d4' : '#f72585'} !important; box-shadow: 0 0 45px ${isPollOrOpen || isCorrect ? 'rgba(0, 245, 212, 0.45)' : 'rgba(247, 37, 133, 0.45)'}, 0 25px 60px rgba(0, 0, 0, 0.95), inset 0 0 20px ${isPollOrOpen || isCorrect ? 'rgba(0, 245, 212, 0.08)' : 'rgba(247, 37, 133, 0.08)'} !important; border-radius: 24px; padding: 2.5rem 1.75rem; color: #ffffff !important;">
-          <div style="font-size: 4rem; margin-bottom: 0.75rem; line-height: 1; filter: drop-shadow(0 0 20px ${isPollOrOpen || isCorrect ? 'rgba(0, 245, 212, 0.8)' : 'rgba(247, 37, 133, 0.8)'});">
-            ${isPollOrOpen ? '📊' : (isCorrect ? '🎯' : (isTimeout ? '⏱️' : '❌'))}
+        <!-- Tarjeta de Resultado Individual del Alumno con Fondo Azul, Amarillo y Verde Neón -->
+        <div class="student-feedback-card ${isPollOrOpen || isCorrect ? 'is-correct' : 'is-wrong'}" style="background: linear-gradient(155deg, rgba(6, 22, 66, 0.84) 0%, rgba(4, 15, 48, 0.90) 100%), url('assets/mentix_stage_bg.svg') center center / cover no-repeat !important; border: 2.5px solid ${accentBorder} !important; box-shadow: 0 0 45px ${accentGlow}, 0 25px 60px rgba(0, 0, 0, 0.9), inset 0 0 28px rgba(0, 255, 136, 0.14) !important; border-radius: 24px; padding: 2.5rem 1.75rem; color: #ffffff !important;">
+          <div style="font-size: 4rem; margin-bottom: 0.75rem; line-height: 1; filter: drop-shadow(0 0 20px ${accentGlow});">
+            ${isPollOrOpen ? '📊' : (isCorrect ? '🎯' : (isTimeout ? '⏱️' : '⚡'))}
           </div>
           
-          <h2 style="font-size: 2.1rem; font-weight: 900; margin-bottom: 0.75rem; letter-spacing: -0.5px; color: ${isPollOrOpen || isCorrect ? '#00f5d4' : '#f72585'} !important; text-shadow: 0 0 20px ${isPollOrOpen || isCorrect ? 'rgba(0,245,212,0.85)' : 'rgba(247,37,133,0.85)'}, 0 0 40px ${isPollOrOpen || isCorrect ? 'rgba(0,245,212,0.45)' : 'rgba(247,37,133,0.45)'};">
+          <h2 style="font-size: 2.1rem; font-weight: 900; margin-bottom: 0.75rem; letter-spacing: -0.5px; color: ${titleColor} !important; text-shadow: 0 0 22px ${accentGlow};">
             ${isPollOrOpen ? '¡Respuesta Registrada!' : (isCorrect ? '¡Respuesta Correcta!' : (isTimeout ? '¡Tiempo Agotado!' : '¡Respuesta Incorrecta!'))}
           </h2>
 
           ${localResp && localResp.pointsEarned ? `
-            <div style="display: inline-flex; align-items: center; gap: 0.65rem; background: rgba(0, 245, 212, 0.14) !important; border: 2px solid #00f5d4 !important; padding: 0.55rem 1.5rem; border-radius: 9999px; margin-bottom: 1.25rem; box-shadow: 0 0 25px rgba(0, 245, 212, 0.35), inset 0 0 12px rgba(0, 245, 212, 0.15);">
-              <span style="font-weight: 900; font-size: 1.25rem; color: #00f5d4 !important; text-shadow: 0 0 14px rgba(0, 245, 212, 0.9); letter-spacing: 0.5px;">+${localResp.pointsEarned} PTS</span>
-              ${localResp.comboMultiplier > 1 ? `<span style="font-weight: 900; font-size: 1rem; color: #ffb703 !important; text-shadow: 0 0 12px rgba(255, 183, 3, 0.9); background: rgba(255, 183, 3, 0.18); padding: 0.25rem 0.65rem; border-radius: 8px; border: 1.5px solid rgba(255, 183, 3, 0.5);">🔥 Racha x${localResp.comboMultiplier}</span>` : ''}
+            <div style="display: inline-flex; align-items: center; gap: 0.65rem; background: rgba(0, 255, 136, 0.16) !important; border: 2px solid #00ff88 !important; padding: 0.55rem 1.5rem; border-radius: 9999px; margin-bottom: 1.25rem; box-shadow: 0 0 25px rgba(0, 255, 136, 0.35);">
+              <span style="font-weight: 900; font-size: 1.25rem; color: #00ff88 !important; text-shadow: 0 0 14px rgba(0, 255, 136, 0.9); letter-spacing: 0.5px;">+${localResp.pointsEarned} PTS</span>
+              ${localResp.comboMultiplier > 1 ? `<span style="font-weight: 900; font-size: 1rem; color: #ffe600 !important; text-shadow: 0 0 12px rgba(255, 230, 0, 0.9); background: rgba(255, 230, 0, 0.18); padding: 0.25rem 0.65rem; border-radius: 8px; border: 1.5px solid rgba(255, 230, 0, 0.6);">🔥 Racha x${localResp.comboMultiplier}</span>` : ''}
             </div>
           ` : ''}
 
           ${(!isCorrect && !isPollOrOpen && correctText) ? `
-            <div style="background: rgba(13, 20, 36, 0.95) !important; border: 1.5px solid rgba(0, 245, 212, 0.45) !important; border-radius: 14px; padding: 1rem 1.35rem; margin: 1.25rem auto; max-width: 480px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.7);">
-              <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 800; color: #94a3b8 !important; margin-bottom: 0.35rem; letter-spacing: 0.5px;">
+            <div style="background: rgba(7, 24, 68, 0.92) !important; border: 1.5px solid #00ff88 !important; border-radius: 14px; padding: 1rem 1.35rem; margin: 1.25rem auto; max-width: 480px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.65), 0 0 18px rgba(0, 255, 136, 0.2);">
+              <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 800; color: #ffe600 !important; margin-bottom: 0.35rem; letter-spacing: 0.5px;">
                 Respuesta correcta:
               </div>
-              <div style="font-size: 1.2rem; font-weight: 800; color: #00f5d4 !important; text-shadow: 0 0 12px rgba(0, 245, 212, 0.8);">
+              <div style="font-size: 1.2rem; font-weight: 800; color: #00ff88 !important; text-shadow: 0 0 12px rgba(0, 255, 136, 0.8);">
                 ${this.escapeHtml(correctText)}
               </div>
             </div>
           ` : ''}
 
           <!-- Puntaje Acumulado -->
-          <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.15) !important; display: flex; align-items: center; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
+          <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid rgba(0, 255, 136, 0.25) !important; display: flex; align-items: center; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
             <span style="font-size: 0.95rem; font-weight: 800; color: #f1f5f9 !important; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">Tu Puntaje Total:</span>
-            <span style="font-size: 1.55rem; font-weight: 900; color: #ffd166 !important; text-shadow: 0 0 18px rgba(255, 209, 102, 0.95), 0 0 35px rgba(255, 183, 3, 0.6);">🏆 ${finalScore} PTS</span>
+            <span style="font-size: 1.55rem; font-weight: 900; color: #ffe600 !important; text-shadow: 0 0 18px rgba(255, 230, 0, 0.95);">🏆 ${finalScore} PTS</span>
           </div>
+
+          ${this.isSelfPaced() ? `
+            <div style="margin-top: 1.6rem;">
+              <button
+                type="button"
+                class="btn btn-primary btn-lg"
+                onclick="${isLastQuestion ? 'window.GameView.finishSelfPacedStudentExam()' : 'window.GameView.nextQuestion()'}"
+                style="width: 100%; max-width: 340px; padding: 0.95rem 2rem; font-size: 1.15rem; font-weight: 900; border-radius: 14px; background: linear-gradient(90deg, #00ff88, #ffe600); color: #041230 !important; border: none; box-shadow: 0 0 28px rgba(0, 255, 136, 0.6); cursor: pointer;"
+              >
+                <span>${isLastQuestion ? '🏆 Terminar y Ver Mi Resultado' : 'Siguiente Pregunta ⏩'}</span>
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  finishSelfPacedStudentExam() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    const p = window.realtimeEngine.localPlayer;
+    const totalQuestions = this.challenge?.questions?.length || 1;
+    if (p) {
+      p.completedExam = true;
+      window.realtimeEngine.broadcast({
+        type: 'PLAYER_EXAM_FINISHED',
+        pin: this.room?.pin,
+        playerId: p.id,
+        score: p.score || 0,
+        correctCount: p.correctCount || 0,
+        answersCount: p.answersCount || totalQuestions
+      });
+    }
+
+    const container = document.getElementById('view-game');
+    if (!container) return;
+
+    const score = p?.score || 0;
+    const correct = p?.correctCount || 0;
+    const accuracy = Math.round((correct / totalQuestions) * 100);
+    const maxStreak = p?.maxStreak || 0;
+
+    if (window.soundEngine) window.soundEngine.playFanfare();
+
+    container.innerHTML = `
+      <div class="student-feedback-container" style="padding: 2rem 1rem;">
+        <div class="student-feedback-card is-correct" style="max-width: 680px; width: 100%; background: linear-gradient(155deg, rgba(6, 22, 66, 0.86) 0%, rgba(4, 15, 48, 0.92) 100%), url('assets/mentix_stage_bg.svg') center center / cover no-repeat !important; border: 2.5px solid #00ff88 !important; box-shadow: 0 0 50px rgba(0, 255, 136, 0.45), 0 25px 60px rgba(0,0,0,0.9) !important; border-radius: 24px; padding: 2.5rem 2rem; color: #ffffff !important;">
+          <div style="font-size: 4rem; margin-bottom: 0.5rem;">🏆</div>
+          <span class="badge-tag" style="background: rgba(0, 255, 136, 0.18); border: 1.5px solid #00ff88; color: #00ff88; font-weight: 900; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.85rem;">
+            ✅ EXAMEN INDIVIDUAL COMPLETADO
+          </span>
+          <h2 style="font-size: 2.2rem; font-weight: 900; color: #ffe600 !important; margin: 0.75rem 0 0.35rem; text-shadow: 0 0 20px rgba(255, 230, 0, 0.75);">
+            ¡Excelente trabajo, ${this.escapeHtml(p?.nickname || 'Estudiante')}!
+          </h2>
+          <p style="color: #cbd5e1; font-size: 0.98rem; margin-bottom: 1.5rem;">
+            Tus resultados ya fueron enviados en vivo al panel del profesor.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+            <div style="background: rgba(5, 18, 52, 0.88); border: 1.5px solid #ffe600; border-radius: 16px; padding: 1rem;">
+              <div style="font-size: 0.78rem; color: #fef08a; font-weight: 800; text-transform: uppercase;">Puntaje Final</div>
+              <div style="font-size: 1.85rem; font-weight: 900; color: #ffe600; margin-top: 0.25rem;">🏆 ${score}</div>
+            </div>
+            <div style="background: rgba(5, 18, 52, 0.88); border: 1.5px solid #00ff88; border-radius: 16px; padding: 1rem;">
+              <div style="font-size: 0.78rem; color: #86efac; font-weight: 800; text-transform: uppercase;">Aciertos</div>
+              <div style="font-size: 1.85rem; font-weight: 900; color: #00ff88; margin-top: 0.25rem;">✓ ${correct}/${totalQuestions}</div>
+            </div>
+            <div style="background: rgba(5, 18, 52, 0.88); border: 1.5px solid #00b4d8; border-radius: 16px; padding: 1rem;">
+              <div style="font-size: 0.78rem; color: #7dd3fc; font-weight: 800; text-transform: uppercase;">Precisión</div>
+              <div style="font-size: 1.85rem; font-weight: 900; color: #38bdf8; margin-top: 0.25rem;">🎯 ${accuracy}%</div>
+            </div>
+            <div style="background: rgba(5, 18, 52, 0.88); border: 1.5px solid #ffe600; border-radius: 16px; padding: 1rem;">
+              <div style="font-size: 0.78rem; color: #fef08a; font-weight: 800; text-transform: uppercase;">Mejor Racha</div>
+              <div style="font-size: 1.85rem; font-weight: 900; color: #ffe600; margin-top: 0.25rem;">🔥 x${maxStreak}</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <button
+              type="button"
+              class="btn btn-primary btn-lg"
+              onclick="window.appRouter.showPodium(window.GameView.room)"
+              style="padding: 0.9rem 2.2rem; font-size: 1.1rem; font-weight: 900; border-radius: 14px; background: linear-gradient(90deg, #00ff88, #ffe600); color: #041230 !important; border: none; box-shadow: 0 0 25px rgba(0, 255, 136, 0.55); cursor: pointer;"
+            >
+              🏆 Ver Podio de la Sala
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  // ==========================================
+  // 🎓 PANEL EN VIVO DEL PROFESOR PARA SALA NORMAL (EXAMEN INDIVIDUAL SIN AVANCE MANUAL)
+  // ==========================================
+  renderHostSelfPacedDashboard() {
+    const container = document.getElementById('view-game');
+    if (!container) return;
+
+    const players = Array.isArray(this.room?.players) ? [...this.room.players] : [];
+    const questions = Array.isArray(this.challenge?.questions) ? this.challenge.questions : [];
+    const totalQuestions = Math.max(1, questions.length);
+
+    // Ordenar estudiantes por puntaje descendente y progreso
+    players.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.answersCount || 0) - (a.answersCount || 0));
+
+    const completedCount = players.filter(p => p.completedExam || (p.answersCount || 0) >= totalQuestions).length;
+    const inProgressCount = Math.max(0, players.length - completedCount);
+
+    let totalAnsweredAll = 0;
+    let totalCorrectAll = 0;
+    players.forEach(p => {
+      totalAnsweredAll += (p.answersCount || 0);
+      totalCorrectAll += (p.correctCount || 0);
+    });
+    const avgAccuracy = totalAnsweredAll > 0 ? Math.round((totalCorrectAll / totalAnsweredAll) * 100) : 0;
+
+    container.innerHTML = `
+      <div style="max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
+        <!-- Cabecera del Monitor de Examen Individual del Profesor -->
+        <div class="host-selfpaced-panel" style="background: linear-gradient(155deg, rgba(6, 22, 66, 0.84) 0%, rgba(4, 15, 48, 0.90) 100%), url('assets/mentix_stage_bg.svg') center center / cover no-repeat; border: 2px solid #00ff88; border-radius: 22px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 0 35px rgba(0, 255, 136, 0.3), 0 15px 40px rgba(0,0,0,0.65);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
+                <span class="badge-tag" style="background: rgba(0, 255, 136, 0.18); border: 1.5px solid #00ff88; color: #00ff88; font-weight: 900; padding: 0.3rem 0.85rem; border-radius: 9999px;">
+                  📝 SALA NORMAL • EXAMEN INDIVIDUAL A SU RITMO
+                </span>
+                <span class="badge-tag" style="background: rgba(255, 230, 0, 0.18); border: 1.5px solid #ffe600; color: #ffe600; font-weight: 900; padding: 0.3rem 0.85rem; border-radius: 9999px;">
+                  🔑 PIN: ${this.room?.pin || ''}
+                </span>
+              </div>
+              <h1 style="font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 900; color: #ffffff; margin: 0;">
+                📊 Resultados en Vivo — ${this.escapeHtml(this.challenge?.title || 'Cuestionario MENTIX')}
+              </h1>
+              <p style="color: #cbd5e1; font-size: 0.95rem; margin: 0.25rem 0 0; font-weight: 600;">
+                Cada estudiante avanza a su propio ritmo como en solitario. Aquí ves el progreso y calificaciones en tiempo real.
+              </p>
+            </div>
+
+            <div>
+              <button
+                type="button"
+                class="btn btn-primary btn-lg"
+                onclick="window.GameView.finishGame()"
+                style="padding: 0.85rem 1.8rem; font-size: 1.05rem; font-weight: 900; border-radius: 14px; background: linear-gradient(90deg, #00ff88, #ffe600); color: #041230 !important; border: none; box-shadow: 0 0 25px rgba(0, 255, 136, 0.55); cursor: pointer;"
+              >
+                🏆 Finalizar y Ver Podio Final
+              </button>
+            </div>
+          </div>
+
+          <!-- Tarjetas de Métricas en Vivo (Azul + Amarillo Neón + Verde Neón) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.4rem;">
+            <div style="background: rgba(4, 14, 42, 0.86); border: 1.5px solid #00b4d8; border-radius: 16px; padding: 1rem 1.25rem;">
+              <div style="font-size: 0.78rem; color: #7dd3fc; font-weight: 800; text-transform: uppercase;">👥 Estudiantes</div>
+              <div style="font-size: 2rem; font-weight: 900; color: #38bdf8; margin-top: 0.2rem;">${players.length}</div>
+            </div>
+            <div style="background: rgba(4, 14, 42, 0.86); border: 1.5px solid #ffe600; border-radius: 16px; padding: 1rem 1.25rem;">
+              <div style="font-size: 0.78rem; color: #fef08a; font-weight: 800; text-transform: uppercase;">✍️ Respondiendo</div>
+              <div style="font-size: 2rem; font-weight: 900; color: #ffe600; margin-top: 0.2rem;">${inProgressCount}</div>
+            </div>
+            <div style="background: rgba(4, 14, 42, 0.86); border: 1.5px solid #00ff88; border-radius: 16px; padding: 1rem 1.25rem;">
+              <div style="font-size: 0.78rem; color: #86efac; font-weight: 800; text-transform: uppercase;">✅ Finalizados</div>
+              <div style="font-size: 2rem; font-weight: 900; color: #00ff88; margin-top: 0.2rem;">${completedCount} / ${players.length}</div>
+            </div>
+            <div style="background: rgba(4, 14, 42, 0.86); border: 1.5px solid #00ff88; border-radius: 16px; padding: 1rem 1.25rem;">
+              <div style="font-size: 0.78rem; color: #86efac; font-weight: 800; text-transform: uppercase;">🎯 Precisión Global</div>
+              <div style="font-size: 2rem; font-weight: 900; color: #00ff88; margin-top: 0.2rem;">${avgAccuracy}%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Progreso y Resultados Individuales en Vivo -->
+        <div style="background: linear-gradient(160deg, rgba(6, 20, 58, 0.88) 0%, rgba(3, 11, 34, 0.94) 100%), url('assets/mentix_stage_bg.svg') center center / cover no-repeat; border: 2px solid rgba(0, 255, 136, 0.55); border-radius: 22px; padding: 1.5rem 1.75rem; box-shadow: 0 12px 35px rgba(0,0,0,0.65);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 style="font-size: 1.35rem; font-weight: 900; color: #ffe600; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📋</span> Progreso y Resultados de los Estudiantes en Tiempo Real
+            </h2>
+            <span style="font-size: 0.88rem; color: #00ff88; font-weight: 800;">
+              Total del examen: ${totalQuestions} preguntas
+            </span>
+          </div>
+
+          ${players.length === 0 ? `
+            <div style="text-align: center; padding: 3rem 1rem; color: #94a3b8;">
+              Esperando respuestas de los estudiantes...
+            </div>
+          ` : `
+            <div style="overflow-x: auto;">
+              <table class="host-stats-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 2px solid rgba(0, 255, 136, 0.35); color: #ffe600; text-align: left;">
+                    <th style="padding: 0.85rem;">#</th>
+                    <th style="padding: 0.85rem;">Estudiante</th>
+                    <th style="padding: 0.85rem;">Estado / Avance</th>
+                    <th style="padding: 0.85rem; text-align: center;">Aciertos</th>
+                    <th style="padding: 0.85rem; text-align: center;">Precisión</th>
+                    <th style="padding: 0.85rem; text-align: center;">Racha</th>
+                    <th style="padding: 0.85rem; text-align: right;">Puntaje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${players.map((p, idx) => {
+                    const ansCount = Math.min(totalQuestions, p.answersCount || 0);
+                    const corrCount = p.correctCount || 0;
+                    const isDone = p.completedExam || ansCount >= totalQuestions;
+                    const pctProgress = Math.min(100, Math.round((ansCount / totalQuestions) * 100));
+                    const accuracy = ansCount > 0 ? Math.round((corrCount / ansCount) * 100) : 0;
+                    return `
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background: ${isDone ? 'rgba(0, 255, 136, 0.08)' : 'transparent'};">
+                        <td style="padding: 0.85rem; font-weight: 900; color: ${idx === 0 ? '#ffe600' : '#94a3b8'}; font-size: 1.05rem;">
+                          ${idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : (idx + 1)}
+                        </td>
+                        <td style="padding: 0.85rem;">
+                          <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                              ${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(p, 40) : (p.avatar || '🎓')}
+                            </div>
+                            <div>
+                              <div style="font-weight: 900; color: #ffffff; font-size: 1rem;">${this.escapeHtml(p.nickname || 'Estudiante')}</div>
+                              <div style="font-size: 0.75rem; color: #7dd3fc;">${this.escapeHtml(p.email || 'En sala')}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding: 0.85rem; min-width: 200px;">
+                          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; font-size: 0.82rem; font-weight: 800;">
+                            <span style="color: ${isDone ? '#00ff88' : '#ffe600'};">
+                              ${isDone ? '✅ Examen Finalizado' : `📝 Pregunta ${Math.min(totalQuestions, ansCount + 1)} de ${totalQuestions}`}
+                            </span>
+                            <span style="color: #cbd5e1;">${ansCount}/${totalQuestions} (${pctProgress}%)</span>
+                          </div>
+                          <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden;">
+                            <div style="width: ${pctProgress}%; height: 100%; background: linear-gradient(90deg, #00b4d8, #00ff88, #ffe600); border-radius: 999px; transition: width 0.35s ease;"></div>
+                          </div>
+                        </td>
+                        <td style="padding: 0.85rem; text-align: center; font-weight: 900; color: #00ff88; font-size: 1.05rem;">
+                          ${corrCount} / ${totalQuestions}
+                        </td>
+                        <td style="padding: 0.85rem; text-align: center; font-weight: 800; color: #38bdf8;">
+                          ${accuracy}%
+                        </td>
+                        <td style="padding: 0.85rem; text-align: center; font-weight: 900; color: #ffe600;">
+                          🔥 x${p.streak || 0}
+                        </td>
+                        <td style="padding: 0.85rem; text-align: right; font-weight: 900; font-size: 1.15rem; color: #ffe600;">
+                          🏆 ${p.score || 0} PTS
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
         </div>
       </div>
     `;

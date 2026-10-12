@@ -685,7 +685,7 @@ window.LobbyView = {
               ${challengeTitle}
             </h1>
             <p style="color: var(--text-secondary); margin-top: 0.25rem;">
-              ${questionsCount} preguntas • Tiempo estándar: ${timeLimit}s • Modo de sala: <strong style="color: ${r.roomType === 'normal' ? 'var(--neon-cyan)' : '#d8b4fe'};">${r.roomType === 'normal' ? '🎮 Preguntas y respuestas en cada dispositivo' : '📽️ Preguntas proyectadas en pantalla principal'}</strong>
+              ${questionsCount} preguntas • Tiempo estándar: ${timeLimit}s • Modo de sala: <strong style="color: ${r.roomType === 'normal' ? '#00ff88' : '#d8b4fe'};">${r.roomType === 'normal' ? '📝 Examen individual a su propio ritmo (Profesor solo ve resultados en vivo)' : '📽️ Preguntas proyectadas en pantalla principal'}</strong>
             </p>
           </div>
 
@@ -2512,6 +2512,7 @@ window.LobbyView = {
     window.realtimeEngine.joinRoom(pin, nickname, avatar, finalEmail, studentId, room);
     if (room && window.realtimeEngine.currentRoom) {
       if (room.gameMode) window.realtimeEngine.currentRoom.gameMode = room.gameMode;
+      if (room.roomType) window.realtimeEngine.currentRoom.roomType = room.roomType;
       window.realtimeEngine.currentRoom.challenge = room.challenge || window.realtimeEngine.currentRoom.challenge;
       window.realtimeEngine.currentRoom.modeConfig = room.modeConfig || window.realtimeEngine.currentRoom.modeConfig;
       if (room.design) {
@@ -2553,14 +2554,18 @@ window.LobbyView = {
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            // Sincronizar dinámicamente si el anfitrión cambió o configuró el modo de juego
-            if (parsed.gameMode && window.realtimeEngine.currentRoom && parsed.gameMode !== window.realtimeEngine.currentRoom.gameMode) {
-              window.realtimeEngine.currentRoom.gameMode = parsed.gameMode;
+            // Sincronizar dinámicamente si el anfitrión cambió o configuró el modo de juego o tipo de sala
+            if (window.realtimeEngine.currentRoom && (
+              (parsed.gameMode && parsed.gameMode !== window.realtimeEngine.currentRoom.gameMode) ||
+              (parsed.roomType && parsed.roomType !== window.realtimeEngine.currentRoom.roomType)
+            )) {
+              window.realtimeEngine.currentRoom.gameMode = parsed.gameMode || window.realtimeEngine.currentRoom.gameMode;
+              window.realtimeEngine.currentRoom.roomType = parsed.roomType || window.realtimeEngine.currentRoom.roomType;
               window.realtimeEngine.currentRoom.challenge = parsed.challenge;
               window.realtimeEngine.currentRoom.modeConfig = parsed.modeConfig;
               this.render();
             }
-            if (parsed.status === 'question' || parsed.status === 'intro') {
+            if (parsed.status === 'question' || parsed.status === 'intro' || parsed.status === 'self_paced') {
               clearInterval(this.waitingPollInterval);
               window.soundEngine.playFanfare();
               window.appRouter.startLivePlayerGame(parsed);

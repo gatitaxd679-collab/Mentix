@@ -4416,25 +4416,27 @@ body:not(.light-theme) {
   display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.25rem;
   min-height: 410px; padding: 2rem 1.5rem 2.2rem; border-radius: 24px;
   background:
-    linear-gradient(108deg, transparent 22%, rgba(0, 245, 212, 0.14) 30%, transparent 38%),
-    linear-gradient(72deg, transparent 62%, rgba(56, 189, 248, 0.14) 70%, transparent 78%),
-    radial-gradient(ellipse at 50% 62%, rgba(14, 38, 92, 0.58) 0%, rgba(4, 10, 32, 0.85) 100%),
-    url('../assets/mentix_join_bg.jpg') center center / cover no-repeat;
-  border: 1.5px solid rgba(0, 245, 212, 0.5);
-  box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.45);
+    linear-gradient(108deg, transparent 20%, rgba(0, 255, 136, 0.14) 29%, transparent 38%),
+    linear-gradient(72deg, transparent 60%, rgba(255, 230, 0, 0.12) 69%, transparent 78%),
+    radial-gradient(ellipse at 50% 62%, rgba(10, 35, 92, 0.35) 0%, rgba(4, 12, 38, 0.55) 100%),
+    url('../assets/mentix_stage_bg.svg') center center / cover no-repeat;
+  border: 2px solid #00ff88;
+  box-shadow: inset 0 0 55px rgba(0, 255, 136, 0.18), 0 0 32px rgba(0, 255, 136, 0.32), 0 14px 42px rgba(0,0,0,0.55);
 }
-/* Anillo de piso de escenario y círculo central iluminado (como la imagen de referencia) */
+/* Anillo de piso de escenario y círculo central iluminado en azul, amarillo neón y verde neón */
 .host-stage-floor-ring {
   position: absolute; left: 4%; right: 4%; bottom: 6%; height: 68%; border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 50%, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.45) 70%, transparent 100%);
-  border: 2px solid rgba(0, 245, 212, 0.25); pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 255, 136, 0.16) 0%, rgba(14, 165, 233, 0.18) 55%, rgba(6, 20, 56, 0.35) 80%, transparent 100%);
+  border: 2px solid rgba(255, 230, 0, 0.55);
+  box-shadow: 0 0 28px rgba(255, 230, 0, 0.25), inset 0 0 30px rgba(0, 255, 136, 0.15);
+  pointer-events: none; z-index: 0;
 }
 .host-stage-inner-spotlight {
   position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%);
   width: min(440px, 68%); height: 155px; border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 50%, rgba(0, 245, 212, 0.24) 0%, rgba(56, 189, 248, 0.12) 65%, transparent 100%);
-  border: 1.5px solid rgba(0, 245, 212, 0.35);
-  box-shadow: 0 0 40px rgba(0, 245, 212, 0.25); pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 255, 136, 0.28) 0%, rgba(255, 230, 0, 0.14) 52%, transparent 100%);
+  border: 2px solid rgba(0, 255, 136, 0.65);
+  box-shadow: 0 0 42px rgba(0, 255, 136, 0.38), inset 0 0 24px rgba(255, 230, 0, 0.22); pointer-events: none; z-index: 0;
 }
 .host-stage-outer-ring {
   position: relative; z-index: 2; width: 100%;
@@ -4585,4 +4587,29 @@ body:not(.light-theme) {
 .sprite-avatar.anim-breathing {
   transform-origin: 50% 92%;
   animation: sprite-idle-alive 2.8s ease-in-out infinite !important;
+}
+
+/* ===== Fondo personalizado Azul + Amarillo Neón + Verde Neón para Tarjetas y Escenarios ===== */
+.student-feedback-card,
+body.light-theme .student-feedback-card {
+  background: linear-gradient(155deg, rgba(6, 22, 66, 0.84) 0%, rgba(4, 15, 48, 0.90) 100%), url('../assets/mentix_stage_bg.svg') center center / cover no-repeat !important;
+  border: 2.5px solid #00ff88 !important;
+  box-shadow: 0 0 42px rgba(0, 255, 136, 0.38), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+}
+.student-feedback-card.is-correct,
+body.light-theme .student-feedback-card.is-correct {
+  background: linear-gradient(155deg, rgba(6, 22, 66, 0.84) 0%, rgba(4, 15, 48, 0.90) 100%), url('../assets/mentix_stage_bg.svg') center center / cover no-repeat !important;
+  border-color: #00ff88 !important;
+  box-shadow: 0 0 45px rgba(0, 255, 136, 0.52), 0 20px 60px rgba(0, 0, 0, 0.92), inset 0 0 24px rgba(0, 255, 136, 0.14) !important;
+}
+.student-feedback-card.is-wrong,
+body.light-theme .student-feedback-card.is-wrong {
+  background: linear-gradient(155deg, rgba(6, 22, 66, 0.84) 0%, rgba(4, 15, 48, 0.90) 100%), url('../assets/mentix_stage_bg.svg') center center / cover no-repeat !important;
+  border-color: #ffe600 !important;
+  box-shadow: 0 0 45px rgba(255, 230, 0, 0.45), 0 20px 60px rgba(0, 0, 0, 0.92), inset 0 0 24px rgba(255, 230, 0, 0.12) !important;
+}
+.full-stats-card {
+  background: linear-gradient(160deg, rgba(6, 22, 66, 0.85) 0%, rgba(4, 14, 44, 0.92) 100%), url('../assets/mentix_stage_bg.svg') center center / cover no-repeat !important;
+  border: 2px solid #00ff88 !important;
+  box-shadow: 0 0 38px rgba(0, 255, 136, 0.28), 0 18px 45px rgba(0, 0, 0, 0.75) !important;
 }

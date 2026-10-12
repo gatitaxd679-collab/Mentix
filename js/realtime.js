@@ -698,6 +698,7 @@ class RealtimeEngine {
         pin: cleanPin,
         status: roomData.status || 'lobby',
         gameMode: roomData.gameMode || 'clasico',
+        roomType: roomData.roomType || 'presented',
         challenge: roomData.challenge || null,
         modeConfig: roomData.modeConfig || {},
         rosterMode: roomData.rosterMode || 'open',
@@ -712,6 +713,7 @@ class RealtimeEngine {
         pin: cleanPin,
         status: 'lobby',
         gameMode: 'clasico',
+        roomType: 'presented',
         challenge: null,
         modeConfig: {},
         rosterMode: 'open',
@@ -815,6 +817,70 @@ class RealtimeEngine {
     });
   }
 
+  // Simulación de bots avanzando a su propio ritmo en Sala Normal (examen individual)
+  simulateSelfPacedBots(questions = []) {
+    this.clearBotTimeouts();
+    if (!this.isHost || !this.currentRoom || !Array.isArray(questions) || questions.length === 0) return;
+
+    const bots = this.currentRoom.players.filter(p => p.isBot);
+    bots.forEach((bot, botIdx) => {
+      let cumulativeDelay = 1500 + (botIdx * 650);
+      questions.forEach((question, qIdx) => {
+        const stepDelay = 2400 + Math.random() * 3800;
+        cumulativeDelay += stepDelay;
+        const timeout = setTimeout(() => {
+          if (!this.currentRoom || this.currentRoom.status === 'podium') return;
+          const isCorrect = Math.random() < 0.75;
+          let answerIndex;
+          if (question.type === 'poll') {
+            answerIndex = Math.floor(Math.random() * (question.options?.length || 4));
+          } else if (question.type === 'open') {
+            const sampleThoughts = [
+              'Es un concepto clave para la innovación y el trabajo en equipo',
+              'Considero que la práctica constante es lo que marca la diferencia',
+              'Totalmente de acuerdo con el enfoque presentado',
+              'Me parece un gran punto para analizar a fondo'
+            ];
+            answerIndex = sampleThoughts[Math.floor(Math.random() * sampleThoughts.length)];
+          } else if (question.type === 'text') {
+            answerIndex = isCorrect
+              ? (question.correctAnswer || (question.acceptedAnswers && question.acceptedAnswers[0]) || 'Respuesta')
+              : 'Respuesta aproximada';
+          } else if (Array.isArray(question.correctAnswer)) {
+            if (isCorrect) {
+              answerIndex = question.correctAnswer[Math.floor(Math.random() * question.correctAnswer.length)];
+            } else {
+              const wrongOptions = (question.options || []).map((_, i) => i).filter(i => !question.correctAnswer.includes(i));
+              answerIndex = wrongOptions[Math.floor(Math.random() * wrongOptions.length)] ?? 0;
+            }
+          } else {
+            if (isCorrect) {
+              answerIndex = question.correctAnswer;
+            } else {
+              const wrongOptions = (question.options || []).map((_, i) => i).filter(i => i !== question.correctAnswer);
+              answerIndex = wrongOptions[Math.floor(Math.random() * wrongOptions.length)] || 0;
+            }
+          }
+          const timeTaken = Number((stepDelay / 1000).toFixed(1));
+          this.processAnswer(bot.id, answerIndex, timeTaken, question, qIdx);
+          if (qIdx >= questions.length - 1) {
+            bot.completedExam = true;
+          }
+          this.emit('PLAYER_ANSWER', {
+            pin: this.currentRoom.pin,
+            playerId: bot.id,
+            questionIndex: qIdx,
+            answerIndex: answerIndex,
+            timeTaken: timeTaken,
+            completedExam: qIdx >= questions.length - 1,
+            isBot: true
+          });
+        }, cumulativeDelay);
+        this.botIntervals.push(timeout);
+      });
+    });
+  }
+
   // Simulación de respuestas de bots en cada pregunta
   simulateBotAnswers(question) {
     this.clearBotTimeouts();
@@ -884,19 +950,35 @@ class RealtimeEngine {
   }
 
   // Procesar respuesta y calcular puntaje con combos
-  processAnswer(playerId, answerIndex, timeTaken, question) {
+  processAnswer(playerId, answerIndex, timeTaken, question, explicitQIndex = null) {
     const room = this.currentRoom || window.GameView?.room;
-    if (!room) return null;
+    if (!room || !question) return null;
     const player = room.players?.find(p => p.id === playerId);
     if (!player) return null;
 
-    // Evitar doble respuesta
-    if (room.responses && room.responses[playerId] !== undefined) {
-      return null;
+    const qIndex = explicitQIndex !== null && explicitQIndex !== undefined
+      ? explicitQIndex
+      : ((window.GameView && typeof window.GameView.currentQuestionIndex === 'number') ? window.GameView.currentQuestionIndex : (room.currentQuestionIndex || 0));
+
+    const isSelfPacedRoom = room.roomType === 'normal' && playerId !== 'solo_player';
+
+    // Evitar doble respuesta para la misma pregunta
+    if (isSelfPacedRoom) {
+      if (!room.questionResponses) room.questionResponses = {};
+      if (!room.questionResponses[qIndex]) room.questionResponses[qIndex] = {};
+      if (room.questionResponses[qIndex][playerId] !== undefined) {
+        return null;
+      }
+    } else {
+      if (room.responses && room.responses[playerId] !== undefined) {
+        return null;
+      }
     }
 
     let isCorrect = false;
-    if (question.type === 'poll' || question.type === 'open') {
+    if (answerIndex === -1 || answerIndex === null || answerIndex === undefined) {
+      isCorrect = false;
+    } else if (question.type === 'poll' || question.type === 'open') {
       isCorrect = true;
     } else if (question.type === 'text') {
       const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
@@ -941,10 +1023,16 @@ class RealtimeEngine {
     }
 
     player.answersCount = (player.answersCount || 0) + 1;
+    player.currentQuestionIndex = qIndex + 1;
+    const totalQuestions = room.challenge?.questions?.length || 0;
+    if (totalQuestions > 0 && player.answersCount >= totalQuestions) {
+      player.completedExam = true;
+    }
+
     if (!player.answers) player.answers = [];
     player.answers.push({
       questionId: question.id,
-      questionIndex: (window.GameView && typeof window.GameView.currentQuestionIndex === 'number') ? window.GameView.currentQuestionIndex : room.currentQuestionIndex,
+      questionIndex: qIndex,
       answerIndex: answerIndex,
       isCorrect: isCorrect,
       pointsEarned: pointsEarned,
@@ -952,14 +1040,20 @@ class RealtimeEngine {
       comboMultiplier: comboMultiplier
     });
 
-    if (!room.responses) room.responses = {};
-    room.responses[playerId] = {
+    const respRecord = {
       answerIndex,
+      questionIndex: qIndex,
       isCorrect,
       pointsEarned,
       timeTaken,
       comboMultiplier
     };
+
+    if (!room.responses) room.responses = {};
+    room.responses[playerId] = respRecord;
+    if (isSelfPacedRoom) {
+      room.questionResponses[qIndex][playerId] = respRecord;
+    }
 
     if (this.isHost && this.currentRoom) {
       this.syncRoomState();
@@ -967,6 +1061,7 @@ class RealtimeEngine {
 
     return {
       playerId,
+      questionIndex: qIndex,
       isCorrect,
       pointsEarned,
       newScore: player.score,
