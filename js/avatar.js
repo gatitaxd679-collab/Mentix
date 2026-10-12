@@ -568,7 +568,7 @@ window.AvatarEngine = {
       <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
         <svg id="${uniqueId}" class="mentix-avatar-svg sprite-avatar ${emoteClass}" viewBox="0 0 240 260" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));">
           ${behind}
-          <image href="assets/sprites/${animal}.png" x="0" y="0" width="240" height="260" style="${this.themeFilterCss(c.themeColor)}" />
+          <image href="assets/sprites/${animal}.png?v=2" x="0" y="0" width="240" height="260" style="${this.themeFilterCss(c.themeColor)}" />
           ${front}
           <g transform="translate(${tx.toFixed(1)}, ${ty.toFixed(1)}) scale(${hs})">
             ${eyewearSvg}
@@ -584,7 +584,7 @@ window.AvatarEngine = {
     const c = { ...this.defaultConfig, ...(cfg || {}) };
     const animal = c.animal || 'fox';
     if (this.spriteAnimals.includes(animal)) {
-      return `<span style="display:inline-block;width:${size}px;height:${size}px;vertical-align:middle;background:url('assets/sprites/${animal}.png') center / contain no-repeat;${this.themeFilterCss(c.themeColor)}"></span>`;
+      return `<span style="display:inline-block;width:${size}px;height:${size}px;vertical-align:middle;background:url('assets/sprites/${animal}.png?v=2') center / contain no-repeat;${this.themeFilterCss(c.themeColor)}"></span>`;
     }
     const uniqueId = 'head_' + Math.random().toString(36).substr(2, 6);
 
