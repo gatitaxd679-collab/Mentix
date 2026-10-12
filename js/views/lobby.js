@@ -911,7 +911,66 @@ window.LobbyView = {
   renderHostStageHTML(playersList) {
     const AE = window.AvatarEngine;
     const list = Array.isArray(playersList) ? [...playersList] : [];
-    if (list.length === 0) return '';
+    const count = list.length;
+    if (count === 0) return '';
+
+    // Escalado automático progresivo según la cantidad de estudiantes (1 hasta 60+)
+    let avatarSize = 108;
+    let nameFont = '0.8rem';
+    let namePad = '0.18rem 0.72rem';
+    let nameMaxW = '130px';
+    let stageGap = '1.15rem 1.8rem';
+    let pairPad = '0.3rem 0.55rem';
+    let stagePad = '1.75rem 1.25rem';
+
+    if (count <= 2) {
+      avatarSize = 108;
+      nameFont = '0.82rem';
+      namePad = '0.18rem 0.75rem';
+      nameMaxW = '140px';
+      stageGap = '1.25rem 2rem';
+      pairPad = '0.35rem 0.65rem';
+    } else if (count <= 6) {
+      avatarSize = 92;
+      nameFont = '0.76rem';
+      namePad = '0.15rem 0.62rem';
+      nameMaxW = '120px';
+      stageGap = '1rem 1.4rem';
+      pairPad = '0.25rem 0.45rem';
+    } else if (count <= 12) {
+      avatarSize = 76;
+      nameFont = '0.7rem';
+      namePad = '0.12rem 0.52rem';
+      nameMaxW = '104px';
+      stageGap = '0.75rem 1rem';
+      pairPad = '0.2rem 0.35rem';
+    } else if (count <= 24) {
+      // ~20 estudiantes
+      avatarSize = 60;
+      nameFont = '0.64rem';
+      namePad = '0.1rem 0.42rem';
+      nameMaxW = '88px';
+      stageGap = '0.55rem 0.75rem';
+      pairPad = '0.12rem 0.25rem';
+      stagePad = '1.25rem 1rem';
+    } else if (count <= 40) {
+      avatarSize = 48;
+      nameFont = '0.58rem';
+      namePad = '0.08rem 0.34rem';
+      nameMaxW = '74px';
+      stageGap = '0.42rem 0.55rem';
+      pairPad = '0.08rem 0.16rem';
+      stagePad = '1rem 0.85rem';
+    } else {
+      // 41 a 60+ estudiantes
+      avatarSize = count > 55 ? 38 : 42;
+      nameFont = '0.53rem';
+      namePad = '0.06rem 0.28rem';
+      nameMaxW = '64px';
+      stageGap = '0.32rem 0.4rem';
+      pairPad = '0.04rem 0.1rem';
+      stagePad = '0.85rem 0.65rem';
+    }
 
     const renderAvatarMember = (p, side, sizePx, groupIdx) => {
       const animal = (p?.avatarConfig && p.avatarConfig.animal) || (AE && AE.emojiToAnimalMap?.[p?.avatar]) || 'fox';
@@ -929,19 +988,19 @@ window.LobbyView = {
         <div class="host-stage-avatar ${sideClass} ${p.isReady ? 'is-ready' : ''}" style="animation-delay: -${(groupIdx * 0.7 + (side === 'right' ? 0.9 : 0)).toFixed(1)}s;">
           <button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>
           <div class="host-stage-avatar-fig">
-            ${AE ? AE.renderSVG(cfg, { size: sizePx }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
+            ${AE ? AE.renderSVG(cfg, { size: sizePx }) : `<span style="font-size: ${Math.max(1.4, sizePx / 32)}rem;">${p.avatar || '🦊'}</span>`}
           </div>
-          <div class="host-stage-name">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
+          <div class="host-stage-name" style="font-size: ${nameFont}; padding: ${namePad}; max-width: ${nameMaxW}; overflow: hidden; text-overflow: ellipsis;">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
         </div>
       `;
     };
 
     // Si solo hay 1 jugador conectado, queda solo en el centro sin conversar
-    if (list.length === 1) {
+    if (count === 1) {
       return `
-        <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important;">
+        <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important; padding: ${stagePad};">
           <div class="host-stage-center-zone">
-            ${renderAvatarMember(list[0], 'solo', 108, 0)}
+            ${renderAvatarMember(list[0], 'solo', avatarSize, 0)}
           </div>
         </div>
       `;
@@ -949,48 +1008,39 @@ window.LobbyView = {
 
     // Si hay 2 o más jugadores, agrupar de 2 en 2 para que aparezcan juntos conversando (y si sobra 1 impar, queda solo sin hablar)
     const groups = [];
-    for (let i = 0; i < list.length; i += 2) {
-      if (i + 1 < list.length) {
+    for (let i = 0; i < count; i += 2) {
+      if (i + 1 < count) {
         groups.push([list[i], list[i + 1]]);
       } else {
         groups.push([list[i]]);
       }
     }
 
-    const renderGroupUnit = (grp, grpIdx, isCenter = false) => {
-      const sz = isCenter ? 108 : 94;
+    const renderGroupUnit = (grp, grpIdx) => {
       if (grp.length === 1) {
         return `
-          <div class="host-chat-pair is-solo-unit" data-pair-index="${grpIdx}">
+          <div class="host-chat-pair is-solo-unit" data-pair-index="${grpIdx}" style="padding: ${pairPad};">
             <div class="host-chat-pair-avatars">
-              ${renderAvatarMember(grp[0], 'solo', sz, grpIdx)}
+              ${renderAvatarMember(grp[0], 'solo', avatarSize, grpIdx)}
             </div>
           </div>
         `;
       }
       const [pLeft, pRight] = grp;
       return `
-        <div class="host-chat-pair ${isCenter ? 'is-center-pair' : ''}" data-pair-index="${grpIdx}">
+        <div class="host-chat-pair" data-pair-index="${grpIdx}" style="padding: ${pairPad};">
           <div class="host-chat-pair-avatars">
-            ${renderAvatarMember(pLeft, 'left', sz, grpIdx)}
-            ${renderAvatarMember(pRight, 'right', sz, grpIdx)}
+            ${renderAvatarMember(pLeft, 'left', avatarSize, grpIdx)}
+            ${renderAvatarMember(pRight, 'right', avatarSize, grpIdx)}
           </div>
         </div>
       `;
     };
 
-    const centerGroup = groups[0];
-    const outerGroups = groups.slice(1);
-
     return `
-      <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important;">
-        ${outerGroups.length > 0 ? `
-          <div class="host-stage-outer-ring">
-            ${outerGroups.map((grp, idx) => renderGroupUnit(grp, idx + 1, false)).join('')}
-          </div>
-        ` : ''}
-        <div class="host-stage-center-zone">
-          ${renderGroupUnit(centerGroup, 0, true)}
+      <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important; padding: ${stagePad};">
+        <div class="host-stage-outer-ring" style="gap: ${stageGap}; justify-content: center; align-items: center; align-content: center;">
+          ${groups.map((grp, idx) => renderGroupUnit(grp, idx)).join('')}
         </div>
       </div>
     `;
