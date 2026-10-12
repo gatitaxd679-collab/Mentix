@@ -482,22 +482,22 @@ window.AvatarEngine = {
   // headW: semiancho de cabeza, shY: altura de hombros, chinY: borde inferior de la barbilla en cx,
   // sw: semiancho de hombros, armW: semiancho exterior de manga, pitW: semiancho exacto de axila, waistW: semiancho de cadera/cintura, hemY: borde inferior sobre las patas
   spriteMeta: {
-    fox:     { cx: 102.4, hatY: 42, ey: 100.8, es: 2.12, hs: 1.55, headW: 78, shY: 156, chinY: 169, sw: 40.0, armW: 55.5, pitW: 37.5, waistW: 42.5, hemY: 221 },
-    panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, shY: 151, chinY: 160, sw: 43.5, armW: 58.5, pitW: 41.5, waistW: 44.0, hemY: 221 },
-    cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, shY: 152, chinY: 161, sw: 41.0, armW: 57.0, pitW: 38.0, waistW: 42.5, hemY: 220 },
-    dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, shY: 145, chinY: 154, sw: 41.0, armW: 58.5, pitW: 39.5, waistW: 44.5, hemY: 218 },
-    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, shY: 170, chinY: 184, sw: 42.0, armW: 52.0, pitW: 35.5, waistW: 39.5, hemY: 223 },
-    rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, shY: 170, chinY: 176, sw: 34.0, armW: 48.5, pitW: 33.0, waistW: 36.5, hemY: 223 },
-    koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, shY: 152, chinY: 160, sw: 41.0, armW: 56.5, pitW: 38.0, waistW: 42.5, hemY: 219 },
-    owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, shY: 141, chinY: 151, sw: 51.0, armW: 65.5, pitW: 48.0, waistW: 49.0, hemY: 218 },
-    monkey:  { cx: 119.6, hatY: 26, ey: 100.3, es: 2.18, hs: 1.55, headW: 80, shY: 160, chinY: 166, sw: 39.0, armW: 53.5, pitW: 36.5, waistW: 40.0, hemY: 221 },
-    bear:    { cx: 119.9, hatY: 25, ey: 99.5,  es: 2.10, hs: 1.60, headW: 82, shY: 160, chinY: 166, sw: 39.5, armW: 54.0, pitW: 37.0, waistW: 40.5, hemY: 222 },
-    wolf:    { cx: 106.3, hatY: 40, ey: 98.8,  es: 2.05, hs: 1.55, headW: 76, shY: 154, chinY: 165, sw: 38.0, armW: 54.0, pitW: 36.5, waistW: 40.5, hemY: 219 },
-    tiger:   { cx: 109.6, hatY: 21, ey: 93.5,  es: 2.52, hs: 1.60, headW: 83, shY: 150, chinY: 159, sw: 44.5, armW: 59.5, pitW: 41.5, waistW: 44.5, hemY: 220 },
-    penguin: { cx: 119.5, hatY: 18, ey: 97.7,  es: 2.34, hs: 1.60, headW: 86, shY: 148, chinY: 158, sw: 48.5, armW: 66.0, pitW: 48.5, waistW: 51.0, hemY: 225 },
-    unicorn: { cx: 120.0, hatY: 38, ey: 107.7, es: 2.02, hs: 1.50, headW: 77, shY: 164, chinY: 170, sw: 37.5, armW: 51.0, pitW: 35.0, waistW: 38.5, hemY: 221 },
-    dragon:  { cx: 119.9, hatY: 24, ey: 99.5,  es: 2.10, hs: 1.55, headW: 82, shY: 158, chinY: 165, sw: 39.5, armW: 53.5, pitW: 37.0, waistW: 40.5, hemY: 221 },
-    robot:   { cx: 119.5, hatY: 32, ey: 96.8,  es: 2.38, hs: 1.55, headW: 80, shY: 163, chinY: 169, sw: 37.0, armW: 51.5, pitW: 35.0, waistW: 38.0, hemY: 221 }
+    fox:     { cx: 102.4, hatY: 42, ey: 100.8, es: 2.12, hs: 1.55, headW: 78, mouthY: 148, shY: 156, chinY: 169, sw: 40.0, armW: 55.5, pitW: 37.5, waistW: 42.5, hemY: 221 },
+    panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, mouthY: 124, shY: 151, chinY: 160, sw: 43.5, armW: 58.5, pitW: 41.5, waistW: 44.0, hemY: 221 },
+    cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, mouthY: 128, shY: 152, chinY: 161, sw: 41.0, armW: 57.0, pitW: 38.0, waistW: 42.5, hemY: 220 },
+    dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, mouthY: 124, shY: 145, chinY: 154, sw: 41.0, armW: 58.5, pitW: 39.5, waistW: 44.5, hemY: 218 },
+    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, mouthY: 161, shY: 170, chinY: 184, sw: 42.0, armW: 52.0, pitW: 35.5, waistW: 39.5, hemY: 223 },
+    rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, mouthY: 144, shY: 170, chinY: 176, sw: 34.0, armW: 48.5, pitW: 33.0, waistW: 36.5, hemY: 223 },
+    koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, mouthY: 134, shY: 152, chinY: 160, sw: 41.0, armW: 56.5, pitW: 38.0, waistW: 42.5, hemY: 219 },
+    owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, mouthY: 122, shY: 141, chinY: 151, sw: 51.0, armW: 65.5, pitW: 48.0, waistW: 49.0, hemY: 218 },
+    monkey:  { cx: 119.6, hatY: 26, ey: 100.3, es: 2.18, hs: 1.55, headW: 80, mouthY: 133, shY: 160, chinY: 166, sw: 39.0, armW: 53.5, pitW: 36.5, waistW: 40.0, hemY: 221 },
+    bear:    { cx: 119.9, hatY: 25, ey: 99.5,  es: 2.10, hs: 1.60, headW: 82, mouthY: 134, shY: 160, chinY: 166, sw: 39.5, armW: 54.0, pitW: 37.0, waistW: 40.5, hemY: 222 },
+    wolf:    { cx: 106.3, hatY: 40, ey: 98.8,  es: 2.05, hs: 1.55, headW: 76, mouthY: 146, shY: 154, chinY: 165, sw: 38.0, armW: 54.0, pitW: 36.5, waistW: 40.5, hemY: 219 },
+    tiger:   { cx: 109.6, hatY: 21, ey: 93.5,  es: 2.52, hs: 1.60, headW: 83, mouthY: 127, shY: 150, chinY: 159, sw: 44.5, armW: 59.5, pitW: 41.5, waistW: 44.5, hemY: 220 },
+    penguin: { cx: 119.5, hatY: 18, ey: 97.7,  es: 2.34, hs: 1.60, headW: 86, mouthY: 126, shY: 148, chinY: 158, sw: 48.5, armW: 66.0, pitW: 48.5, waistW: 51.0, hemY: 225 },
+    unicorn: { cx: 120.0, hatY: 38, ey: 107.7, es: 2.02, hs: 1.50, headW: 77, mouthY: 140, shY: 164, chinY: 170, sw: 37.5, armW: 51.0, pitW: 35.0, waistW: 38.5, hemY: 221 },
+    dragon:  { cx: 119.9, hatY: 24, ey: 99.5,  es: 2.10, hs: 1.55, headW: 82, mouthY: 134, shY: 158, chinY: 165, sw: 39.5, armW: 53.5, pitW: 37.0, waistW: 40.5, hemY: 221 },
+    robot:   { cx: 119.5, hatY: 32, ey: 96.8,  es: 2.38, hs: 1.55, headW: 80, mouthY: 146, shY: 163, chinY: 169, sw: 37.0, armW: 51.5, pitW: 35.0, waistW: 38.0, hemY: 221 }
   },
 
   // Colores especiales: se aplican como tinte sobre el sprite
@@ -516,7 +516,7 @@ window.AvatarEngine = {
 
   renderSpriteAvatar(c, animal, emote, size, uniqueId) {
     const meta = this.spriteMeta[animal] || this.spriteMeta.fox;
-    const { cx, hatY, ey, es, hs, headW, shY, chinY, sw, armW, pitW, waistW, hemY } = meta;
+    const { cx, hatY, ey, es, hs, headW, mouthY, shY, chinY, sw, armW, pitW, waistW, hemY } = meta;
 
     let emoteClass = 'anim-breathing';
     if (emote === 'wave') emoteClass = 'anim-wave';
@@ -759,6 +759,29 @@ window.AvatarEngine = {
       `;
     }
 
+    // 2.5 ANIMACIÓN DE CONVERSACIÓN ENTRE COMPAÑEROS (boca hablando + bracito saludando/gesticulando hacia el compañero)
+    let talkOverlay = '';
+    if (c.talking) {
+      const my = mouthY || (chinY - 22);
+      const phaseClass = c.talkPhase === 1 ? 'talk-phase-b' : 'talk-phase-a';
+      const aInfo = this.animals[animal] || this.animals.fox;
+      const pawCol = aInfo.primaryColor || '#fb923c';
+      const dir = c.talking === 'left' ? -1 : 1; // 1 = habla hacia la derecha, -1 = habla hacia la izquierda
+      const armBaseX = cx + dir * (sw + 2);
+      const armBaseY = shY + 14;
+      const armTipX = cx + dir * (armW + 18);
+      const armTipY = shY + 6;
+      talkOverlay = `
+        <g class="avatar-talk-mouth ${phaseClass}" style="transform-origin: ${cx}px ${my}px;">
+          <path d="M ${(cx - 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} Q ${cx} ${(my - 0.5).toFixed(1)} ${(cx + 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} C ${(cx + 8.5).toFixed(1)} ${(my + 9.5).toFixed(1)} ${(cx - 8.5).toFixed(1)} ${(my + 9.5).toFixed(1)} ${(cx - 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} Z" fill="#7f1d1d" stroke="#2a1810" stroke-width="2.4" stroke-linejoin="round"/>
+          <ellipse cx="${cx}" cy="${(my + 4.8).toFixed(1)}" rx="4.6" ry="2.6" fill="#fb7185"/>
+        </g>
+        <g class="avatar-talk-arm ${phaseClass}" style="transform-origin: ${armBaseX.toFixed(1)}px ${armBaseY.toFixed(1)}px;">
+          <path d="M ${armBaseX.toFixed(1)} ${(armBaseY - 5).toFixed(1)} Q ${(armBaseX + dir * 14).toFixed(1)} ${(armTipY - 6).toFixed(1)} ${armTipX.toFixed(1)} ${armTipY.toFixed(1)} C ${(armTipX + dir * 7).toFixed(1)} ${(armTipY + 4).toFixed(1)} ${(armTipX + dir * 4).toFixed(1)} ${(armTipY + 14).toFixed(1)} ${(armTipX - dir * 3).toFixed(1)} ${(armTipY + 12).toFixed(1)} Q ${(armBaseX + dir * 10).toFixed(1)} ${(armBaseY + 10).toFixed(1)} ${armBaseX.toFixed(1)} ${(armBaseY + 7).toFixed(1)} Z" fill="${pawCol}" stroke="#2a1810" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+      `;
+    }
+
     // 3. GAFAS (ancladas exactamente al centro y separación de los dos ojos: cx, ey, es)
     const eyewearSvg = this.generateEyewearSVG(c.eyewear, c.eyewearColor);
     const txEye = cx - 60 * es;
@@ -800,6 +823,7 @@ window.AvatarEngine = {
           ${behind}
           <image href="assets/sprites/${animal}.png?v=2" x="0" y="0" width="240" height="260" style="${this.themeFilterCss(c.themeColor)}" />
           ${front}
+          ${talkOverlay}
           ${exprOverlay}
           <g transform="translate(${txEye.toFixed(1)}, ${tyEye.toFixed(1)}) scale(${es.toFixed(2)})">
             ${eyewearSvg}

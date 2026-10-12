@@ -4412,24 +4412,100 @@ body:not(.light-theme) {
 .host-stage-counter { text-align: center; color: #fff; font-size: 1.05rem; margin-bottom: 0.75rem; }
 .host-stage-counter strong { color: #00f5d4; font-size: 1.35rem; }
 .host-stage {
-  display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; justify-content: center; align-items: flex-end;
-  min-height: 360px; padding: 1.75rem 1.25rem; border-radius: 20px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.25rem;
+  min-height: 410px; padding: 2rem 1.5rem 2.2rem; border-radius: 24px;
   background:
-    linear-gradient(105deg, transparent 30%, rgba(0,245,212,0.08) 38%, transparent 46%),
-    linear-gradient(75deg, transparent 55%, rgba(56,189,248,0.08) 62%, transparent 70%),
-    radial-gradient(ellipse at 50% 85%, rgba(6, 22, 58, 0.55) 0%, rgba(3, 9, 28, 0.82) 100%),
+    linear-gradient(108deg, transparent 22%, rgba(0, 245, 212, 0.14) 30%, transparent 38%),
+    linear-gradient(72deg, transparent 62%, rgba(56, 189, 248, 0.14) 70%, transparent 78%),
+    radial-gradient(ellipse at 50% 62%, rgba(14, 38, 92, 0.58) 0%, rgba(4, 10, 32, 0.85) 100%),
     url('../assets/mentix_join_bg.jpg') center center / cover no-repeat;
-  border: 1.5px solid rgba(0, 245, 212, 0.45);
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.45), 0 10px 35px rgba(0,0,0,0.4);
+  border: 1.5px solid rgba(0, 245, 212, 0.5);
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.45);
 }
-.host-stage-avatar { position: relative; display: flex; flex-direction: column; align-items: center; animation: anim-breathing 3s ease-in-out infinite; }
-.host-stage-avatar:nth-child(even) { animation-delay: -1.2s; margin-bottom: 1.2rem; }
+/* Anillo de piso de escenario y círculo central iluminado (como la imagen de referencia) */
+.host-stage-floor-ring {
+  position: absolute; left: 4%; right: 4%; bottom: 6%; height: 68%; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.45) 70%, transparent 100%);
+  border: 2px solid rgba(0, 245, 212, 0.25); pointer-events: none; z-index: 0;
+}
+.host-stage-inner-spotlight {
+  position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%);
+  width: min(440px, 68%); height: 155px; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 245, 212, 0.24) 0%, rgba(56, 189, 248, 0.12) 65%, transparent 100%);
+  border: 1.5px solid rgba(0, 245, 212, 0.35);
+  box-shadow: 0 0 40px rgba(0, 245, 212, 0.25); pointer-events: none; z-index: 0;
+}
+.host-stage-outer-ring {
+  position: relative; z-index: 2; width: 100%;
+  display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; gap: 1.25rem 2rem;
+}
+.host-stage-center-zone {
+  position: relative; z-index: 3; display: flex; justify-content: center; align-items: center; margin-top: 0.25rem;
+}
+/* Parejas de estudiantes conversando frente a frente */
+.host-chat-pair {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  padding: 0.35rem 0.65rem; border-radius: 20px;
+}
+.host-chat-pair.is-center-pair { transform: scale(1.06); }
+.host-chat-pair-avatars {
+  display: flex; align-items: flex-end; justify-content: center; gap: 0.15rem;
+}
+/* Burbuja de diálogo animada entre los dos estudiantes */
+@keyframes chat-bubble-pop {
+  0%, 100% { transform: translateY(0) scale(0.95); opacity: 0.82; }
+  50% { transform: translateY(-5px) scale(1.06); opacity: 1; }
+}
+.host-chat-bubble {
+  margin-bottom: -0.35rem; z-index: 4;
+  padding: 0.2rem 0.65rem; border-radius: 9999px;
+  background: rgba(6, 18, 42, 0.92); border: 1.5px solid #00f5d4;
+  color: #00f5d4; font-weight: 900; font-size: 0.74rem; letter-spacing: 0.2px;
+  box-shadow: 0 4px 14px rgba(0, 245, 212, 0.35);
+  animation: chat-bubble-pop 2.4s ease-in-out infinite;
+}
+.host-chat-bubble::after {
+  content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) rotate(45deg);
+  width: 8px; height: 8px; background: rgba(6, 18, 42, 0.92);
+  border-right: 1.5px solid #00f5d4; border-bottom: 1.5px solid #00f5d4;
+}
+/* Inclinación y balanceo conversacional: el de la izquierda mira/habla al de la derecha y viceversa */
+@keyframes host-converse-left {
+  0%, 100% { transform: translateY(0) rotate(3deg); }
+  50% { transform: translateY(-6px) rotate(6.5deg); }
+}
+@keyframes host-converse-right {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(-6.5deg); }
+}
+.host-stage-avatar { position: relative; display: flex; flex-direction: column; align-items: center; }
+.host-stage-avatar.host-talk-left { animation: host-converse-left 2.2s ease-in-out infinite; margin-right: -4px; }
+.host-stage-avatar.host-talk-right { animation: host-converse-right 2.2s ease-in-out infinite; margin-left: -4px; }
+/* Animación de boca hablando y bracito saludando por turnos */
+@keyframes mouth-talk-cycle {
+  0%, 20%, 55%, 100% { transform: scaleY(0.25); }
+  10%, 35% { transform: scaleY(1.12); }
+  45% { transform: scaleY(0.75); }
+}
+@keyframes arm-talk-gesture {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  15%, 40% { transform: rotate(-16deg); }
+  28% { transform: rotate(10deg); }
+}
+.avatar-talk-mouth, .avatar-talk-arm { transform-box: fill-box; }
+.avatar-talk-mouth.talk-phase-a { animation: mouth-talk-cycle 1.8s ease-in-out infinite; }
+.avatar-talk-mouth.talk-phase-b { animation: mouth-talk-cycle 1.8s ease-in-out infinite -0.9s; }
+.avatar-talk-arm.talk-phase-a { animation: arm-talk-gesture 1.8s ease-in-out infinite; }
+.avatar-talk-arm.talk-phase-b { animation: arm-talk-gesture 1.8s ease-in-out infinite -0.9s; }
 .host-stage-name {
-  margin-top: -0.2rem; padding: 0.15rem 0.7rem; border-radius: 9999px;
-  background: rgba(6, 14, 34, 0.9); border: 1px solid rgba(0,245,212,0.35); color: #fff; font-weight: 800; font-size: 0.8rem; white-space: nowrap;
+  margin-top: -0.25rem; padding: 0.18rem 0.75rem; border-radius: 9999px; z-index: 3;
+  background: rgba(6, 14, 34, 0.94); border: 1.5px solid rgba(0,245,212,0.45); color: #fff; font-weight: 800; font-size: 0.8rem; white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.45);
 }
 .host-stage-avatar.is-ready .host-stage-name { border-color: #10b981; }
-.host-stage-kick { position: absolute; top: 0; right: -6px; z-index: 2; opacity: 0; transition: opacity .2s; }
+.host-stage-avatar.is-companion .host-stage-name { border-color: rgba(255, 209, 102, 0.55); color: #fde047; font-size: 0.74rem; }
+.host-stage-kick { position: absolute; top: 0; right: -6px; z-index: 5; opacity: 0; transition: opacity .2s; }
 .host-stage-avatar:hover .host-stage-kick { opacity: 1; }
 .host-reaction-bar {
   display: flex; gap: 0.7rem; justify-content: center; width: fit-content; margin: 0.9rem auto 0;

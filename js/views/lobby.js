@@ -798,19 +798,9 @@ window.LobbyView = {
             </div>
           ` : `
             <div class="host-stage-counter">
-              <strong>${playersList.filter(p => p.isReady).length}/${playersList.length}</strong> estudiantes listos
+              <strong>${playersList.filter(p => p.isReady).length}/${playersList.length}</strong> estudiantes listos • 💬 Conversando en sala
             </div>
-            <div class="host-stage">
-              ${playersList.map((p, idx) => `
-                <div class="host-stage-avatar ${p.isReady ? 'is-ready' : ''}">
-                  <button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>
-                  <div class="host-stage-avatar-fig">
-                    ${window.AvatarEngine ? window.AvatarEngine.renderSVG({ ...(p.avatarConfig || {}), animal: (p.avatarConfig && p.avatarConfig.animal) || window.AvatarEngine.emojiToAnimalMap[p.avatar] || 'fox', emote: 'idle' }, { size: 96 }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
-                  </div>
-                  <div class="host-stage-name">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
-                </div>
-              `).join('')}
-            </div>
+            ${this.renderHostStageHTML(playersList)}
             <div class="host-reaction-bar">
               ${['❤️', '⭐', '😍', '🤩', '😮', '😊'].map(em => `<span>${em}</span>`).join('')}
             </div>
@@ -841,6 +831,88 @@ window.LobbyView = {
             </div>
           ` : ''}
 
+        </div>
+      </div>
+    `;
+  },
+
+  renderHostStageHTML(playersList) {
+    const AE = window.AvatarEngine;
+    const list = Array.isArray(playersList) ? [...playersList] : [];
+    if (list.length === 0) return '';
+
+    // Si hay un número impar de alumnos (ej. cuando entra el primer estudiante), un compañero animado conversa con él hasta que entre el siguiente
+    if (list.length % 2 === 1) {
+      const lastP = list[list.length - 1];
+      const lastAnimal = (lastP?.avatarConfig && lastP.avatarConfig.animal) || (AE && AE.emojiToAnimalMap?.[lastP?.avatar]) || 'fox';
+      const buddyAnimals = ['lion', 'cat', 'panda', 'dog', 'rabbit', 'koala'];
+      const buddyAnimal = buddyAnimals.find(a => a !== lastAnimal) || 'lion';
+      list.push({
+        id: '__companion__',
+        nickname: 'Compañero',
+        isCompanion: true,
+        isReady: true,
+        avatarConfig: { animal: buddyAnimal, headwear: 'none', eyewear: 'none', outfit: 'none' }
+      });
+    }
+
+    const pairs = [];
+    for (let i = 0; i < list.length; i += 2) {
+      pairs.push([list[i], list[i + 1]]);
+    }
+
+    const renderAvatarMember = (p, side, sizePx, pairIdx) => {
+      const animal = (p?.avatarConfig && p.avatarConfig.animal) || (AE && AE.emojiToAnimalMap?.[p?.avatar]) || 'fox';
+      const talkDir = side === 'left' ? 'right' : 'left';
+      const talkPhase = side === 'left' ? 0 : 1;
+      const cfg = {
+        ...(p?.avatarConfig || {}),
+        animal,
+        emote: 'idle',
+        talking: talkDir,
+        talkPhase
+      };
+      return `
+        <div class="host-stage-avatar host-talk-${side} ${p.isReady ? 'is-ready' : ''} ${p.isCompanion ? 'is-companion' : ''}" style="animation-delay: -${(pairIdx * 0.7 + (side === 'right' ? 0.9 : 0)).toFixed(1)}s;">
+          ${!p.isCompanion ? `<button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>` : ''}
+          <div class="host-stage-avatar-fig">
+            ${AE ? AE.renderSVG(cfg, { size: sizePx }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
+          </div>
+          <div class="host-stage-name">${p.nickname}${p.isReady && !p.isCompanion ? ' 🟢' : ''}</div>
+        </div>
+      `;
+    };
+
+    const chatPhrases = ['¡Hola!', '¡Listos!', '¡Vamos!', '¡Qué genial!', '¡A ganar!', '😄✨'];
+    const renderPairUnit = (pair, pairIdx, isCenter = false) => {
+      const [pLeft, pRight] = pair;
+      const sz = isCenter ? 108 : 94;
+      const phrase = chatPhrases[pairIdx % chatPhrases.length];
+      return `
+        <div class="host-chat-pair ${isCenter ? 'is-center-pair' : ''}" data-pair-index="${pairIdx}">
+          <div class="host-chat-bubble" style="animation-delay: -${(pairIdx * 0.8).toFixed(1)}s;">${phrase}</div>
+          <div class="host-chat-pair-avatars">
+            ${renderAvatarMember(pLeft, 'left', sz, pairIdx)}
+            ${renderAvatarMember(pRight, 'right', sz, pairIdx)}
+          </div>
+        </div>
+      `;
+    };
+
+    const centerPair = pairs[0];
+    const outerPairs = pairs.slice(1);
+
+    return `
+      <div class="host-stage host-stage-arena">
+        <div class="host-stage-floor-ring"></div>
+        <div class="host-stage-inner-spotlight"></div>
+        ${outerPairs.length > 0 ? `
+          <div class="host-stage-outer-ring">
+            ${outerPairs.map((pair, idx) => renderPairUnit(pair, idx + 1, false)).join('')}
+          </div>
+        ` : ''}
+        <div class="host-stage-center-zone">
+          ${renderPairUnit(centerPair, 0, true)}
         </div>
       </div>
     `;
