@@ -5,12 +5,264 @@
 
 window.ProjectsView = {
   currentCategory: 'all',
-  currentTypeFilter: 'all', // 'all' | 'presentation' | 'video'
+  currentTypeFilter: 'all', // 'all' | 'presentation' | 'video' | 'document' | 'url'
   searchQuery: '',
+  viewMode: 'list', // 'list' | 'selector'
+  selectedProjectTypeId: 'presentation',
+
+  projectModes: [
+    {
+      id: 'presentation',
+      name: 'Presentación Interactiva',
+      shortName: 'Presentación Interactiva',
+      badge: '📊 DIAPOSITIVAS',
+      icon: '📊',
+      themeColor: '#7c3aed',
+      accentColor: '#a78bfa',
+      gradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #00f5d4 100%)',
+      actionLabel: '¡Crear Presentación!',
+      description: 'Diapositivas visuales para explicar conceptos en clase con notas del orador, imágenes, bloques de código y videos.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-pres" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#170b30" />
+                <stop offset="55%" stop-color="#4c1d95" />
+                <stop offset="100%" stop-color="#6d28d9" />
+              </linearGradient>
+              <linearGradient id="proj-slide-card" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2e1065" />
+                <stop offset="100%" stop-color="#1e1b4b" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-pres)" />
+            <circle cx="330" cy="45" r="55" fill="rgba(0, 245, 212, 0.1)" />
+            <circle cx="70" cy="195" r="65" fill="rgba(167, 139, 250, 0.12)" />
+            <!-- Diapositiva trasera -->
+            <rect x="92" y="34" width="230" height="140" rx="14" fill="rgba(124, 58, 237, 0.35)" stroke="rgba(196, 181, 253, 0.4)" stroke-width="2" transform="rotate(4 207 104)" />
+            <!-- Pantalla principal de diapositiva -->
+            <rect x="78" y="42" width="244" height="148" rx="14" fill="url(#proj-slide-card)" stroke="#00f5d4" stroke-width="2.5" />
+            <rect x="98" y="60" width="115" height="14" rx="7" fill="#00f5d4" />
+            <rect x="98" y="82" width="82" height="9" rx="4.5" fill="rgba(255,255,255,0.45)" />
+            <!-- Gráfica de barras 3D dentro de la diapositiva -->
+            <rect x="104" y="138" width="24" height="32" rx="5" fill="#f72585" />
+            <rect x="138" y="118" width="24" height="52" rx="5" fill="#ffd166" />
+            <rect x="172" y="98" width="24" height="72" rx="5" fill="#00f5d4" />
+            <!-- Tarjeta visual derecha -->
+            <rect x="218" y="96" width="84" height="74" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(167,139,250,0.5)" stroke-width="1.5" />
+            <circle cx="260" cy="124" r="14" fill="#a78bfa" />
+            <rect x="234" y="147" width="52" height="8" rx="4" fill="rgba(255,255,255,0.6)" />
+          </svg>
+        `;
+      }
+    },
+    {
+      id: 'video',
+      name: 'Video Clase Interactiva',
+      shortName: 'Video Clase',
+      badge: '🎬 VIDEO CLASE',
+      icon: '🎬',
+      themeColor: '#ef4444',
+      accentColor: '#f87171',
+      gradient: 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 55%, #f97316 100%)',
+      actionLabel: '¡Crear Video Clase!',
+      description: 'Integra videos (YouTube, Drive, Vimeo o MP4) con capítulos interactivos, resumen pedagógico y preguntas de debate.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-vid" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#28080c" />
+                <stop offset="55%" stop-color="#991b1b" />
+                <stop offset="100%" stop-color="#dc2626" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-vid)" />
+            <circle cx="320" cy="50" r="60" fill="rgba(251, 146, 60, 0.14)" />
+            <!-- Reproductor de video 3D -->
+            <rect x="75" y="38" width="250" height="154" rx="16" fill="#0f172a" stroke="#f87171" stroke-width="2.5" />
+            <!-- Claqueta superior -->
+            <path d="M75 54 Q75 38 91 38 L309 38 Q325 38 325 54 L325 64 L75 64 Z" fill="#1e293b" />
+            <line x1="105" y1="38" x2="90" y2="64" stroke="#f87171" stroke-width="5" />
+            <line x1="155" y1="38" x2="140" y2="64" stroke="#ffd166" stroke-width="5" />
+            <line x1="205" y1="38" x2="190" y2="64" stroke="#f87171" stroke-width="5" />
+            <line x1="255" y1="38" x2="240" y2="64" stroke="#ffd166" stroke-width="5" />
+            <line x1="305" y1="38" x2="290" y2="64" stroke="#f87171" stroke-width="5" />
+            <!-- Botón Play central brillante -->
+            <circle cx="200" cy="118" r="30" fill="#ef4444" stroke="#ffffff" stroke-width="2.5" />
+            <polygon points="193,103 193,133 217,118" fill="#ffffff" />
+            <!-- Barra de progreso con capítulos -->
+            <rect x="98" y="168" width="204" height="7" rx="3.5" fill="rgba(255,255,255,0.2)" />
+            <rect x="98" y="168" width="118" height="7" rx="3.5" fill="#00f5d4" />
+            <circle cx="145" cy="171.5" r="5" fill="#ffd166" />
+            <circle cx="216" cy="171.5" r="6.5" fill="#ffffff" stroke="#00f5d4" stroke-width="2.5" />
+            <circle cx="265" cy="171.5" r="5" fill="#ffd166" />
+          </svg>
+        `;
+      }
+    },
+    {
+      id: 'document',
+      name: 'Documento de Clase',
+      shortName: 'Documento de Clase',
+      badge: '📄 DOCUMENTO',
+      icon: '📄',
+      themeColor: '#3b82f6',
+      accentColor: '#60a5fa',
+      gradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #00f5d4 100%)',
+      actionLabel: '¡Crear Documento!',
+      description: 'Redacta lecturas estructuradas por secciones, guías pedagógicas de estudio o adjunta documentos PDF completos.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-doc" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#09193a" />
+                <stop offset="55%" stop-color="#1d4ed8" />
+                <stop offset="100%" stop-color="#0284c7" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-doc)" />
+            <circle cx="85" cy="60" r="50" fill="rgba(96, 165, 250, 0.15)" />
+            <!-- Hoja trasera -->
+            <rect x="138" y="26" width="140" height="182" rx="12" fill="rgba(147, 197, 253, 0.25)" transform="rotate(6 208 117)" />
+            <!-- Hoja principal -->
+            <rect x="125" y="28" width="150" height="184" rx="12" fill="#0f172a" stroke="#60a5fa" stroke-width="2.5" />
+            <!-- Encabezado del documento -->
+            <rect x="145" y="48" width="76" height="14" rx="6" fill="#38bdf8" />
+            <rect x="230" y="46" width="26" height="18" rx="5" fill="rgba(239, 68, 68, 0.85)" />
+            <text x="243" y="58" font-family="sans-serif" font-weight="900" font-size="9" fill="#ffffff" text-anchor="middle">PDF</text>
+            <!-- Líneas de lectura -->
+            <rect x="145" y="76" width="110" height="8" rx="4" fill="rgba(255,255,255,0.75)" />
+            <rect x="145" y="92" width="96" height="8" rx="4" fill="rgba(255,255,255,0.5)" />
+            <rect x="145" y="108" width="104" height="8" rx="4" fill="rgba(255,255,255,0.5)" />
+            <!-- Bloque destacado -->
+            <rect x="145" y="128" width="110" height="42" rx="8" fill="rgba(0, 245, 212, 0.14)" stroke="#00f5d4" stroke-width="1.5" />
+            <rect x="155" y="140" width="65" height="7" rx="3.5" fill="#00f5d4" />
+            <rect x="155" y="153" width="85" height="6" rx="3" fill="rgba(255,255,255,0.65)" />
+            <rect x="145" y="182" width="78" height="8" rx="4" fill="rgba(255,255,255,0.45)" />
+          </svg>
+        `;
+      }
+    },
+    {
+      id: 'url',
+      name: 'Recurso por URL / Simulador',
+      shortName: 'Recurso por URL',
+      badge: '🌐 ENLACE / URL',
+      icon: '🌐',
+      themeColor: '#10b981',
+      accentColor: '#34d399',
+      gradient: 'linear-gradient(135deg, #064e3b 0%, #059669 55%, #00f5d4 100%)',
+      actionLabel: '¡Agregar Recurso URL!',
+      description: 'Incrusta simuladores interactivos (PhET, GeoGebra), mapas, tableros colaborativos, páginas de consulta y sitios web.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-url" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#04261f" />
+                <stop offset="55%" stop-color="#047857" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-url)" />
+            <!-- Ventana de navegador web -->
+            <rect x="70" y="34" width="260" height="168" rx="14" fill="#0f172a" stroke="#34d399" stroke-width="2.5" />
+            <rect x="70" y="34" width="260" height="30" rx="14" fill="#1e293b" />
+            <circle cx="88" cy="49" r="4.5" fill="#ef4444" />
+            <circle cx="102" cy="49" r="4.5" fill="#ffd166" />
+            <circle cx="116" cy="49" r="4.5" fill="#10b981" />
+            <!-- Barra de dirección URL -->
+            <rect x="132" y="41" width="178" height="16" rx="8" fill="#0f172a" stroke="rgba(52,211,153,0.45)" stroke-width="1" />
+            <text x="221" y="52.5" font-family="monospace" font-weight="700" font-size="9.5" fill="#00f5d4" text-anchor="middle">https://mentix.edu/lab</text>
+            <!-- Globo interactivo central -->
+            <circle cx="200" cy="132" r="44" fill="rgba(16, 185, 129, 0.16)" stroke="#00f5d4" stroke-width="2.5" />
+            <ellipse cx="200" cy="132" rx="22" ry="44" fill="none" stroke="#34d399" stroke-width="2" />
+            <line x1="156" y1="132" x2="244" y2="132" stroke="#34d399" stroke-width="2" />
+            <line x1="163" y1="112" x2="237" y2="112" stroke="rgba(52,211,153,0.65)" stroke-width="1.5" />
+            <line x1="163" y1="152" x2="237" y2="152" stroke="rgba(52,211,153,0.65)" stroke-width="1.5" />
+          </svg>
+        `;
+      }
+    },
+    {
+      id: 'import_presentation',
+      name: 'Importar Presentación',
+      shortName: 'Importar Presentación',
+      badge: '📥 IMPORTAR PPTX / PDF',
+      icon: '📥',
+      themeColor: '#9333ea',
+      accentColor: '#e879f9',
+      gradient: 'linear-gradient(135deg, #581c87 0%, #9333ea 55%, #f72585 100%)',
+      actionLabel: '¡Subir Presentación!',
+      description: 'Importa archivos PDF, PowerPoint o pega el contenido de tus diapositivas para convertirlas automáticamente en una presentación.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-imppres" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#240a38" />
+                <stop offset="55%" stop-color="#6b21a8" />
+                <stop offset="100%" stop-color="#be185d" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-imppres)" />
+            <rect x="85" y="44" width="230" height="150" rx="16" fill="#0f172a" stroke="#e879f9" stroke-width="2.5" stroke-dasharray="8 5" />
+            <circle cx="200" cy="105" r="34" fill="rgba(232, 121, 249, 0.2)" stroke="#e879f9" stroke-width="2" />
+            <path d="M200 122 L200 88 M186 102 L200 88 L214 102" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="135" y="154" width="130" height="22" rx="11" fill="#9333ea" />
+            <text x="200" y="169" font-family="sans-serif" font-weight="900" font-size="11" fill="#ffffff" text-anchor="middle">PPTX • PDF • TEXTO</text>
+          </svg>
+        `;
+      }
+    },
+    {
+      id: 'import_document',
+      name: 'Importar Documento',
+      shortName: 'Importar Documento',
+      badge: '📑 IMPORTAR PDF / GUÍA',
+      icon: '📑',
+      themeColor: '#0284c7',
+      accentColor: '#38bdf8',
+      gradient: 'linear-gradient(135deg, #0c4a6e 0%, #0284c7 55%, #00f5d4 100%)',
+      actionLabel: '¡Subir Documento!',
+      description: 'Importa un archivo PDF o texto estructurado desde tu dispositivo para crear una guía de lectura interactiva al instante.',
+      renderIllustration() {
+        return `
+          <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="proj-bg-impdoc" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#071f33" />
+                <stop offset="55%" stop-color="#0369a1" />
+                <stop offset="100%" stop-color="#0d9488" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="240" rx="16" fill="url(#proj-bg-impdoc)" />
+            <rect x="85" y="44" width="230" height="150" rx="16" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="8 5" />
+            <circle cx="200" cy="105" r="34" fill="rgba(56, 189, 248, 0.2)" stroke="#00f5d4" stroke-width="2" />
+            <path d="M200 122 L200 88 M186 102 L200 88 L214 102" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="135" y="154" width="130" height="22" rx="11" fill="#0284c7" />
+            <text x="200" y="169" font-family="sans-serif" font-weight="900" font-size="11" fill="#ffffff" text-anchor="middle">PDF • GUÍA • LECTURA</text>
+          </svg>
+        `;
+      }
+    }
+  ],
+
+  getProjectMode(id) {
+    return this.projectModes.find(m => m.id === id) || this.projectModes[0];
+  },
 
   render() {
     const container = document.getElementById('view-projects');
     if (!container) return;
+
+    if (this.viewMode === 'selector') {
+      this.renderProjectSelectorView(container);
+      return;
+    }
 
     const u = window.appState.currentUser;
     // En MENTIX, los proyectos abarcan: Presentaciones, Video Clases, Documentos Didácticos y Enlaces Web/URL
@@ -19,14 +271,12 @@ window.ProjectsView = {
     );
     const categories = window.appState.categories || [];
 
-    // Reconciliar categorías: si un proyecto tiene categoryName pero category no coincide con ningún id,
-    // intentar encontrar la categoría por nombre para corregirlo automáticamente
+    // Reconciliar categorías
     let needsSave = false;
     allProjects.forEach(proj => {
       if (proj.category) {
         const catExists = categories.find(cat => cat.id === proj.category);
         if (!catExists && proj.categoryName) {
-          // Buscar por nombre
           const catByName = categories.find(cat =>
             cat.name.toLowerCase() === (proj.categoryName || '').toLowerCase()
           );
@@ -88,116 +338,15 @@ window.ProjectsView = {
             </p>
           </div>
 
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <button class="btn" style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #fff; font-weight: 800; border: none; box-shadow: 0 0 16px rgba(124,58,237,0.55), 0 4px 12px rgba(0,0,0,0.3); letter-spacing: 0.03em;" onclick="window.ProjectsView.openImportPresentationModal()">
-              <span>📥</span> Importar Presentación
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
+              <span>➕</span> <span>Crear Proyecto</span>
             </button>
-            <button class="btn" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; font-weight: 800; border: none; box-shadow: 0 0 16px rgba(37,99,235,0.55), 0 4px 12px rgba(0,0,0,0.3); letter-spacing: 0.03em;" onclick="window.ProjectsView.openImportDocumentModal()">
-              <span>📄</span> Importar Documento
-            </button>
-            <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 20px rgba(0,245,212,0.35); font-weight: 800;">
-              <span>➕</span> <span>Crear Nuevo Proyecto</span>
-            </button>
-            <button class="btn btn-outline" onclick="window.appRouter.openCategoryModal()">
+            <button class="btn btn-outline" onclick="window.appRouter.openCategoryModal()" style="padding: 0.8rem 1.2rem; font-weight: 800;">
               <span>🏷️</span> Categorías
             </button>
           </div>
         </div>
-
-        <!-- Suite de Creación Rápida de Tipos de Proyecto (Presentaciones, Videos, Documentos y URL) -->
-        <section style="margin-bottom: 2.5rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem;">
-            
-            <!-- Card 1: Presentaciones -->
-            <div 
-              class="glass-panel" 
-              onclick="window.ProjectsView.startNewProject('presentation')"
-              style="padding: 1.5rem; border-radius: 16px; border: 2px solid #7c3aed; background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(0,0,0,0.3)); cursor: pointer; transition: var(--transition-bounce);"
-              onmouseenter="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--neon-cyan)'"
-              onmouseleave="this.style.transform='none'; this.style.borderColor='#7c3aed'"
-            >
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                <span style="font-size: 2.4rem;">📊</span>
-                <span class="badge-tag" style="background: rgba(124, 58, 237, 0.25); color: #c4b5fd; font-weight: 800; font-size: 0.75rem;">DIAPOSITIVAS</span>
-              </div>
-              <h3 style="font-size: 1.2rem; font-weight: 900; margin: 0 0 0.35rem; color: var(--text-primary);">Presentación Interactiva</h3>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 1.1rem; line-height: 1.4;">
-                Diapositivas visuales para explicar conceptos en clase con notas, imágenes y videos.
-              </p>
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.82rem; font-weight: 800; color: #a78bfa;">+ Crear Presentación</span>
-                <span style="font-size: 1rem; color: #a78bfa;">→</span>
-              </div>
-            </div>
-
-            <!-- Card 2: Video Clase -->
-            <div 
-              class="glass-panel" 
-              onclick="window.ProjectsView.startNewProject('video')"
-              style="padding: 1.5rem; border-radius: 16px; border: 2px solid #ef4444; background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(0,0,0,0.3)); cursor: pointer; transition: var(--transition-bounce);"
-              onmouseenter="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--neon-cyan)'"
-              onmouseleave="this.style.transform='none'; this.style.borderColor='#ef4444'"
-            >
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                <span style="font-size: 2.4rem;">🎬</span>
-                <span class="badge-tag" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; font-weight: 800; font-size: 0.75rem;">VIDEO CLASE</span>
-              </div>
-              <h3 style="font-size: 1.2rem; font-weight: 900; margin: 0 0 0.35rem; color: var(--text-primary);">Video Clase</h3>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 1.1rem; line-height: 1.4;">
-                Integra videos (YouTube, Drive, Vimeo, MP4) con capítulos, resumen pedagógico y debate.
-              </p>
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.82rem; font-weight: 800; color: #f87171;">+ Crear Video Clase</span>
-                <span style="font-size: 1rem; color: #f87171;">→</span>
-              </div>
-            </div>
-
-            <!-- Card 3: Documento Didáctico -->
-            <div 
-              class="glass-panel" 
-              onclick="window.ProjectsView.startNewProject('document')"
-              style="padding: 1.5rem; border-radius: 16px; border: 2px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(0,0,0,0.3)); cursor: pointer; transition: var(--transition-bounce);"
-              onmouseenter="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--neon-cyan)'"
-              onmouseleave="this.style.transform='none'; this.style.borderColor='#3b82f6'"
-            >
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                <span style="font-size: 2.4rem;">📄</span>
-                <span class="badge-tag" style="background: rgba(59, 130, 246, 0.25); color: #93c5fd; font-weight: 800; font-size: 0.75rem;">DOCUMENTO</span>
-              </div>
-              <h3 style="font-size: 1.2rem; font-weight: 900; margin: 0 0 0.35rem; color: var(--text-primary);">Documento de Clase</h3>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 1.1rem; line-height: 1.4;">
-                Redacta lecturas estructuradas, guías pedagógicas o adjunta documentos PDF.
-              </p>
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.82rem; font-weight: 800; color: #60a5fa;">+ Crear Documento</span>
-                <span style="font-size: 1rem; color: #60a5fa;">→</span>
-              </div>
-            </div>
-
-            <!-- Card 4: Recurso Web / URL -->
-            <div 
-              class="glass-panel" 
-              onclick="window.ProjectsView.startNewProject('url')"
-              style="padding: 1.5rem; border-radius: 16px; border: 2px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(0,0,0,0.3)); cursor: pointer; transition: var(--transition-bounce);"
-              onmouseenter="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--neon-cyan)'"
-              onmouseleave="this.style.transform='none'; this.style.borderColor='#10b981'"
-            >
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-                <span style="font-size: 2.4rem;">🌐</span>
-                <span class="badge-tag" style="background: rgba(16, 185, 129, 0.25); color: #6ee7b7; font-weight: 800; font-size: 0.75rem;">ENLACE / URL</span>
-              </div>
-              <h3 style="font-size: 1.2rem; font-weight: 900; margin: 0 0 0.35rem; color: var(--text-primary);">Recurso por URL</h3>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 1.1rem; line-height: 1.4;">
-                Incrusta simuladores (PhET, GeoGebra), páginas de consulta, mapas y sitios web.
-              </p>
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.82rem; font-weight: 800; color: #34d399;">+ Agregar URL</span>
-                <span style="font-size: 1rem; color: #34d399;">→</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
 
         <!-- Barra de Estadísticas Resumen -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.25rem;">
@@ -548,17 +697,153 @@ window.ProjectsView = {
   },
 
   openCreateProjectModal() {
-    const modal = document.getElementById('create-project-type-modal');
-    if (modal) modal.classList.add('active');
+    this.viewMode = 'selector';
+    if (!this.selectedProjectTypeId) this.selectedProjectTypeId = 'presentation';
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
   closeCreateProjectModal() {
+    this.viewMode = 'list';
     const modal = document.getElementById('create-project-type-modal');
     if (modal) modal.classList.remove('active');
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+  },
+
+  renderProjectSelectorView(container) {
+    const selectedMode = this.projectModes.find((m) => m.id === this.selectedProjectTypeId) || this.projectModes[0];
+
+    container.innerHTML = `
+      <div class="experience-screen-container animate-fade-in">
+        <!-- Header -->
+        <div class="experience-header">
+          <button class="experience-back-btn" onclick="ProjectsView.closeCreateProjectModal()">
+            ← Volver a Proyectos
+          </button>
+          <div class="experience-title-group">
+            <h1 class="experience-main-title">Seleccionar proyecto</h1>
+            <p class="experience-subtitle">Para tu clase interactiva • Elige qué tipo de proyecto deseas crear</p>
+          </div>
+          <div class="experience-header-spacer"></div>
+        </div>
+
+        <!-- Project Types Grid -->
+        <div class="experience-grid-wrapper">
+          <div class="experience-grid">
+            ${this.projectModes.map((mode) => this.renderProjectModeCard(mode, mode.id === selectedMode.id)).join('')}
+          </div>
+        </div>
+
+        <!-- Bottom Sticky Selected Project Bar -->
+        <div class="experience-action-bar" id="project-selector-action-bar">
+          ${this.renderProjectConfigBar(selectedMode)}
+        </div>
+      </div>
+    `;
+  },
+
+  renderProjectModeCard(mode, isSelected) {
+    return `
+      <div class="experience-card ${isSelected ? 'selected' : ''}" 
+           id="project-mode-card-${mode.id}"
+           style="--exp-accent: ${mode.accent}; --exp-bg: ${mode.bgGradient}; --exp-border: ${mode.borderColor};"
+           onclick="ProjectsView.selectProjectType('${mode.id}')">
+        
+        <!-- Top Badges -->
+        <div class="experience-card-badges">
+          <span class="experience-card-badge" style="background: ${mode.accent};">
+            ${mode.badge}
+          </span>
+          ${mode.timeLabel ? `<span class="experience-card-time">${mode.timeLabel}</span>` : ''}
+        </div>
+
+        <!-- Checkmark for selected -->
+        <div class="experience-selected-check">✓</div>
+
+        <!-- Artwork Illustration -->
+        <div class="experience-illustration-box">
+          ${mode.svg}
+        </div>
+
+        <!-- Card Footer -->
+        <div class="experience-card-footer">
+          <div class="experience-card-title-row">
+            <span class="experience-card-emoji">${mode.icon}</span>
+            <h3 class="experience-card-name">${mode.name}</h3>
+          </div>
+          <p class="experience-card-desc">${mode.tagline}</p>
+          <div style="margin-top: 0.7rem;">
+            <button class="btn btn-sm" 
+                    style="width: 100%; background: ${mode.accent}; color: #fff; border: none; font-weight: 800; border-radius: 10px; padding: 0.5rem 0.75rem; box-shadow: 0 6px 16px rgba(0,0,0,0.25);"
+                    onclick="event.stopPropagation(); ProjectsView.startNewProject('${mode.id}')">
+              ${mode.ctaLabel || '➕ Crear proyecto'}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  renderProjectConfigBar(mode) {
+    if (!mode) return '';
+    return `
+      <div class="experience-config-panel" style="--exp-accent: ${mode.accent};">
+        <div class="experience-selected-summary">
+          <div class="experience-selected-icon" style="background: ${mode.bgGradient}; border-color: ${mode.accent};">
+            ${mode.icon}
+          </div>
+          <div class="experience-selected-text">
+            <div class="experience-selected-name-row">
+              <span class="experience-selected-name">${mode.name}</span>
+              <span class="experience-selected-pill" style="background: ${mode.accent}22; color: ${mode.accent}; border: 1px solid ${mode.accent}55;">
+                ${mode.badge}
+              </span>
+            </div>
+            <p class="experience-selected-desc">${mode.description}</p>
+          </div>
+        </div>
+
+        <div class="experience-config-controls">
+          <button class="btn btn-secondary" onclick="ProjectsView.closeCreateProjectModal()">
+            Cancelar
+          </button>
+          <button class="experience-launch-btn" style="background: linear-gradient(135deg, ${mode.accent}, #4f46e5);" onclick="ProjectsView.confirmSelectedProject()">
+            <span>${mode.ctaLabel || '➕ Crear ' + mode.name}</span>
+            <span class="experience-launch-arrow">➔</span>
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  selectProjectType(modeId) {
+    this.selectedProjectTypeId = modeId;
+    if (window.soundEngine) window.soundEngine.playClick();
+
+    document.querySelectorAll('#projects-content .experience-card').forEach((card) => {
+      card.classList.remove('selected');
+    });
+    const activeCard = document.getElementById(`project-mode-card-${modeId}`);
+    if (activeCard) activeCard.classList.add('selected');
+
+    const selectedMode = this.projectModes.find((m) => m.id === modeId);
+    const actionBar = document.getElementById('project-selector-action-bar');
+    if (actionBar && selectedMode) {
+      actionBar.innerHTML = this.renderProjectConfigBar(selectedMode);
+    }
+  },
+
+  confirmSelectedProject() {
+    this.startNewProject(this.selectedProjectTypeId || 'presentation');
   },
 
   startNewProject(type) {
-    this.closeCreateProjectModal();
+    this.viewMode = 'list';
+    const modal = document.getElementById('create-project-type-modal');
+    if (modal) modal.classList.remove('active');
+
     if (type === 'presentation') {
       window.appRouter.createPresentation();
     } else if (type === 'video') {
@@ -567,12 +852,17 @@ window.ProjectsView = {
       window.appRouter.createDocument();
     } else if (type === 'url') {
       window.appRouter.createUrl();
+    } else if (type === 'import_presentation') {
+      this.openImportPresentationModal();
+    } else if (type === 'import_document') {
+      this.openImportDocumentModal();
     } else {
       window.appRouter.navigate('creator');
     }
   },
 
   openImportPresentationModal() {
+    this.viewMode = 'list';
     window.appRouter.createPresentation();
     setTimeout(() => {
       if (window.PresentationView) {
@@ -582,6 +872,7 @@ window.ProjectsView = {
   },
 
   openImportDocumentModal() {
+    this.viewMode = 'list';
     window.appRouter.createDocument();
     setTimeout(() => {
       if (window.DocumentProjectView) {
