@@ -4480,24 +4480,18 @@ body:not(.light-theme) {
   50% { transform: translateY(-6px) rotate(-6.5deg); }
 }
 .host-stage-avatar { position: relative; display: flex; flex-direction: column; align-items: center; }
+.host-stage-avatar.host-solo-idle { animation: anim-breathing 3s ease-in-out infinite; }
 .host-stage-avatar.host-talk-left { animation: host-converse-left 2.2s ease-in-out infinite; margin-right: -4px; }
 .host-stage-avatar.host-talk-right { animation: host-converse-right 2.2s ease-in-out infinite; margin-left: -4px; }
-/* Animación de boca hablando y bracito saludando por turnos */
+/* Animación de boca hablando por turnos centrada exactamente en la boca */
 @keyframes mouth-talk-cycle {
   0%, 20%, 55%, 100% { transform: scaleY(0.25); }
   10%, 35% { transform: scaleY(1.12); }
   45% { transform: scaleY(0.75); }
 }
-@keyframes arm-talk-gesture {
-  0%, 55%, 100% { transform: rotate(0deg); }
-  15%, 40% { transform: rotate(-16deg); }
-  28% { transform: rotate(10deg); }
-}
-.avatar-talk-mouth, .avatar-talk-arm { transform-box: fill-box; }
+.avatar-talk-mouth { transform-origin: 0px 0px; }
 .avatar-talk-mouth.talk-phase-a { animation: mouth-talk-cycle 1.8s ease-in-out infinite; }
 .avatar-talk-mouth.talk-phase-b { animation: mouth-talk-cycle 1.8s ease-in-out infinite -0.9s; }
-.avatar-talk-arm.talk-phase-a { animation: arm-talk-gesture 1.8s ease-in-out infinite; }
-.avatar-talk-arm.talk-phase-b { animation: arm-talk-gesture 1.8s ease-in-out infinite -0.9s; }
 .host-stage-name {
   margin-top: -0.25rem; padding: 0.18rem 0.75rem; border-radius: 9999px; z-index: 3;
   background: rgba(6, 14, 34, 0.94); border: 1.5px solid rgba(0,245,212,0.45); color: #fff; font-weight: 800; font-size: 0.8rem; white-space: nowrap;

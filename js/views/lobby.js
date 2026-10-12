@@ -798,7 +798,7 @@ window.LobbyView = {
             </div>
           ` : `
             <div class="host-stage-counter">
-              <strong>${playersList.filter(p => p.isReady).length}/${playersList.length}</strong> estudiantes listos • 💬 Conversando en sala
+              <strong>${playersList.filter(p => p.isReady).length}/${playersList.length}</strong> estudiantes listos
             </div>
             ${this.renderHostStageHTML(playersList)}
             <div class="host-reaction-bar">
@@ -841,78 +841,88 @@ window.LobbyView = {
     const list = Array.isArray(playersList) ? [...playersList] : [];
     if (list.length === 0) return '';
 
-    // Si hay un número impar de alumnos (ej. cuando entra el primer estudiante), un compañero animado conversa con él hasta que entre el siguiente
-    if (list.length % 2 === 1) {
-      const lastP = list[list.length - 1];
-      const lastAnimal = (lastP?.avatarConfig && lastP.avatarConfig.animal) || (AE && AE.emojiToAnimalMap?.[lastP?.avatar]) || 'fox';
-      const buddyAnimals = ['lion', 'cat', 'panda', 'dog', 'rabbit', 'koala'];
-      const buddyAnimal = buddyAnimals.find(a => a !== lastAnimal) || 'lion';
-      list.push({
-        id: '__companion__',
-        nickname: 'Compañero',
-        isCompanion: true,
-        isReady: true,
-        avatarConfig: { animal: buddyAnimal, headwear: 'none', eyewear: 'none', outfit: 'none' }
-      });
-    }
-
-    const pairs = [];
-    for (let i = 0; i < list.length; i += 2) {
-      pairs.push([list[i], list[i + 1]]);
-    }
-
-    const renderAvatarMember = (p, side, sizePx, pairIdx) => {
+    const renderAvatarMember = (p, side, sizePx, groupIdx) => {
       const animal = (p?.avatarConfig && p.avatarConfig.animal) || (AE && AE.emojiToAnimalMap?.[p?.avatar]) || 'fox';
-      const talkDir = side === 'left' ? 'right' : 'left';
-      const talkPhase = side === 'left' ? 0 : 1;
+      const isTalking = side === 'left' || side === 'right';
+      const talkPhase = side === 'right' ? 1 : 0;
       const cfg = {
         ...(p?.avatarConfig || {}),
         animal,
         emote: 'idle',
-        talking: talkDir,
+        talking: isTalking,
         talkPhase
       };
+      const sideClass = isTalking ? `host-talk-${side}` : 'host-solo-idle';
       return `
-        <div class="host-stage-avatar host-talk-${side} ${p.isReady ? 'is-ready' : ''} ${p.isCompanion ? 'is-companion' : ''}" style="animation-delay: -${(pairIdx * 0.7 + (side === 'right' ? 0.9 : 0)).toFixed(1)}s;">
-          ${!p.isCompanion ? `<button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>` : ''}
+        <div class="host-stage-avatar ${sideClass} ${p.isReady ? 'is-ready' : ''}" style="animation-delay: -${(groupIdx * 0.7 + (side === 'right' ? 0.9 : 0)).toFixed(1)}s;">
+          <button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>
           <div class="host-stage-avatar-fig">
             ${AE ? AE.renderSVG(cfg, { size: sizePx }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
           </div>
-          <div class="host-stage-name">${p.nickname}${p.isReady && !p.isCompanion ? ' 🟢' : ''}</div>
+          <div class="host-stage-name">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
         </div>
       `;
     };
 
-    const chatPhrases = ['¡Hola!', '¡Listos!', '¡Vamos!', '¡Qué genial!', '¡A ganar!', '😄✨'];
-    const renderPairUnit = (pair, pairIdx, isCenter = false) => {
-      const [pLeft, pRight] = pair;
-      const sz = isCenter ? 108 : 94;
-      const phrase = chatPhrases[pairIdx % chatPhrases.length];
+    // Si solo hay 1 jugador conectado, queda solo en el centro sin conversar
+    if (list.length === 1) {
       return `
-        <div class="host-chat-pair ${isCenter ? 'is-center-pair' : ''}" data-pair-index="${pairIdx}">
-          <div class="host-chat-bubble" style="animation-delay: -${(pairIdx * 0.8).toFixed(1)}s;">${phrase}</div>
+        <div class="host-stage host-stage-arena">
+          <div class="host-stage-floor-ring"></div>
+          <div class="host-stage-inner-spotlight"></div>
+          <div class="host-stage-center-zone">
+            ${renderAvatarMember(list[0], 'solo', 108, 0)}
+          </div>
+        </div>
+      `;
+    }
+
+    // Si hay 2 o más jugadores, agrupar de 2 en 2 para que aparezcan juntos conversando (y si sobra 1 impar, queda solo sin hablar)
+    const groups = [];
+    for (let i = 0; i < list.length; i += 2) {
+      if (i + 1 < list.length) {
+        groups.push([list[i], list[i + 1]]);
+      } else {
+        groups.push([list[i]]);
+      }
+    }
+
+    const renderGroupUnit = (grp, grpIdx, isCenter = false) => {
+      const sz = isCenter ? 108 : 94;
+      if (grp.length === 1) {
+        return `
+          <div class="host-chat-pair is-solo-unit" data-pair-index="${grpIdx}">
+            <div class="host-chat-pair-avatars">
+              ${renderAvatarMember(grp[0], 'solo', sz, grpIdx)}
+            </div>
+          </div>
+        `;
+      }
+      const [pLeft, pRight] = grp;
+      return `
+        <div class="host-chat-pair ${isCenter ? 'is-center-pair' : ''}" data-pair-index="${grpIdx}">
           <div class="host-chat-pair-avatars">
-            ${renderAvatarMember(pLeft, 'left', sz, pairIdx)}
-            ${renderAvatarMember(pRight, 'right', sz, pairIdx)}
+            ${renderAvatarMember(pLeft, 'left', sz, grpIdx)}
+            ${renderAvatarMember(pRight, 'right', sz, grpIdx)}
           </div>
         </div>
       `;
     };
 
-    const centerPair = pairs[0];
-    const outerPairs = pairs.slice(1);
+    const centerGroup = groups[0];
+    const outerGroups = groups.slice(1);
 
     return `
       <div class="host-stage host-stage-arena">
         <div class="host-stage-floor-ring"></div>
         <div class="host-stage-inner-spotlight"></div>
-        ${outerPairs.length > 0 ? `
+        ${outerGroups.length > 0 ? `
           <div class="host-stage-outer-ring">
-            ${outerPairs.map((pair, idx) => renderPairUnit(pair, idx + 1, false)).join('')}
+            ${outerGroups.map((grp, idx) => renderGroupUnit(grp, idx + 1, false)).join('')}
           </div>
         ` : ''}
         <div class="host-stage-center-zone">
-          ${renderPairUnit(centerPair, 0, true)}
+          ${renderGroupUnit(centerGroup, 0, true)}
         </div>
       </div>
     `;

@@ -486,7 +486,7 @@ window.AvatarEngine = {
     panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, mouthY: 124, shY: 151, chinY: 160, sw: 43.5, armW: 58.5, pitW: 41.5, waistW: 44.0, hemY: 221 },
     cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, mouthY: 128, shY: 152, chinY: 161, sw: 41.0, armW: 57.0, pitW: 38.0, waistW: 42.5, hemY: 220 },
     dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, mouthY: 124, shY: 145, chinY: 154, sw: 41.0, armW: 58.5, pitW: 39.5, waistW: 44.5, hemY: 218 },
-    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, mouthY: 161, shY: 170, chinY: 184, sw: 42.0, armW: 52.0, pitW: 35.5, waistW: 39.5, hemY: 223 },
+    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, mouthY: 127, shY: 170, chinY: 184, sw: 42.0, armW: 52.0, pitW: 35.5, waistW: 39.5, hemY: 223 },
     rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, mouthY: 144, shY: 170, chinY: 176, sw: 34.0, armW: 48.5, pitW: 33.0, waistW: 36.5, hemY: 223 },
     koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, mouthY: 134, shY: 152, chinY: 160, sw: 41.0, armW: 56.5, pitW: 38.0, waistW: 42.5, hemY: 219 },
     owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, mouthY: 122, shY: 141, chinY: 151, sw: 51.0, armW: 65.5, pitW: 48.0, waistW: 49.0, hemY: 218 },
@@ -759,25 +759,17 @@ window.AvatarEngine = {
       `;
     }
 
-    // 2.5 ANIMACIÓN DE CONVERSACIÓN ENTRE COMPAÑEROS (boca hablando + bracito saludando/gesticulando hacia el compañero)
+    // 2.5 ANIMACIÓN DE CONVERSACIÓN ENTRE COMPAÑEROS (boca hablando en su posición exacta cuando hay pareja)
     let talkOverlay = '';
     if (c.talking) {
       const my = mouthY || (chinY - 22);
       const phaseClass = c.talkPhase === 1 ? 'talk-phase-b' : 'talk-phase-a';
-      const aInfo = this.animals[animal] || this.animals.fox;
-      const pawCol = aInfo.primaryColor || '#fb923c';
-      const dir = c.talking === 'left' ? -1 : 1; // 1 = habla hacia la derecha, -1 = habla hacia la izquierda
-      const armBaseX = cx + dir * (sw + 2);
-      const armBaseY = shY + 14;
-      const armTipX = cx + dir * (armW + 18);
-      const armTipY = shY + 6;
       talkOverlay = `
-        <g class="avatar-talk-mouth ${phaseClass}" style="transform-origin: ${cx}px ${my}px;">
-          <path d="M ${(cx - 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} Q ${cx} ${(my - 0.5).toFixed(1)} ${(cx + 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} C ${(cx + 8.5).toFixed(1)} ${(my + 9.5).toFixed(1)} ${(cx - 8.5).toFixed(1)} ${(my + 9.5).toFixed(1)} ${(cx - 7.5).toFixed(1)} ${(my - 1.5).toFixed(1)} Z" fill="#7f1d1d" stroke="#2a1810" stroke-width="2.4" stroke-linejoin="round"/>
-          <ellipse cx="${cx}" cy="${(my + 4.8).toFixed(1)}" rx="4.6" ry="2.6" fill="#fb7185"/>
-        </g>
-        <g class="avatar-talk-arm ${phaseClass}" style="transform-origin: ${armBaseX.toFixed(1)}px ${armBaseY.toFixed(1)}px;">
-          <path d="M ${armBaseX.toFixed(1)} ${(armBaseY - 5).toFixed(1)} Q ${(armBaseX + dir * 14).toFixed(1)} ${(armTipY - 6).toFixed(1)} ${armTipX.toFixed(1)} ${armTipY.toFixed(1)} C ${(armTipX + dir * 7).toFixed(1)} ${(armTipY + 4).toFixed(1)} ${(armTipX + dir * 4).toFixed(1)} ${(armTipY + 14).toFixed(1)} ${(armTipX - dir * 3).toFixed(1)} ${(armTipY + 12).toFixed(1)} Q ${(armBaseX + dir * 10).toFixed(1)} ${(armBaseY + 10).toFixed(1)} ${armBaseX.toFixed(1)} ${(armBaseY + 7).toFixed(1)} Z" fill="${pawCol}" stroke="#2a1810" stroke-width="3" stroke-linejoin="round"/>
+        <g transform="translate(${cx.toFixed(1)}, ${my.toFixed(1)})">
+          <g class="avatar-talk-mouth ${phaseClass}">
+            <path d="M -7 -1.5 Q 0 -0.5 7 -1.5 C 8 8.5 -8 8.5 -7 -1.5 Z" fill="#7f1d1d" stroke="#2a1810" stroke-width="2.3" stroke-linejoin="round"/>
+            <ellipse cx="0" cy="4.2" rx="4.2" ry="2.3" fill="#fb7185"/>
+          </g>
         </g>
       `;
     }
