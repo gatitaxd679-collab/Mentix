@@ -805,7 +805,7 @@ window.LobbyView = {
                 <div class="host-stage-avatar ${p.isReady ? 'is-ready' : ''}">
                   <button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>
                   <div class="host-stage-avatar-fig">
-                    ${p.avatarConfig && window.AvatarEngine ? window.AvatarEngine.renderSVG({ ...p.avatarConfig, emote: 'idle' }, { size: 92 }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
+                    ${window.AvatarEngine ? window.AvatarEngine.renderSVG({ ...(p.avatarConfig || {}), animal: (p.avatarConfig && p.avatarConfig.animal) || window.AvatarEngine.emojiToAnimalMap[p.avatar] || 'fox', emote: 'idle' }, { size: 96 }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
                   </div>
                   <div class="host-stage-name">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
                 </div>
@@ -1063,8 +1063,8 @@ window.LobbyView = {
                       type="button" 
                       onclick="window.LobbyView.selectAvatar('${av}', this)"
                       class="avatar-pick-btn ${av === randomAvatar ? 'selected' : ''}"
-                      style="width: 48px; height: 48px; font-size: 1.6rem; border-radius: 12px; border: 2.5px solid ${av === randomAvatar ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: rgba(0,0,0,0.3); cursor: pointer; transition: var(--transition-bounce);"
-                    >${av}</button>
+                      style="width: 52px; height: 52px; font-size: 1.6rem; border-radius: 12px; border: 2.5px solid ${av === randomAvatar ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: rgba(0,0,0,0.35); cursor: pointer; transition: var(--transition-bounce); display: inline-flex; align-items: center; justify-content: center;"
+                    >${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon({ avatar: av }, 38) : av}</button>
                   `).join('')}
                 </div>
                 <input type="hidden" id="join-avatar-input" value="${randomAvatar}" />
@@ -1330,7 +1330,7 @@ window.LobbyView = {
     if (grid) {
       grid.innerHTML = cat.items.map(it => `
         <button class="student-item-btn ${av[cat.prop] === it.id ? 'active' : ''}" title="${it.label}" onclick="window.LobbyView.applyQuickItem('${cat.prop}', '${it.id}')">
-          ${it.animal ? window.AvatarEngine.renderIconSVG({ ...av, animal: it.id }, 40) : `<span>${it.icon}</span>`}
+          ${it.animal ? window.AvatarEngine.renderIconSVG({ ...av, animal: it.id }, 52) : `<span>${it.icon}</span>`}
         </button>
       `).join('');
     }
@@ -1442,11 +1442,11 @@ window.LobbyView = {
 
           <div class="student-avatar-zone">
             <div id="waiting-my-badge-container" style="margin-bottom: 0.5rem;">
-              ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(p, { size: 34 }) : ''}
+              ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(p, { size: 38 }) : ''}
             </div>
             <div id="waiting-avatar-viewport-container" class="avatar-stage-viewport student-pedestal-stage">
               <div id="waiting-avatar-viewport">
-                ${window.AvatarEngine ? window.AvatarEngine.renderSVG(avatarConfig, { size: 250 }) : `<span style="font-size: 4rem;">${p?.avatar || '🦊'}</span>`}
+                ${window.AvatarEngine ? window.AvatarEngine.renderSVG(avatarConfig, { size: 295 }) : `<span style="font-size: 4rem;">${p?.avatar || '🦊'}</span>`}
               </div>
             </div>
             <div class="student-xp">
@@ -1621,7 +1621,7 @@ window.LobbyView = {
 
     const badgeContainer = document.getElementById('waiting-my-badge-container');
     if (badgeContainer && window.AvatarEngine) {
-      badgeContainer.innerHTML = window.AvatarEngine.renderBadgeHTML(p, { size: 34 });
+      badgeContainer.innerHTML = window.AvatarEngine.renderBadgeHTML(p, { size: 38 });
     }
 
     const titleEl = document.getElementById('waiting-my-title');
@@ -1636,11 +1636,9 @@ window.LobbyView = {
     if (xpBar) xpBar.style.width = `${Math.min(100, p.xp % 100)}%`;
 
     if (viewPort && window.AvatarEngine) {
-      viewPort.innerHTML = window.AvatarEngine.renderSVG(av, { size: 230 });
+      viewPort.innerHTML = window.AvatarEngine.renderSVG(av, { size: 295 });
       const containerEl = document.getElementById('waiting-avatar-viewport-container');
       if (containerEl) {
-        const bgObj = window.AvatarEngine.stageBackgrounds?.[av.stageBg || 'matrix_neon'];
-        if (bgObj) containerEl.style.background = bgObj.css;
         window.AvatarEngine.attachInteractive3D(containerEl, av);
       }
     }

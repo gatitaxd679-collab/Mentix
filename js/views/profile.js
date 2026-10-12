@@ -37,7 +37,7 @@ window.ProfileView = {
           <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;">
             <div style="display: flex; align-items: center; gap: 1.25rem;">
               <div style="width: 84px; height: 84px; border-radius: 50%; background: #131b2e; border: 3px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: 0 0 25px rgba(0,245,212,0.3);">
-                ${u.avatar}
+                ${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(u, 64) : u.avatar}
               </div>
               <div>
                 <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
