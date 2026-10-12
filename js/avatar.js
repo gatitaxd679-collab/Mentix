@@ -477,24 +477,27 @@ window.AvatarEngine = {
   // =========================================================================
   spriteAnimals: ['fox', 'panda', 'cat', 'dog', 'lion', 'rabbit', 'koala', 'owl', 'monkey', 'bear', 'wolf', 'tiger', 'penguin', 'unicorn', 'dragon', 'robot'],
 
-  // Posición de la cabeza en cada sprite (lienzo 240x260): cx = centro, ey = altura de ojos, hs = escala de cabeza
+  // Coordenadas exactas medidas por píxel para cada uno de los 16 sprites (en viewBox 240x260):
+  // cx: centro horizontal, hatY: tope de la cabeza (para sombreros/coronas), ey: altura exacta de los ojos,
+  // es: escala exacta de distancia entre ojos (para gafas), hs: escala de sombreros,
+  // headW: semiancho de la cabeza (para auriculares/cinta ninja), neckY: línea del cuello, bw: semiancho del torso, bh: alto del torso
   spriteMeta: {
-    fox:     { cx: 102, ey: 98,  hs: 1.75 },
-    panda:   { cx: 120, ey: 88,  hs: 1.7 },
-    cat:     { cx: 99,  ey: 95,  hs: 1.55 },
-    dog:     { cx: 120, ey: 83,  hs: 1.45 },
-    lion:    { cx: 120, ey: 105, hs: 1.35 },
-    rabbit:  { cx: 119, ey: 118, hs: 1.35 },
-    koala:   { cx: 120, ey: 96,  hs: 1.45 },
-    owl:     { cx: 120, ey: 82,  hs: 1.65 },
-    monkey:  { cx: 119, ey: 103, hs: 1.45 },
-    bear:    { cx: 120, ey: 98,  hs: 1.65 },
-    wolf:    { cx: 106, ey: 100, hs: 1.7 },
-    tiger:   { cx: 109, ey: 89,  hs: 1.7 },
-    penguin: { cx: 120, ey: 90,  hs: 1.65 },
-    unicorn: { cx: 120, ey: 106, hs: 1.55 },
-    dragon:  { cx: 120, ey: 98,  hs: 1.65 },
-    robot:   { cx: 120, ey: 96,  hs: 1.55 }
+    fox:     { cx: 102.4, hatY: 42, ey: 100.8, es: 2.12, hs: 1.55, headW: 78, neckY: 169, bw: 41.5, bh: 54 },
+    panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, neckY: 170, bw: 43.5, bh: 54 },
+    cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, neckY: 161, bw: 42.0, bh: 58 },
+    dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, neckY: 153, bw: 44.0, bh: 64 },
+    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, neckY: 172, bw: 37.5, bh: 50 },
+    rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, neckY: 176, bw: 36.0, bh: 48 },
+    koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, neckY: 161, bw: 42.0, bh: 58 },
+    owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, neckY: 158, bw: 52.0, bh: 58 },
+    monkey:  { cx: 119.6, hatY: 26, ey: 100.3, es: 2.18, hs: 1.55, headW: 80, neckY: 166, bw: 39.5, bh: 54 },
+    bear:    { cx: 119.9, hatY: 25, ey: 99.5,  es: 2.10, hs: 1.60, headW: 82, neckY: 166, bw: 40.0, bh: 55 },
+    wolf:    { cx: 106.3, hatY: 40, ey: 98.8,  es: 2.05, hs: 1.55, headW: 76, neckY: 165, bw: 40.0, bh: 56 },
+    tiger:   { cx: 109.6, hatY: 21, ey: 93.5,  es: 2.52, hs: 1.60, headW: 83, neckY: 159, bw: 44.5, bh: 60 },
+    penguin: { cx: 119.5, hatY: 18, ey: 97.7,  es: 2.34, hs: 1.60, headW: 86, neckY: 158, bw: 49.5, bh: 60 },
+    unicorn: { cx: 120.0, hatY: 38, ey: 107.7, es: 2.02, hs: 1.50, headW: 77, neckY: 170, bw: 38.0, bh: 52 },
+    dragon:  { cx: 119.9, hatY: 24, ey: 99.5,  es: 2.10, hs: 1.55, headW: 82, neckY: 166, bw: 40.0, bh: 55 },
+    robot:   { cx: 119.5, hatY: 32, ey: 96.8,  es: 2.38, hs: 1.55, headW: 80, neckY: 169, bw: 38.5, bh: 53 }
   },
 
   // Colores especiales: se aplican como tinte sobre el sprite
@@ -512,10 +515,8 @@ window.AvatarEngine = {
   },
 
   renderSpriteAvatar(c, animal, emote, size, uniqueId) {
-    const meta = this.spriteMeta[animal] || { cx: 120, ey: 98, hs: 1.6 };
-    const { cx, ey, hs } = meta;
-    const k = hs / 1.7;
-    const neckY = ey + 38 * hs;
+    const meta = this.spriteMeta[animal] || this.spriteMeta.fox;
+    const { cx, hatY, ey, es, hs, headW, neckY, bw, bh } = meta;
 
     let emoteClass = 'anim-breathing';
     if (emote === 'wave') emoteClass = 'anim-wave';
@@ -526,43 +527,114 @@ window.AvatarEngine = {
     else if (emote === 'focus') emoteClass = 'anim-focus';
     else if (emote === 'clap') emoteClass = 'anim-clap';
 
+    // 1. PRENDAS DE ROPA ADAPTADAS AL CUELLO Y TORSO EXACTO DE CADA ANIMAL
     const col = c.outfitColor || '#7928ca';
     let behind = '';
     let front = '';
     switch (c.outfit) {
       case 'cape':
-        behind = `<path d="M${cx - 38 * k} ${neckY} L${cx + 38 * k} ${neckY} L${cx + 62 * k} ${neckY + 82 * k} L${cx - 62 * k} ${neckY + 82 * k} Z" fill="${col}" stroke="#3b1d0e" stroke-width="2.5" stroke-linejoin="round"/>`;
-        front = `<circle cx="${cx}" cy="${neckY + 6}" r="${5 * k}" fill="#ffd166" stroke="#3b1d0e" stroke-width="1.8"/>`;
+        behind = `<path d="M${(cx - bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 1.55).toFixed(1)} ${neckY + bh + 16} Q${cx} ${neckY + bh + 26} ${(cx - bw * 1.55).toFixed(1)} ${neckY + bh + 16} Z" fill="${col}" stroke="#3b1d0e" stroke-width="3" stroke-linejoin="round"/>`;
+        front = `<path d="M${(cx - bw * 0.72).toFixed(1)} ${neckY - 1} Q${cx} ${neckY + 9} ${(cx + bw * 0.72).toFixed(1)} ${neckY - 1}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round"/>
+                 <circle cx="${cx}" cy="${neckY + 4}" r="6" fill="#ffd166" stroke="#3b1d0e" stroke-width="2"/>`;
         break;
-      case 'hoodie':
-        front = `<rect x="${cx - 34 * k}" y="${neckY + 4}" width="${68 * k}" height="${56 * k}" rx="${16 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.5" opacity="0.94"/>
-                 <rect x="${cx - 20 * k}" y="${neckY + 34 * k}" width="${40 * k}" height="${18 * k}" rx="${6 * k}" fill="rgba(0,0,0,0.2)"/>
-                 <line x1="${cx - 7 * k}" y1="${neckY + 8}" x2="${cx - 7 * k}" y2="${neckY + 28 * k}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
-                 <line x1="${cx + 7 * k}" y1="${neckY + 8}" x2="${cx + 7 * k}" y2="${neckY + 28 * k}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`;
+      case 'hoodie': {
+        const sw = bw * 0.84;    // hombros
+        const armW = bw * 1.30;  // mangas sobre los bracitos
+        const hw = bw * 0.96;    // cintura del torso
+        const botY = neckY + bh;
+        front = `
+          <!-- Chaqueta Hoodie contorneada al cuerpo y brazos del animal -->
+          <path d="M${(cx - sw).toFixed(1)} ${neckY - 1}
+                   Q${(cx - armW).toFixed(1)} ${neckY + 8} ${(cx - armW).toFixed(1)} ${neckY + bh * 0.58}
+                   Q${(cx - armW + 6).toFixed(1)} ${neckY + bh * 0.66} ${(cx - hw).toFixed(1)} ${neckY + bh * 0.56}
+                   L${(cx - hw).toFixed(1)} ${botY - 6}
+                   Q${cx} ${botY + 5} ${(cx + hw).toFixed(1)} ${botY - 6}
+                   L${(cx + hw).toFixed(1)} ${neckY + bh * 0.56}
+                   Q${(cx + armW - 6).toFixed(1)} ${neckY + bh * 0.66} ${(cx + armW).toFixed(1)} ${neckY + bh * 0.58}
+                   Q${(cx + armW).toFixed(1)} ${neckY + 8} ${(cx + sw).toFixed(1)} ${neckY - 1}
+                   Q${cx} ${neckY + 8} ${(cx - sw).toFixed(1)} ${neckY - 1} Z"
+                fill="${col}" stroke="#3b1d0e" stroke-width="2.8" stroke-linejoin="round"/>
+          <!-- Bolsillo canguro frontal -->
+          <path d="M${(cx - bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.62).toFixed(1)} ${botY - 7} Q${cx} ${botY - 2} ${(cx - bw * 0.62).toFixed(1)} ${botY - 7} Z" fill="rgba(0,0,0,0.22)" stroke="#3b1d0e" stroke-width="1.8" stroke-linejoin="round"/>
+          <!-- Cordones blancos del hoodie -->
+          <line x1="${(cx - 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx - 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="${(cx + 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx + 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+        `;
         break;
-      case 'bowtie':
-        front = `<polygon points="${cx - 2},${neckY + 4} ${cx - 20 * k},${neckY - 6 * k} ${cx - 20 * k},${neckY + 14 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.8"/>
-                 <polygon points="${cx + 2},${neckY + 4} ${cx + 20 * k},${neckY - 6 * k} ${cx + 20 * k},${neckY + 14 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.8"/>
-                 <circle cx="${cx}" cy="${neckY + 4}" r="${5 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.5"/>`;
+      }
+      case 'bowtie': {
+        const bwScale = bw / 40;
+        front = `<polygon points="${cx - 2},${neckY + 3} ${(cx - 22 * bwScale).toFixed(1)},${neckY - 8 * bwScale} ${(cx - 22 * bwScale).toFixed(1)},${neckY + 14 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2" stroke-linejoin="round"/>
+                 <polygon points="${cx + 2},${neckY + 3} ${(cx + 22 * bwScale).toFixed(1)},${neckY - 8 * bwScale} ${(cx + 22 * bwScale).toFixed(1)},${neckY + 14 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2" stroke-linejoin="round"/>
+                 <circle cx="${cx}" cy="${neckY + 3}" r="${5.5 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2"/>`;
         break;
-      case 'scarf':
-        front = `<rect x="${cx - 34 * k}" y="${neckY - 6 * k}" width="${68 * k}" height="${15 * k}" rx="${7 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>
-                 <rect x="${cx + 12 * k}" y="${neckY + 4 * k}" width="${14 * k}" height="${30 * k}" rx="${5 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2"/>`;
+      }
+      case 'scarf': {
+        const sw = bw * 0.92;
+        front = `<rect x="${(cx - sw).toFixed(1)}" y="${neckY - 7}" width="${(sw * 2).toFixed(1)}" height="16" rx="8" fill="${col}" stroke="#3b1d0e" stroke-width="2.6"/>
+                 <rect x="${(cx + sw * 0.25).toFixed(1)}" y="${neckY + 3}" width="16" height="${Math.min(34, bh * 0.62).toFixed(1)}" rx="6" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>`;
         break;
-      case 'medal':
-        front = `<polygon points="${cx - 12 * k},${neckY - 2} ${cx},${neckY + 26 * k} ${cx - 22 * k},${neckY + 2}" fill="#3b82f6"/>
-                 <polygon points="${cx + 12 * k},${neckY - 2} ${cx},${neckY + 26 * k} ${cx + 22 * k},${neckY + 2}" fill="#ef4444"/>
-                 <circle cx="${cx}" cy="${neckY + 34 * k}" r="${11 * k}" fill="#ffd166" stroke="#3b1d0e" stroke-width="2"/>
-                 <circle cx="${cx}" cy="${neckY + 34 * k}" r="${7 * k}" fill="#f59e0b"/>`;
+      }
+      case 'medal': {
+        const my = neckY + bh * 0.52;
+        front = `<polygon points="${(cx - bw * 0.42).toFixed(1)},${neckY - 1} ${cx},${my - 4} ${(cx - bw * 0.18).toFixed(1)},${neckY + 2}" fill="#3b82f6" stroke="#3b1d0e" stroke-width="1.4"/>
+                 <polygon points="${(cx + bw * 0.42).toFixed(1)},${neckY - 1} ${cx},${my - 4} ${(cx + bw * 0.18).toFixed(1)},${neckY + 2}" fill="#ef4444" stroke="#3b1d0e" stroke-width="1.4"/>
+                 <circle cx="${cx}" cy="${my + 3}" r="12" fill="#ffd166" stroke="#3b1d0e" stroke-width="2.2"/>
+                 <circle cx="${cx}" cy="${my + 3}" r="7.5" fill="#f59e0b"/>`;
         break;
+      }
       default:
         break;
     }
 
-    const headwearSvg = this.generateHeadwearSVG(c.headwear, c.headwearColor);
+    // 2. EXPRESIONES FACIALES EXTRA SOBRE LOS OJOS (si se eligen en Avatar Studio)
+    let exprOverlay = '';
+    const halfEyeSpan = 16 * es;
+    if (c.expression === 'star_eyes') {
+      const star = (sx, sy) => `<polygon transform="translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${(es * 0.72).toFixed(2)})" points="0,-10 3,-3 10,-2 5,3 6,10 0,6 -6,10 -5,3 -10,-2 -3,-3" fill="#ffd166" stroke="#3b1d0e" stroke-width="1.6"/>`;
+      exprOverlay = star(cx - halfEyeSpan, ey) + star(cx + halfEyeSpan, ey);
+    } else if (c.expression === 'cool' || c.expression === 'focused') {
+      exprOverlay = `
+        <line x1="${(cx - halfEyeSpan - 10).toFixed(1)}" y1="${(ey - 16).toFixed(1)}" x2="${(cx - halfEyeSpan + 10).toFixed(1)}" y2="${(ey - 11).toFixed(1)}" stroke="#3b1d0e" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="${(cx + halfEyeSpan + 10).toFixed(1)}" y1="${(ey - 16).toFixed(1)}" x2="${(cx + halfEyeSpan - 10).toFixed(1)}" y2="${(ey - 11).toFixed(1)}" stroke="#3b1d0e" stroke-width="4.5" stroke-linecap="round"/>
+      `;
+    }
+
+    // 3. GAFAS (ancladas exactamente al centro y separación de los dos ojos: cx, ey, es)
     const eyewearSvg = this.generateEyewearSVG(c.eyewear, c.eyewearColor);
-    const tx = cx - 60 * hs;
-    const ty = ey - 62 * hs;
+    const txEye = cx - 60 * es;
+    const tyEye = ey - 64 * es;
+
+    // 4. SOMBREROS, CORONAS, CINTA NINJA Y AURICULARES (anclados al tope real de cada cabeza: cx, hatY, headW)
+    const hCol = c.headwearColor || '#00f5d4';
+    let headwearGroup = '';
+    if (c.headwear === 'headphones') {
+      const archTop = Math.max(-14, hatY - 34);
+      const earY = ey - 6;
+      headwearGroup = `
+        <path d="M${(cx - headW + 4).toFixed(1)} ${earY} C${(cx - headW - 6).toFixed(1)} ${archTop} ${(cx + headW + 6).toFixed(1)} ${archTop} ${(cx + headW - 4).toFixed(1)} ${earY}" stroke="${hCol}" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <rect x="${(cx - headW - 10).toFixed(1)}" y="${earY - 18}" width="18" height="36" rx="9" fill="#111827" stroke="${hCol}" stroke-width="3"/>
+        <rect x="${(cx + headW - 8).toFixed(1)}" y="${earY - 18}" width="18" height="36" rx="9" fill="#111827" stroke="${hCol}" stroke-width="3"/>
+        <circle cx="${(cx - headW - 1).toFixed(1)}" cy="${earY}" r="4.5" fill="${hCol}"/>
+        <circle cx="${(cx + headW + 1).toFixed(1)}" cy="${earY}" r="4.5" fill="${hCol}"/>
+      `;
+    } else if (c.headwear === 'ninja_band') {
+      const bandY = ey - 28;
+      const bwHead = headW * 0.88;
+      headwearGroup = `
+        <rect x="${(cx - bwHead).toFixed(1)}" y="${bandY - 8}" width="${(bwHead * 2).toFixed(1)}" height="16" rx="6" fill="${hCol}" stroke="#3b1d0e" stroke-width="2.8"/>
+        <rect x="${(cx - 22).toFixed(1)}" y="${bandY - 6}" width="44" height="12" rx="3" fill="#cbd5e1" stroke="#3b1d0e" stroke-width="2"/>
+        <circle cx="${(cx - 14).toFixed(1)}" cy="${bandY}" r="1.8" fill="#3b1d0e"/>
+        <circle cx="${(cx + 14).toFixed(1)}" cy="${bandY}" r="1.8" fill="#3b1d0e"/>
+      `;
+    } else if (c.headwear && c.headwear !== 'none') {
+      const headwearSvg = this.generateHeadwearSVG(c.headwear, hCol);
+      // En generateHeadwearSVG la base del sombrero/corona está en (60, 44) (o 60,30 para el lazo)
+      const anchorY = (c.headwear === 'bow') ? 32 : 44;
+      const txHat = cx - 60 * hs;
+      const tyHat = hatY - anchorY * hs;
+      headwearGroup = `<g transform="translate(${txHat.toFixed(1)}, ${tyHat.toFixed(1)}) scale(${hs})">${headwearSvg}</g>`;
+    }
 
     return `
       <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
@@ -570,10 +642,11 @@ window.AvatarEngine = {
           ${behind}
           <image href="assets/sprites/${animal}.png?v=2" x="0" y="0" width="240" height="260" style="${this.themeFilterCss(c.themeColor)}" />
           ${front}
-          <g transform="translate(${tx.toFixed(1)}, ${ty.toFixed(1)}) scale(${hs})">
+          ${exprOverlay}
+          <g transform="translate(${txEye.toFixed(1)}, ${tyEye.toFixed(1)}) scale(${es.toFixed(2)})">
             ${eyewearSvg}
-            ${headwearSvg}
           </g>
+          ${headwearGroup}
         </svg>
       </div>
     `;
