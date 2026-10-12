@@ -71,6 +71,32 @@ window.LobbyView = {
     return null;
   },
 
+  deduplicatePlayersList(players, preferPlayer = null) {
+    if (!Array.isArray(players)) return [];
+    const result = [];
+    for (const p of players) {
+      if (!p) continue;
+      const pNick = (p.nickname || '').trim().toLowerCase();
+      const idx = result.findIndex(existing =>
+        (existing.id && p.id && existing.id === p.id) ||
+        (pNick && existing.nickname && existing.nickname.trim().toLowerCase() === pNick)
+      );
+      if (idx === -1) {
+        result.push({ ...p });
+      } else {
+        // Conservar los datos más recientes (priorizando preferPlayer si coincide)
+        const isPreferred = preferPlayer && (
+          (preferPlayer.id && p.id === preferPlayer.id) ||
+          (preferPlayer.nickname && pNick === preferPlayer.nickname.trim().toLowerCase())
+        );
+        result[idx] = isPreferred
+          ? { ...result[idx], ...p, avatarConfig: { ...(result[idx].avatarConfig || {}), ...(p.avatarConfig || {}) } }
+          : { ...p, ...result[idx], avatarConfig: { ...(p.avatarConfig || {}), ...(result[idx].avatarConfig || {}) } };
+      }
+    }
+    return result;
+  },
+
   setupListeners() {
     if (this.listenersSetup) return;
     this.listenersSetup = true;
@@ -79,34 +105,53 @@ window.LobbyView = {
       const dataPin = String(data?.pin || '').replace(/\D/g, '');
       const hostPin = String(this.currentRoom?.pin || '').replace(/\D/g, '');
       if (this.mode === 'host' && this.currentRoom && dataPin === hostPin && data.player) {
-        // Evitar duplicados por id o nickname idéntico
-        const existingIdx = this.currentRoom.players.findIndex(p => 
-          (p.id && data.player.id && p.id === data.player.id) || 
-          (p.nickname && data.player.nickname && p.nickname.toLowerCase() === data.player.nickname.toLowerCase())
-        );
+        const incomingNick = (data.player.nickname || '').trim().toLowerCase();
+        // Buscar coincidencia priorizando ID exacto y luego nickname
+        let existingIdx = this.currentRoom.players.findIndex(p => p.id && data.player.id && p.id === data.player.id);
+        if (existingIdx === -1 && incomingNick) {
+          existingIdx = this.currentRoom.players.findIndex(p => p.nickname && p.nickname.trim().toLowerCase() === incomingNick);
+        }
+
+        const prevAnimal = existingIdx !== -1 ? this.currentRoom.players[existingIdx]?.avatarConfig?.animal : null;
+        const prevConfigJson = existingIdx !== -1 ? JSON.stringify(this.currentRoom.players[existingIdx]?.avatarConfig || {}) : '';
+        const prevReady = existingIdx !== -1 ? this.currentRoom.players[existingIdx]?.isReady : null;
+        const prevNick = existingIdx !== -1 ? this.currentRoom.players[existingIdx]?.nickname : null;
+        const prevCount = this.currentRoom.players.length;
 
         if (existingIdx === -1) {
-          this.currentRoom.players.push(data.player);
+          this.currentRoom.players.push({ ...data.player, connected: true });
           if (this.currentRoom.roster && this.currentRoom.roster.length > 0) {
             this.currentRoom.roster.forEach(st => {
               if ((data.player.rosterStudentId && st.id === data.player.rosterStudentId) ||
                   (data.player.email && st.email && data.player.email.toLowerCase() === st.email.toLowerCase()) ||
-                  (st.name.toLowerCase() === data.player.nickname.toLowerCase())) {
+                  (st.name.toLowerCase() === incomingNick)) {
                 st.joined = true;
               }
             });
           }
           if (window.soundEngine) window.soundEngine.playTick();
-          window.realtimeEngine.syncRoomState();
-          this.render();
         } else {
-          // Si el jugador ya estaba en la lista, actualizar sus datos y conexión
           this.currentRoom.players[existingIdx] = {
             ...this.currentRoom.players[existingIdx],
             ...data.player,
+            avatarConfig: data.player.avatarConfig
+              ? { ...(this.currentRoom.players[existingIdx].avatarConfig || {}), ...data.player.avatarConfig }
+              : this.currentRoom.players[existingIdx].avatarConfig,
             connected: true
           };
-          window.realtimeEngine.syncRoomState();
+        }
+
+        this.currentRoom.players = this.deduplicatePlayersList(this.currentRoom.players, data.player);
+        const newConfigJson = JSON.stringify(data.player.avatarConfig || {});
+        const changed = existingIdx === -1 ||
+          this.currentRoom.players.length !== prevCount ||
+          prevAnimal !== data.player.avatarConfig?.animal ||
+          prevConfigJson !== newConfigJson ||
+          prevReady !== data.player.isReady ||
+          prevNick !== data.player.nickname;
+
+        window.realtimeEngine.syncRoomState();
+        if (changed) {
           this.render();
         }
       } else if (this.mode === 'waiting') {
@@ -114,35 +159,50 @@ window.LobbyView = {
         if (dataPin === myPin && data.player) {
           if (!window.realtimeEngine.currentRoom) window.realtimeEngine.currentRoom = { players: [] };
           if (!Array.isArray(window.realtimeEngine.currentRoom.players)) window.realtimeEngine.currentRoom.players = [];
-          const existingIdx = window.realtimeEngine.currentRoom.players.findIndex(p => 
-            p.id === data.player.id || (p.nickname && p.nickname.toLowerCase() === data.player.nickname.toLowerCase())
-          );
+          const incomingNick = (data.player.nickname || '').trim().toLowerCase();
+          let existingIdx = window.realtimeEngine.currentRoom.players.findIndex(p => p.id && data.player.id && p.id === data.player.id);
+          if (existingIdx === -1 && incomingNick) {
+            existingIdx = window.realtimeEngine.currentRoom.players.findIndex(p => p.nickname && p.nickname.trim().toLowerCase() === incomingNick);
+          }
           if (existingIdx === -1) {
             window.realtimeEngine.currentRoom.players.push(data.player);
             this.showJoinToast(data.player.nickname || 'Un compañero');
-            this.updateClassmatesList();
           } else {
             window.realtimeEngine.currentRoom.players[existingIdx] = {
               ...window.realtimeEngine.currentRoom.players[existingIdx],
               ...data.player
             };
-            this.updateClassmatesList();
           }
+          window.realtimeEngine.currentRoom.players = this.deduplicatePlayersList(window.realtimeEngine.currentRoom.players, data.player);
+          this.updateClassmatesList();
         }
       }
     });
 
-    // Sincronización en tiempo real de actualizaciones de avatar y estado listo
+    // Sincronización en tiempo real de actualizaciones de avatar, animal y estado listo
     window.realtimeEngine.on('PLAYER_AVATAR_UPDATE', (data) => {
       const myPin = String(this.currentRoom?.pin || window.realtimeEngine.currentRoom?.pin || this.joinPin || '').replace(/\D/g, '');
       const dataPin = String(data?.pin || '').replace(/\D/g, '');
-      if (data && (!dataPin || dataPin === myPin) && data.playerId) {
+      if (data && (!dataPin || dataPin === myPin) && (data.playerId || data.nickname)) {
         if (this.mode === 'host' && this.currentRoom?.players) {
-          const idx = this.currentRoom.players.findIndex(p => p.id === data.playerId);
+          const incomingNick = (data.nickname || '').trim().toLowerCase();
+          let idx = this.currentRoom.players.findIndex(p => p.id && data.playerId && p.id === data.playerId);
+          if (idx === -1 && incomingNick) {
+            idx = this.currentRoom.players.findIndex(p => p.nickname && p.nickname.trim().toLowerCase() === incomingNick);
+          }
           if (idx !== -1) {
+            const updatedAvatarConfig = data.avatarConfig
+              ? { ...(this.currentRoom.players[idx].avatarConfig || {}), ...data.avatarConfig }
+              : this.currentRoom.players[idx].avatarConfig;
+            const updatedEmoji = data.avatar ||
+              (window.AvatarEngine && updatedAvatarConfig?.animal ? window.AvatarEngine.getAvatarEmoji(updatedAvatarConfig.animal) : null) ||
+              this.currentRoom.players[idx].avatar;
+
             this.currentRoom.players[idx] = {
               ...this.currentRoom.players[idx],
-              avatarConfig: data.avatarConfig || this.currentRoom.players[idx].avatarConfig,
+              id: data.playerId || this.currentRoom.players[idx].id,
+              avatar: updatedEmoji,
+              avatarConfig: updatedAvatarConfig,
               nickname: data.nickname || this.currentRoom.players[idx].nickname,
               isReady: data.isReady !== undefined ? data.isReady : this.currentRoom.players[idx].isReady,
               status: data.status || this.currentRoom.players[idx].status,
@@ -150,22 +210,34 @@ window.LobbyView = {
               xp: data.xp !== undefined ? data.xp : this.currentRoom.players[idx].xp,
               level: data.level !== undefined ? data.level : this.currentRoom.players[idx].level
             };
+            this.currentRoom.players = this.deduplicatePlayersList(this.currentRoom.players, this.currentRoom.players[idx]);
+            window.realtimeEngine.syncRoomState();
+            this.render();
+          } else if (data.player) {
+            this.currentRoom.players.push({ ...data.player, connected: true });
+            this.currentRoom.players = this.deduplicatePlayersList(this.currentRoom.players, data.player);
             window.realtimeEngine.syncRoomState();
             this.render();
           }
         }
         if (this.mode === 'waiting') {
           if (window.realtimeEngine.currentRoom?.players) {
-            const idx = window.realtimeEngine.currentRoom.players.findIndex(p => p.id === data.playerId);
+            const incomingNick = (data.nickname || '').trim().toLowerCase();
+            let idx = window.realtimeEngine.currentRoom.players.findIndex(p => p.id && data.playerId && p.id === data.playerId);
+            if (idx === -1 && incomingNick) {
+              idx = window.realtimeEngine.currentRoom.players.findIndex(p => p.nickname && p.nickname.trim().toLowerCase() === incomingNick);
+            }
             if (idx !== -1) {
               window.realtimeEngine.currentRoom.players[idx] = {
                 ...window.realtimeEngine.currentRoom.players[idx],
+                avatar: data.avatar || window.realtimeEngine.currentRoom.players[idx].avatar,
                 avatarConfig: data.avatarConfig || window.realtimeEngine.currentRoom.players[idx].avatarConfig,
                 nickname: data.nickname || window.realtimeEngine.currentRoom.players[idx].nickname,
                 isReady: data.isReady !== undefined ? data.isReady : window.realtimeEngine.currentRoom.players[idx].isReady,
                 status: data.status || window.realtimeEngine.currentRoom.players[idx].status,
                 title: data.title || window.realtimeEngine.currentRoom.players[idx].title
               };
+              window.realtimeEngine.currentRoom.players = this.deduplicatePlayersList(window.realtimeEngine.currentRoom.players, window.realtimeEngine.currentRoom.players[idx]);
               this.updateClassmatesList();
             }
           }
@@ -1344,7 +1416,7 @@ window.LobbyView = {
     });
   },
 
-  quickCat: 'hat',
+  quickCat: 'animal',
 
   getQuickCatalog() {
     const AE = window.AvatarEngine || {};
@@ -1461,7 +1533,12 @@ window.LobbyView = {
 
   applyQuickItem(prop, val) {
     if (!window.AvatarEngine) return;
-    window.AvatarEngine.saveAvatar({ [prop]: val });
+    const updated = window.AvatarEngine.saveAvatar({ [prop]: val });
+    const p = window.realtimeEngine?.localPlayer;
+    if (p && updated) {
+      p.avatarConfig = { ...updated };
+      p.avatar = window.AvatarEngine.getAvatarEmoji(updated.animal);
+    }
     this.updateMyCharacterPanel();
     this.broadcastAvatarUpdate();
     this.setQuickCat(this.quickCat);
@@ -1488,11 +1565,11 @@ window.LobbyView = {
       }
     }
 
-    // Cargar avatar del jugador con AvatarEngine
+    // Cargar avatar del jugador con AvatarEngine preservando su nickname propio
     const avatarConfig = window.AvatarEngine ? window.AvatarEngine.getSavedAvatar() : null;
     if (p && avatarConfig) {
-      p.avatarConfig = avatarConfig;
-      p.nickname = avatarConfig.alias || p.nickname;
+      p.avatarConfig = { ...avatarConfig, alias: p.nickname || avatarConfig.alias };
+      p.avatar = window.AvatarEngine ? window.AvatarEngine.getAvatarEmoji(p.avatarConfig.animal) : p.avatar;
       p.title = avatarConfig.title || p.title || 'Novato Curioso';
       p.xp = avatarConfig.xp || p.xp || 60;
       p.level = avatarConfig.level || p.level || 1;
@@ -1658,7 +1735,7 @@ window.LobbyView = {
     `;
 
     // Inicializar visualización interactiva 3D
-    if (window.AvatarEngine) this.setQuickCat(this.quickCat || 'hat');
+    if (window.AvatarEngine) this.setQuickCat(this.quickCat || 'animal');
     const viewportEl = document.getElementById('waiting-avatar-viewport-container');
     if (viewportEl && window.AvatarEngine) {
       window.AvatarEngine.attachInteractive3D(viewportEl, avatarConfig);
@@ -1728,8 +1805,8 @@ window.LobbyView = {
     const av = window.AvatarEngine ? window.AvatarEngine.getSavedAvatar() : null;
     if (!p || !av) return;
 
-    p.avatarConfig = av;
-    p.nickname = av.alias || p.nickname;
+    p.avatarConfig = { ...av, alias: p.nickname || av.alias };
+    p.avatar = window.AvatarEngine ? window.AvatarEngine.getAvatarEmoji(av.animal) : p.avatar;
     p.title = av.title || p.title;
     p.xp = av.xp || p.xp;
     p.level = av.level || p.level;
@@ -1751,10 +1828,10 @@ window.LobbyView = {
     if (xpBar) xpBar.style.width = `${Math.min(100, p.xp % 100)}%`;
 
     if (viewPort && window.AvatarEngine) {
-      viewPort.innerHTML = window.AvatarEngine.renderSVG(av, { size: 295 });
+      viewPort.innerHTML = window.AvatarEngine.renderSVG(p.avatarConfig, { size: 295 });
       const containerEl = document.getElementById('waiting-avatar-viewport-container');
       if (containerEl) {
-        window.AvatarEngine.attachInteractive3D(containerEl, av);
+        window.AvatarEngine.attachInteractive3D(containerEl, p.avatarConfig);
       }
     }
   },
@@ -1905,33 +1982,22 @@ window.LobbyView = {
     const pin = String(window.realtimeEngine.currentRoom?.pin || this.joinPin || '').replace(/\D/g, '');
     if (!p || !pin) return;
 
-    window.realtimeEngine.broadcast({
+    const payload = {
       type: 'PLAYER_AVATAR_UPDATE',
       pin: pin,
       playerId: p.id,
+      avatar: p.avatar,
       avatarConfig: p.avatarConfig,
       isReady: !!p.isReady,
       status: p.status || 'ready',
       nickname: p.nickname,
       title: p.title,
       xp: p.xp,
-      level: p.level
-    });
+      level: p.level,
+      player: { ...p }
+    };
 
-    if (window.realtimeEngine.publishMqtt) {
-      window.realtimeEngine.publishMqtt(`mentix/rooms/${pin}/player_events`, {
-        type: 'PLAYER_AVATAR_UPDATE',
-        pin: pin,
-        playerId: p.id,
-        avatarConfig: p.avatarConfig,
-        isReady: !!p.isReady,
-        status: p.status || 'ready',
-        nickname: p.nickname,
-        title: p.title,
-        xp: p.xp,
-        level: p.level
-      });
-    }
+    window.realtimeEngine.broadcast(payload);
   },
 
   // ==========================================
@@ -1994,13 +2060,25 @@ window.LobbyView = {
   previewStudioEmote(eKey) {
     this.studioTempConfig.emote = eKey;
     this.updateStudioPreview();
+    if (window.AvatarEngine) {
+      window.AvatarEngine.saveAvatar(this.studioTempConfig);
+      this.updateMyCharacterPanel();
+      this.broadcastAvatarUpdate();
+    }
     if (window.soundEngine) window.soundEngine.playTick();
   },
 
   selectStudioPreset(key) {
     const pr = window.AvatarEngine?.presets?.[key];
     if (!pr) return;
-    this.studioTempConfig = { ...this.studioTempConfig, ...pr.config };
+    const preservedAlias = this.studioTempConfig?.alias || window.realtimeEngine.localPlayer?.nickname || pr.config.alias;
+    this.studioTempConfig = { ...this.studioTempConfig, ...pr.config, alias: preservedAlias };
+    if (window.AvatarEngine) {
+      window.AvatarEngine.saveAvatar(this.studioTempConfig);
+      this.updateMyCharacterPanel();
+      this.broadcastAvatarUpdate();
+      this.setQuickCat(this.quickCat || 'animal');
+    }
     this.updateStudioPreview();
     this.renderStudioTabContent();
     if (window.soundEngine) window.soundEngine.playClick();
@@ -2008,6 +2086,12 @@ window.LobbyView = {
 
   updateStudioProp(prop, val) {
     this.studioTempConfig[prop] = val;
+    if (window.AvatarEngine) {
+      window.AvatarEngine.saveAvatar(this.studioTempConfig);
+      this.updateMyCharacterPanel();
+      this.broadcastAvatarUpdate();
+      this.setQuickCat(this.quickCat || 'animal');
+    }
     this.updateStudioPreview();
   },
 
@@ -2448,8 +2532,19 @@ window.LobbyView = {
     document.querySelectorAll('.avatar-pick-btn').forEach(b => {
       b.style.borderColor = 'var(--border-color)';
     });
-    btn.style.borderColor = 'var(--neon-cyan)';
-    document.getElementById('join-avatar-input').value = avatar;
+    if (btn) btn.style.borderColor = 'var(--neon-cyan)';
+    const inputEl = document.getElementById('join-avatar-input');
+    if (inputEl) inputEl.value = avatar;
+
+    if (window.AvatarEngine) {
+      const mappedAnimal = window.AvatarEngine.emojiToAnimalMap?.[avatar];
+      if (mappedAnimal) {
+        window.AvatarEngine.saveAvatar({ animal: mappedAnimal });
+        if (window.realtimeEngine?.localPlayer) {
+          this.broadcastAvatarUpdate();
+        }
+      }
+    }
   },
 
   submitJoin() {

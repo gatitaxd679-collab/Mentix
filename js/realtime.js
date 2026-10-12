@@ -656,9 +656,23 @@ class RealtimeEngine {
   joinRoom(pin, nickname, avatar = '😎', email = '', rosterStudentId = null, initialRoomData = null) {
     const cleanPin = pin.toString().replace(/\D/g, '').trim();
     this.isHost = false;
-    const savedAv = window.AvatarEngine ? window.AvatarEngine.getSavedAvatar() : null;
+    let tabPlayerId = null;
+    try {
+      tabPlayerId = sessionStorage.getItem('mentix_tab_player_id');
+      if (!tabPlayerId) {
+        tabPlayerId = 'p_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('mentix_tab_player_id', tabPlayerId);
+      }
+    } catch (e) {
+      tabPlayerId = this.localPlayer?.id || ('p_' + Math.random().toString(36).substr(2, 9));
+    }
+
+    const baseAv = window.AvatarEngine ? window.AvatarEngine.getSavedAvatar() : null;
+    const mappedAnimal = (window.AvatarEngine && window.AvatarEngine.emojiToAnimalMap && window.AvatarEngine.emojiToAnimalMap[avatar]) || baseAv?.animal || 'fox';
+    const savedAv = baseAv ? { ...baseAv, animal: mappedAnimal, alias: nickname.trim() } : null;
+
     this.localPlayer = {
-      id: rosterStudentId || ('p_' + Math.random().toString(36).substr(2, 9)),
+      id: rosterStudentId || tabPlayerId,
       rosterStudentId: rosterStudentId,
       nickname: nickname.trim(),
       email: (email || '').trim(),
@@ -677,6 +691,9 @@ class RealtimeEngine {
       answers: [],
       connected: true
     };
+    if (savedAv) {
+      try { sessionStorage.setItem('mentix_player_avatar_tab', JSON.stringify(savedAv)); } catch (e) {}
+    }
 
     // Recuperar datos completos de la sala creada por el profesor (gameMode, challenge, etc.)
     let roomData = initialRoomData || null;

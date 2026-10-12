@@ -380,9 +380,21 @@ window.AvatarEngine = {
     emerald: { primary: '#10b981', secondary: '#d1fae5' }
   },
 
-  // Recuperar avatar guardado
+  // Recuperar avatar guardado (priorizando el jugador activo de esta pestaña)
   getSavedAvatar() {
     try {
+      if (window.realtimeEngine && window.realtimeEngine.localPlayer && window.realtimeEngine.localPlayer.avatarConfig) {
+        return {
+          ...this.defaultConfig,
+          ...window.realtimeEngine.localPlayer.avatarConfig,
+          alias: window.realtimeEngine.localPlayer.nickname || window.realtimeEngine.localPlayer.avatarConfig.alias || this.defaultConfig.alias
+        };
+      }
+      const tabRaw = sessionStorage.getItem('mentix_player_avatar_tab');
+      if (tabRaw) {
+        const parsedTab = JSON.parse(tabRaw);
+        return { ...this.defaultConfig, ...parsedTab };
+      }
       const raw = localStorage.getItem('mentix_player_avatar');
       if (raw) {
         const parsed = JSON.parse(raw);
@@ -394,16 +406,24 @@ window.AvatarEngine = {
     return { ...this.defaultConfig };
   },
 
-  // Guardar avatar
+  // Guardar avatar y sincronizar de inmediato con el jugador local
   saveAvatar(config) {
     try {
-      const merged = { ...this.getSavedAvatar(), ...config };
-      localStorage.setItem('mentix_player_avatar', JSON.stringify(merged));
+      const currentBase = this.getSavedAvatar();
+      const merged = { ...currentBase, ...config };
       if (window.realtimeEngine && window.realtimeEngine.localPlayer) {
-        window.realtimeEngine.localPlayer.avatarConfig = merged;
+        // Preservar el nickname actual del jugador a menos que se cambie explícitamente el alias
+        if (config && typeof config.alias === 'string' && config.alias.trim()) {
+          window.realtimeEngine.localPlayer.nickname = config.alias.trim();
+          merged.alias = config.alias.trim();
+        } else if (window.realtimeEngine.localPlayer.nickname) {
+          merged.alias = window.realtimeEngine.localPlayer.nickname;
+        }
+        window.realtimeEngine.localPlayer.avatarConfig = { ...merged };
         window.realtimeEngine.localPlayer.avatar = this.getAvatarEmoji(merged.animal);
-        window.realtimeEngine.localPlayer.nickname = merged.alias || window.realtimeEngine.localPlayer.nickname;
       }
+      try { sessionStorage.setItem('mentix_player_avatar_tab', JSON.stringify(merged)); } catch (e) {}
+      try { localStorage.setItem('mentix_player_avatar', JSON.stringify(merged)); } catch (e) {}
       return merged;
     } catch (e) {
       console.warn('Error guardando avatar:', e);
