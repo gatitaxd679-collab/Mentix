@@ -797,30 +797,22 @@ window.LobbyView = {
               </button>
             </div>
           ` : `
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem;">
+            <div class="host-stage-counter">
+              <strong>${playersList.filter(p => p.isReady).length}/${playersList.length}</strong> estudiantes listos
+            </div>
+            <div class="host-stage">
               ${playersList.map((p, idx) => `
-                <div class="lobby-player-card" style="padding: 0.85rem 1rem; border-radius: 16px; border: 1.5px solid ${p.isReady ? '#10b981' : 'rgba(0, 245, 212, 0.3)'}; background: ${p.isReady ? 'rgba(16, 185, 129, 0.12)' : 'rgba(15, 23, 42, 0.85)'}; display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; transition: transform 0.2s;">
-                  <div style="display: flex; align-items: center; gap: 0.75rem; overflow: hidden;">
-                    <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);">
-                      ${p.avatarConfig && window.AvatarEngine ? window.AvatarEngine.renderSVG(p.avatarConfig, { size: 52 }) : `<span style="font-size: 1.8rem;">${p.avatar || '😎'}</span>`}
-                    </div>
-                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      <div style="font-weight: 800; font-size: 0.98rem; color: #ffffff;">${p.nickname}</div>
-                      <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.2rem; flex-wrap: wrap;">
-                        <span style="font-size: 0.7rem; color: #ffd166; font-weight: 700;">${p.title || 'Novato'}</span>
-                        <span style="font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 9999px; background: ${p.isReady ? 'rgba(16,185,129,0.25)' : 'rgba(234,179,8,0.25)'}; color: ${p.isReady ? '#34d399' : '#fde047'}; font-weight: 800; border: 1px solid ${p.isReady ? '#10b981' : '#eab308'};">
-                          ${p.isReady ? '🟢 Listo' : '✏️ Editando'}
-                        </span>
-                      </div>
-                    </div>
+                <div class="host-stage-avatar ${p.isReady ? 'is-ready' : ''}">
+                  <button title="Expulsar jugador" onclick="window.LobbyView.kickPlayer('${p.id}')" class="lobby-player-kick-btn host-stage-kick">✕</button>
+                  <div class="host-stage-avatar-fig">
+                    ${p.avatarConfig && window.AvatarEngine ? window.AvatarEngine.renderSVG({ ...p.avatarConfig, emote: 'idle' }, { size: 92 }) : `<span style="font-size: 3rem;">${p.avatar || '🦊'}</span>`}
                   </div>
-                  <button 
-                    title="Expulsar jugador"
-                    onclick="window.LobbyView.kickPlayer('${p.id}')"
-                    class="lobby-player-kick-btn"
-                  >✕</button>
+                  <div class="host-stage-name">${p.nickname}${p.isReady ? ' 🟢' : ''}</div>
                 </div>
               `).join('')}
+            </div>
+            <div class="host-reaction-bar">
+              ${['❤️', '⭐', '😍', '🤩', '😮', '😊'].map(em => `<span>${em}</span>`).join('')}
             </div>
           `}
 
@@ -1026,8 +1018,8 @@ window.LobbyView = {
 
     const currentMode = window.GameModes ? window.GameModes.getMode(room.gameMode) : { name: 'Modo Clásico', icon: '🏆', badge: '🏆 TRADICIONAL', description: 'Todos compiten por acumular la mayor cantidad de puntos en tiempo real.' };
 
-    const avatars = ['🦊', '🦄', '🐯', '🐼', '🦁', '🐰', '🦅', '🐱', '🐺', '🚀', '⚡', '🎮'];
-    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+    const avatars = ['🦊', '🐼', '🐱', '🐶', '🦁', '🐰', '🐨', '🦉', '🐵', '🐻', '🐺', '🐯', '🐧', '🦄', '🐲', '🤖'];
+    const randomAvatar = '🦊'; // Clásico zorro Kahoot de referencia
 
     container.innerHTML = `
       <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; box-sizing: border-box; background: url('assets/mentix_join_bg.jpg') center center / cover no-repeat fixed; position: relative;">
@@ -1364,7 +1356,7 @@ window.LobbyView = {
               
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; color: var(--neon-cyan); text-transform: uppercase;">
-                  MI PERSONAJE 3D
+                  Modifica tu avatar mientras esperas a que el profesor inicie
                 </span>
                 <span class="badge-tag" style="background: rgba(121, 40, 202, 0.25); border: 1px solid #7928ca; color: #d8b4fe; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;">
                   Nivel ${p?.level || 1}
@@ -1385,19 +1377,21 @@ window.LobbyView = {
                 </div>
               </div>
 
-              <!-- Nombre, Título y Progreso de XP -->
+              <!-- Badge Oficial Kahoot [ 🦊 Eimy  NIV. 3 ] -->
+              <div style="display: flex; justify-content: center; margin: 0.4rem 0 0.15rem 0;" id="waiting-my-badge-container">
+                ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(p, { size: 34 }) : ''}
+              </div>
+
+              <!-- Título y Progreso de XP -->
               <div style="text-align: center;">
-                <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.2rem; text-shadow: 0 0 15px rgba(0,245,212,0.6);" id="waiting-my-nickname">
-                  ${p?.nickname || 'Jugador Pro'}
-                </h3>
-                <div style="font-size: 0.82rem; font-weight: 800; color: #ffd166; margin-bottom: 0.65rem;" id="waiting-my-title">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #ffd166; margin-bottom: 0.55rem;" id="waiting-my-title">
                   ${p?.title || 'Novato Curioso'}
                 </div>
 
                 <!-- Barra de XP -->
                 <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem;">
                   <span id="waiting-my-xp">XP: ${p?.xp || 60}</span>
-                  <span>Siguiente Nivel: 100 XP</span>
+                  <span id="waiting-my-level">Nivel ${p?.level || 1}</span>
                 </div>
                 <div class="xp-progress-track">
                   <div class="xp-progress-fill" id="waiting-my-xp-bar" style="width: ${xpPercent}%;"></div>
@@ -1547,10 +1541,13 @@ window.LobbyView = {
             <div class="avatar-studio-body">
               <!-- Columna Izquierda: Vista Previa en Vivo -->
               <div class="avatar-studio-preview-col">
-                <div id="studio-avatar-preview-box" style="margin-bottom: 1rem;">
+                <div style="margin-bottom: 0.85rem;" id="studio-live-badge-preview">
+                  <!-- Renderizado en vivo del badge oficial Kahoot [ 🦊 Eimy  NIV. 3 ] -->
+                </div>
+                <div id="studio-avatar-preview-box" style="margin-bottom: 0.75rem;">
                   <!-- Renderizado en vivo por updateStudioPreview -->
                 </div>
-                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 1rem;">
+                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 0.85rem;">
                   🔄 Arrastra para girar en 3D
                 </div>
                 <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
@@ -1564,11 +1561,12 @@ window.LobbyView = {
               <div class="avatar-studio-controls-col">
                 <!-- Pestañas de Categoría -->
                 <div style="display: flex; gap: 0.45rem; overflow-x: auto; padding-bottom: 0.25rem;">
-                  <button class="studio-tab-btn active" id="stab-presets" onclick="window.LobbyView.setStudioTab('presets')">⚡ Estilos</button>
-                  <button class="studio-tab-btn" id="stab-appearance" onclick="window.LobbyView.setStudioTab('appearance')">👤 Rostro & Pelo</button>
+                  <button class="studio-tab-btn active" id="stab-animals" onclick="window.LobbyView.setStudioTab('animals')">🐾 Animales</button>
+                  <button class="studio-tab-btn" id="stab-accessories" onclick="window.LobbyView.setStudioTab('accessories')">🎩 Gorros & Gafas</button>
                   <button class="studio-tab-btn" id="stab-clothing" onclick="window.LobbyView.setStudioTab('clothing')">👕 Ropa</button>
+                  <button class="studio-tab-btn" id="stab-theme" onclick="window.LobbyView.setStudioTab('theme')">🎨 Colores & Fondo</button>
                   <button class="studio-tab-btn" id="stab-emotes" onclick="window.LobbyView.setStudioTab('emotes')">🎭 Gestos</button>
-                  <button class="studio-tab-btn" id="stab-alias" onclick="window.LobbyView.setStudioTab('alias')">🏷️ Alias & Escenario</button>
+                  <button class="studio-tab-btn" id="stab-alias" onclick="window.LobbyView.setStudioTab('alias')">🏷️ Alias & Badge</button>
                 </div>
 
                 <!-- Panel dinámico de controles de la pestaña activa -->
@@ -1612,17 +1610,11 @@ window.LobbyView = {
     // Incluir al jugador local de primero
     if (localPlayer) {
       html += `
-        <div class="classmate-gamer-card ${localPlayer.isReady ? 'is-ready' : ''}" style="border-left: 4px solid var(--neon-cyan);">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);">
-            ${localPlayer.avatarConfig && window.AvatarEngine ? window.AvatarEngine.renderSVG(localPlayer.avatarConfig, { size: 44 }) : `<span style="font-size: 1.6rem;">${localPlayer.avatar || '😎'}</span>`}
+        <div class="classmate-gamer-card ${localPlayer.isReady ? 'is-ready' : ''}" style="border-left: 4px solid var(--neon-cyan); padding: 0.45rem 0.65rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+          <div style="flex: 1; overflow: hidden;">
+            ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(localPlayer, { size: 30 }) : `<span style="font-weight: 800; color: #ffffff;">${localPlayer.nickname}</span>`}
           </div>
-          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">
-            <div style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${localPlayer.nickname} <span style="font-size: 0.72rem; color: var(--neon-cyan);">(Tú)</span></div>
-            <div style="font-size: 0.7rem; color: #ffd166; font-weight: 700;">${localPlayer.title || 'Novato'} • Nvl ${localPlayer.level || 1}</div>
-          </div>
-          <span style="font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: ${localPlayer.isReady ? 'rgba(16,185,129,0.25)' : 'rgba(234,179,8,0.25)'}; color: ${localPlayer.isReady ? '#34d399' : '#fde047'}; font-weight: 800; border: 1px solid ${localPlayer.isReady ? '#10b981' : '#eab308'};">
-            ${localPlayer.isReady ? '🟢 Listo' : '✏️ Editando'}
-          </span>
+          <span style="font-size: 0.72rem; color: var(--neon-cyan); font-weight: 800; white-space: nowrap; margin-right: 0.25rem;">(Tú)</span>
         </div>
       `;
     }
@@ -1641,17 +1633,10 @@ window.LobbyView = {
 
     classmates.forEach(c => {
       html += `
-        <div class="classmate-gamer-card ${c.isReady ? 'is-ready' : ''}">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);">
-            ${c.avatarConfig && window.AvatarEngine ? window.AvatarEngine.renderSVG(c.avatarConfig, { size: 44 }) : `<span style="font-size: 1.6rem;">${c.avatar || '😎'}</span>`}
+        <div class="classmate-gamer-card ${c.isReady ? 'is-ready' : ''}" style="padding: 0.45rem 0.65rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+          <div style="flex: 1; overflow: hidden;">
+            ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(c, { size: 30 }) : `<span style="font-weight: 800; color: #ffffff;">${c.nickname}</span>`}
           </div>
-          <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">
-            <div style="font-weight: 800; font-size: 0.92rem; color: #ffffff;">${c.nickname}</div>
-            <div style="font-size: 0.7rem; color: #ffd166; font-weight: 700;">${c.title || 'Gamer Pro'} • Nvl ${c.level || 1}</div>
-          </div>
-          <span style="font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: ${c.isReady ? 'rgba(16,185,129,0.25)' : 'rgba(234,179,8,0.25)'}; color: ${c.isReady ? '#34d399' : '#fde047'}; font-weight: 800; border: 1px solid ${c.isReady ? '#10b981' : '#eab308'};">
-            ${c.isReady ? '🟢 Listo' : '✏️ Editando'}
-          </span>
         </div>
       `;
     });
@@ -1683,15 +1668,20 @@ window.LobbyView = {
     p.xp = av.xp || p.xp;
     p.level = av.level || p.level;
 
-    const nickEl = document.getElementById('waiting-my-nickname');
+    const badgeContainer = document.getElementById('waiting-my-badge-container');
+    if (badgeContainer && window.AvatarEngine) {
+      badgeContainer.innerHTML = window.AvatarEngine.renderBadgeHTML(p, { size: 34 });
+    }
+
     const titleEl = document.getElementById('waiting-my-title');
     const xpEl = document.getElementById('waiting-my-xp');
+    const levelEl = document.getElementById('waiting-my-level');
     const xpBar = document.getElementById('waiting-my-xp-bar');
     const viewPort = document.getElementById('waiting-avatar-viewport');
 
-    if (nickEl) nickEl.textContent = p.nickname;
     if (titleEl) titleEl.textContent = p.title;
     if (xpEl) xpEl.textContent = `XP: ${p.xp}`;
+    if (levelEl) levelEl.textContent = `Nivel ${p.level}`;
     if (xpBar) xpBar.style.width = `${Math.min(100, p.xp % 100)}%`;
 
     if (viewPort && window.AvatarEngine) {
@@ -1894,10 +1884,10 @@ window.LobbyView = {
     if (!modal) return;
 
     this.studioTempConfig = { ...window.AvatarEngine.getSavedAvatar() };
-    this.currentStudioTab = 'presets';
+    this.currentStudioTab = 'animals';
     modal.style.display = 'flex';
 
-    this.setStudioTab('presets');
+    this.setStudioTab('animals');
     this.updateStudioPreview();
     if (window.soundEngine) window.soundEngine.playClick();
   },
@@ -1908,8 +1898,10 @@ window.LobbyView = {
   },
 
   setStudioTab(tab) {
+    if (tab === 'presets') tab = 'animals';
+    if (tab === 'appearance') tab = 'accessories';
     this.currentStudioTab = tab;
-    ['presets', 'appearance', 'clothing', 'emotes', 'alias'].forEach(t => {
+    ['animals', 'accessories', 'clothing', 'theme', 'emotes', 'alias'].forEach(t => {
       const btn = document.getElementById(`stab-${t}`);
       if (btn) btn.classList.toggle('active', t === tab);
     });
@@ -1926,6 +1918,12 @@ window.LobbyView = {
       const bgObj = window.AvatarEngine.stageBackgrounds?.[this.studioTempConfig.stageBg];
       if (bgObj) col.style.background = bgObj.css;
     }
+
+    const badgePreview = document.getElementById('studio-live-badge-preview');
+    if (badgePreview && window.AvatarEngine) {
+      badgePreview.innerHTML = window.AvatarEngine.renderBadgeHTML(this.studioTempConfig, { size: 30 });
+    }
+
     window.AvatarEngine.attachInteractive3D(box, this.studioTempConfig);
   },
 
@@ -1971,263 +1969,280 @@ window.LobbyView = {
     if (!panel) return;
     const c = this.studioTempConfig || window.AvatarEngine.getSavedAvatar();
 
-    if (this.currentStudioTab === 'presets') {
+    if (this.currentStudioTab === 'animals' || this.currentStudioTab === 'presets') {
+      const animals = window.AvatarEngine.animals || {};
       const presets = window.AvatarEngine.presets || {};
       panel.innerHTML = `
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.85rem;">
-            ⚡ Selecciona un Estilo Completo (1-Clic):
-          </label>
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
-            ${Object.keys(presets).map(k => {
-              const p = presets[k];
-              return `
-                <div 
-                  class="studio-option-card ${c.preset === k ? 'active' : ''}"
-                  onclick="window.LobbyView.selectStudioPreset('${k}')"
-                >
-                  <span style="font-size: 1.8rem;">${p.icon}</span>
-                  <div>
-                    <div style="font-weight: 900; font-size: 0.92rem; color: #ffffff;">${p.name}</div>
-                    <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.25;">${p.desc}</div>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <!-- Animales Oficiales Estilo Kahoot -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.75rem;">
+              🐾 Elige tu Personaje Animal Oficial Kahoot:
+            </label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 0.65rem;">
+              ${Object.keys(animals).map(k => {
+                const a = animals[k];
+                const isSelected = c.animal === k;
+                return `
+                  <div 
+                    class="kahoot-animal-card ${isSelected ? 'active' : ''}"
+                    onclick="window.LobbyView.updateStudioProp('animal', '${k}'); window.LobbyView.renderStudioTabContent();"
+                  >
+                    <div class="kahoot-animal-card-icon">
+                      ${window.AvatarEngine.renderIconSVG({ ...c, animal: k }, 44)}
+                    </div>
+                    <div class="kahoot-animal-card-name">${a.icon} ${a.name}</div>
+                    <div class="kahoot-animal-card-desc">${a.desc}</div>
                   </div>
-                </div>
-              `;
-            }).join('')}
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Estilos / Presets Rápidos -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #ffd166; text-transform: uppercase; margin-bottom: 0.75rem;">
+              ⚡ Estilos Recomendados Rápidos:
+            </label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.65rem;">
+              ${Object.keys(presets).map(k => {
+                const pr = presets[k];
+                return `
+                  <div 
+                    class="studio-option-card ${c.preset === k ? 'active' : ''}"
+                    onclick="window.LobbyView.selectStudioPreset('${k}')"
+                  >
+                    <span style="font-size: 1.6rem;">${pr.icon}</span>
+                    <div>
+                      <div style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">${pr.name}</div>
+                      <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.2;">${pr.desc}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
           </div>
         </div>
       `;
-    } else if (this.currentStudioTab === 'appearance') {
-      const skinColors = ['#ffd1a4', '#fcd5b5', '#e0ac69', '#c68642', '#8d5524', '#2d1e18', '#38bdf8', '#d946ef'];
-      const hairColors = ['#00f5d4', '#ff007f', '#ffd166', '#10b981', '#8b5cf6', '#111827', '#78350f', '#ffffff'];
-      const hairStyles = [
-        { id: 'spiky', label: 'Anime Spiky' },
-        { id: 'curly', label: 'Rizado' },
-        { id: 'short', label: 'Fade Corto' },
-        { id: 'afro', label: 'Afro' },
-        { id: 'long', label: 'Melena Larga' },
-        { id: 'cyber_fade', label: 'Cyber Fade' }
+    } else if (this.currentStudioTab === 'accessories' || this.currentStudioTab === 'appearance') {
+      const headwears = [
+        { id: 'none', label: 'Sin Gorro', icon: '❌' },
+        { id: 'headphones', label: 'Auriculares RGB', icon: '🎧' },
+        { id: 'gamer_cap', label: 'Gorra Gamer', icon: '🧢' },
+        { id: 'party_hat', label: 'Gorro Fiesta', icon: '🎉' },
+        { id: 'crown', label: 'Corona Real', icon: '👑' },
+        { id: 'grad_hat', label: 'Birrete Graduado', icon: '🎓' },
+        { id: 'ninja_band', label: 'Cinta Ninja', icon: '🥷' },
+        { id: 'beanie', label: 'Gorro Beanie', icon: '🧶' },
+        { id: 'bow', label: 'Lazo Coquette', icon: '🎀' }
       ];
-      const eyesStyles = [
-        { id: 'normal', label: 'Normal' },
-        { id: 'tech', label: 'Reflejos Tech' },
-        { id: 'anime', label: 'Anime' },
-        { id: 'shades', label: 'Gafas Oscuras' },
-        { id: 'cyber_visor', label: 'Visor Holográfico' }
+      const headwearColors = ['#00f5d4', '#f72585', '#ffd166', '#7928ca', '#3b82f6', '#10b981', '#111827', '#ffffff'];
+
+      const eyewears = [
+        { id: 'none', label: 'Sin Gafas', icon: '❌' },
+        { id: 'sunglasses', label: 'Gafas de Sol Pro', icon: '🕶️' },
+        { id: 'nerd_glasses', label: 'Gafas Nerd', icon: '👓' },
+        { id: 'cyber_visor', label: 'Visor Cyberpunk', icon: '🥽' },
+        { id: 'monocle', label: 'Monóculo Clásico', icon: '🧐' },
+        { id: 'pirate_patch', label: 'Parche Pirata', icon: '🏴‍☠️' }
       ];
-      const faceStyles = [
-        { id: 'smile', label: 'Sonrisa' },
-        { id: 'confident', label: 'Confiado' },
-        { id: 'focused', label: 'Concentrado' },
-        { id: 'wink', label: 'Guiño' },
-        { id: 'cyber', label: 'Cibernético' }
+      const eyewearColors = ['#111827', '#00f5d4', '#f72585', '#ffd166', '#7928ca', '#3b82f6', '#ffffff'];
+
+      const expressions = [
+        { id: 'happy', label: 'Feliz / Amigable', icon: '😊' },
+        { id: 'cool', label: 'Astuto / Gamer Pro', icon: '😎' },
+        { id: 'wink', label: 'Guiño Pícaro', icon: '😉' },
+        { id: 'star_eyes', label: 'Estrellas Ilusión', icon: '🤩' },
+        { id: 'focused', label: 'Concentrado', icon: '🧐' }
       ];
 
       panel.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-          <!-- Tono de piel -->
+          <!-- Gorros y Accesorios de Cabeza -->
           <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              🎨 Tono de Piel:
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
+              🎩 Gorro o Sombrero:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${skinColors.map(color => `
-                <div 
-                  class="studio-color-swatch ${c.skinColor === color ? 'active' : ''}" 
-                  style="background: ${color};"
-                  onclick="window.LobbyView.updateStudioProp('skinColor', '${color}')"
-                ></div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Peinado -->
-          <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              ✂️ Estilo de Cabello:
-            </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${hairStyles.map(h => `
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
+              ${headwears.map(h => `
                 <button 
-                  class="btn btn-sm ${c.hairStyle === h.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('hairStyle', '${h.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${h.label}</button>
+                  class="btn btn-sm ${c.headwear === h.id ? 'btn-cyan' : 'btn-outline'}" 
+                  onclick="window.LobbyView.updateStudioProp('headwear', '${h.id}')"
+                  style="border-radius: 10px; font-weight: 800; font-size: 0.82rem;"
+                >${h.icon} ${h.label}</button>
               `).join('')}
             </div>
+            ${c.headwear !== 'none' ? `
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Color del Gorro:</span>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  ${headwearColors.map(color => `
+                    <div 
+                      class="studio-color-swatch ${c.headwearColor === color ? 'active' : ''}" 
+                      style="background: ${color}; width: 26px; height: 26px;"
+                      onclick="window.LobbyView.updateStudioProp('headwearColor', '${color}')"
+                    ></div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
           </div>
 
-          <!-- Color de pelo -->
+          <!-- Gafas y Ojos -->
           <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              🌈 Color de Cabello:
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
+              🕶️ Gafas y Visores:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${hairColors.map(color => `
-                <div 
-                  class="studio-color-swatch ${c.hairColor === color ? 'active' : ''}" 
-                  style="background: ${color};"
-                  onclick="window.LobbyView.updateStudioProp('hairColor', '${color}')"
-                ></div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Ojos / Mirada -->
-          <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              👀 Mirada / Ojos:
-            </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${eyesStyles.map(e => `
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
+              ${eyewears.map(e => `
                 <button 
-                  class="btn btn-sm ${c.eyesStyle === e.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('eyesStyle', '${e.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${e.label}</button>
+                  class="btn btn-sm ${c.eyewear === e.id ? 'btn-cyan' : 'btn-outline'}" 
+                  onclick="window.LobbyView.updateStudioProp('eyewear', '${e.id}')"
+                  style="border-radius: 10px; font-weight: 800; font-size: 0.82rem;"
+                >${e.icon} ${e.label}</button>
               `).join('')}
             </div>
+            ${c.eyewear !== 'none' ? `
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Color de Gafas:</span>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                  ${eyewearColors.map(color => `
+                    <div 
+                      class="studio-color-swatch ${c.eyewearColor === color ? 'active' : ''}" 
+                      style="background: ${color}; width: 26px; height: 26px;"
+                      onclick="window.LobbyView.updateStudioProp('eyewearColor', '${color}')"
+                    ></div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
           </div>
 
-          <!-- Expresión facial -->
+          <!-- Expresión Facial -->
           <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              😄 Expresión de Rostro:
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
+              😄 Expresión de Rostro y Ojos:
             </label>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${faceStyles.map(f => `
+              ${expressions.map(ex => `
                 <button 
-                  class="btn btn-sm ${c.faceStyle === f.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('faceStyle', '${f.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${f.label}</button>
+                  class="btn btn-sm ${c.expression === ex.id ? 'btn-cyan' : 'btn-outline'}" 
+                  onclick="window.LobbyView.updateStudioProp('expression', '${ex.id}')"
+                  style="border-radius: 10px; font-weight: 800; font-size: 0.82rem;"
+                >${ex.icon} ${ex.label}</button>
               `).join('')}
             </div>
           </div>
         </div>
       `;
     } else if (this.currentStudioTab === 'clothing') {
-      const topTypes = [
-        { id: 'hoodie', label: 'Hoodie Gamer' },
-        { id: 'tshirt', label: 'Camiseta' },
-        { id: 'jacket', label: 'Chaqueta Bomber' },
-        { id: 'labcoat', label: 'Bata Científica' },
-        { id: 'cyber_suit', label: 'Traje Cyber' }
+      const outfits = [
+        { id: 'hoodie', label: 'Hoodie Gamer', icon: '🧥', desc: 'Sudadera con capucha y cordones' },
+        { id: 'bowtie', label: 'Pajarita Elegante', icon: '👔', desc: 'Camisa blanca con corbatín' },
+        { id: 'scarf', label: 'Bufanda Invierno', icon: '🧣', desc: 'Bufanda cálida envolvente' },
+        { id: 'cape', label: 'Capa de Superhéroe', icon: '🦸', desc: 'Capa con emblema dorado' },
+        { id: 'medal', label: 'Medalla de Oro', icon: '🥇', desc: 'Medalla de primer lugar' },
+        { id: 'none', label: 'Pelaje Natural', icon: '🐾', desc: 'Aspecto natural del animal' }
       ];
-      const topColors = ['#7928ca', '#f72585', '#00f5d4', '#10b981', '#3b82f6', '#f59e0b', '#111827', '#ffffff'];
-      const bottomTypes = [
-        { id: 'cargo', label: 'Cargo Táctico' },
-        { id: 'jeans', label: 'Jeans' },
-        { id: 'joggers', label: 'Joggers' },
-        { id: 'cyber_pants', label: 'Cyber Pants' }
-      ];
-      const bottomColors = ['#1a1f36', '#0f172a', '#1e293b', '#2e1065', '#064e3b', '#451a03'];
-      const shoeTypes = [
-        { id: 'sneakers', label: 'Sneakers' },
-        { id: 'boots', label: 'Botas' },
-        { id: 'cyber_boots', label: 'Cyber Boots' }
-      ];
-      const accessories = [
-        { id: 'none', label: 'Ninguno' },
-        { id: 'headphones', label: 'Auriculares RGB' },
-        { id: 'cap', label: 'Gorra' },
-        { id: 'glasses', label: 'Gafas Pro' },
-        { id: 'mask', label: 'Mascarilla Táctica' },
-        { id: 'cyber_ear', label: 'Dispositivo Cyber' },
-        { id: 'backpack', label: 'Mochila' }
-      ];
-      const accColors = ['#ff007f', '#00f5d4', '#ffd166', '#a855f7', '#3b82f6', '#ffffff'];
+      const outfitColors = ['#7928ca', '#f72585', '#00f5d4', '#10b981', '#3b82f6', '#f59e0b', '#111827', '#ffffff'];
 
       panel.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-          <!-- Ropa Superior -->
           <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              👕 Prenda Superior:
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.65rem;">
+              👕 Prenda o Accesorio de Cuerpo:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
-              ${topTypes.map(t => `
-                <button 
-                  class="btn btn-sm ${c.topType === t.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('topType', '${t.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${t.label}</button>
-              `).join('')}
-            </div>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              ${topColors.map(color => `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
+              ${outfits.map(o => `
                 <div 
-                  class="studio-color-swatch ${c.topColor === color ? 'active' : ''}" 
-                  style="background: ${color}; width: 28px; height: 28px;"
-                  onclick="window.LobbyView.updateStudioProp('topColor', '${color}')"
-                ></div>
+                  class="studio-option-card ${c.outfit === o.id ? 'active' : ''}"
+                  onclick="window.LobbyView.updateStudioProp('outfit', '${o.id}'); window.LobbyView.renderStudioTabContent();"
+                >
+                  <span style="font-size: 1.6rem;">${o.icon}</span>
+                  <div>
+                    <div style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">${o.label}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.2;">${o.desc}</div>
+                  </div>
+                </div>
               `).join('')}
             </div>
           </div>
 
-          <!-- Pantalones -->
-          <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              👖 Pantalones:
-            </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
-              ${bottomTypes.map(b => `
-                <button 
-                  class="btn btn-sm ${c.bottomType === b.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('bottomType', '${b.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${b.label}</button>
-              `).join('')}
+          ${c.outfit !== 'none' ? `
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
+                🎨 Color de la Prenda:
+              </label>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                ${outfitColors.map(color => `
+                  <div 
+                    class="studio-color-swatch ${c.outfitColor === color ? 'active' : ''}" 
+                    style="background: ${color}; width: 32px; height: 32px;"
+                    onclick="window.LobbyView.updateStudioProp('outfitColor', '${color}')"
+                  ></div>
+                `).join('')}
+              </div>
             </div>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              ${bottomColors.map(color => `
+          ` : ''}
+        </div>
+      `;
+    } else if (this.currentStudioTab === 'theme') {
+      const themes = [
+        { id: 'default', label: 'Kahoot Clásico', icon: '🦊', desc: 'Pelaje y colores tradicionales' },
+        { id: 'neon_cyan', label: 'Cyan Neón', icon: '⚡', desc: 'Energía eléctrica luminosa' },
+        { id: 'pink_punk', label: 'Rosa Punk', icon: '💖', desc: 'Estilo vibrante y rebelde' },
+        { id: 'cyber_purple', label: 'Cyber Violeta', icon: '👾', desc: 'Estética futurista Synthwave' },
+        { id: 'golden', label: 'Oro Legendario', icon: '👑', desc: 'Tono dorado de campeón' },
+        { id: 'midnight', label: 'Noche Oscura', icon: '🌑', desc: 'Sigilo y tonos sombra' },
+        { id: 'arctic_white', label: 'Blanco Ártico', icon: '❄️', desc: 'Nieve pura con toques celestes' },
+        { id: 'emerald', label: 'Esmeralda Mística', icon: '💎', desc: 'Verde reluciente de dragón' }
+      ];
+      const backgrounds = window.AvatarEngine.stageBackgrounds || {};
+
+      panel.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <!-- Tema de Color del Animal -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.65rem;">
+              🎨 Paleta de Pelaje / Tema Especial:
+            </label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
+              ${themes.map(th => `
                 <div 
-                  class="studio-color-swatch ${c.bottomColor === color ? 'active' : ''}" 
-                  style="background: ${color}; width: 28px; height: 28px;"
-                  onclick="window.LobbyView.updateStudioProp('bottomColor', '${color}')"
-                ></div>
+                  class="studio-option-card ${c.themeColor === th.id ? 'active' : ''}"
+                  onclick="window.LobbyView.updateStudioProp('themeColor', '${th.id}'); window.LobbyView.renderStudioTabContent();"
+                >
+                  <span style="font-size: 1.6rem;">${th.icon}</span>
+                  <div>
+                    <div style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">${th.label}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.2;">${th.desc}</div>
+                  </div>
+                </div>
               `).join('')}
             </div>
           </div>
 
-          <!-- Calzado -->
+          <!-- Fondo de Escenario -->
           <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              👟 Calzado:
+            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.65rem;">
+              🌌 Fondo de Escenario Virtual 3D:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              ${shoeTypes.map(s => `
-                <button 
-                  class="btn btn-sm ${c.shoesType === s.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('shoesType', '${s.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${s.label}</button>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Accesorios -->
-          <div>
-            <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-              🎧 Accesorios:
-            </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
-              ${accessories.map(a => `
-                <button 
-                  class="btn btn-sm ${c.accessory === a.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('accessory', '${a.id}')"
-                  style="border-radius: 8px; font-weight: 800; font-size: 0.82rem;"
-                >${a.label}</button>
-              `).join('')}
-            </div>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              ${accColors.map(color => `
-                <div 
-                  class="studio-color-swatch ${c.accessoryColor === color ? 'active' : ''}" 
-                  style="background: ${color}; width: 28px; height: 28px;"
-                  onclick="window.LobbyView.updateStudioProp('accessoryColor', '${color}')"
-                ></div>
-              `).join('')}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
+              ${Object.keys(backgrounds).map(k => {
+                const bg = backgrounds[k];
+                return `
+                  <div 
+                    class="studio-option-card ${c.stageBg === k ? 'active' : ''}"
+                    onclick="window.LobbyView.updateStudioProp('stageBg', '${k}')"
+                  >
+                    <span style="font-size: 1.5rem;">${bg.icon}</span>
+                    <div>
+                      <div style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">${bg.name}</div>
+                      <div style="font-size: 0.72rem; color: var(--text-secondary);">${bg.desc}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           </div>
         </div>
@@ -2237,7 +2252,7 @@ window.LobbyView = {
       panel.innerHTML = `
         <div>
           <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.85rem;">
-            🎭 Gestos y Animaciones:
+            🎭 Gestos y Animaciones de Tu Personaje:
           </label>
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
             ${Object.keys(emotes).map(k => {
@@ -2259,55 +2274,45 @@ window.LobbyView = {
         </div>
       `;
     } else if (this.currentStudioTab === 'alias') {
-      const backgrounds = window.AvatarEngine.stageBackgrounds || {};
       const titles = window.AvatarEngine.titles || [];
-
       panel.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <!-- Vista Previa Destacada del Badge Oficial [ 🦊 Eimy  NIV. 3 ] -->
+          <div style="background: rgba(15,23,42,0.85); border: 1.5px solid rgba(0, 245, 212, 0.4); border-radius: 16px; padding: 1.15rem; text-align: center;">
+            <div style="font-size: 0.78rem; font-weight: 900; color: #ffd166; text-transform: uppercase; margin-bottom: 0.6rem;">
+              🏷️ Vista previa de tu Badge Oficial en Sala:
+            </div>
+            <div style="display: flex; justify-content: center; margin-bottom: 0.5rem;" id="studio-alias-badge-preview">
+              ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(c, { size: 36 }) : ''}
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+              Así te verán todos tus compañeros y el anfitrión en pantalla completa
+            </div>
+          </div>
+
           <!-- Alias del Jugador -->
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
-              🏷️ Alias Visible en la Sala:
+              🏷️ Alias o Nombre del Jugador:
             </label>
             <input 
               type="text" 
               id="studio-alias-input" 
               value="${c.alias || ''}" 
-              placeholder="Ej: CyberPro" 
+              placeholder="Ej: Eimy" 
               maxlength="20"
-              oninput="window.LobbyView.studioTempConfig.alias = this.value; window.LobbyView.updateStudioPreview();"
-              style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(15,23,42,0.8); border: 2px solid var(--neon-cyan); color: #ffffff; font-weight: 800; font-size: 1.05rem;"
+              oninput="window.LobbyView.studioTempConfig.alias = this.value; window.LobbyView.updateStudioPreview(); const b = document.getElementById('studio-alias-badge-preview'); if(b && window.AvatarEngine) b.innerHTML = window.AvatarEngine.renderBadgeHTML(window.LobbyView.studioTempConfig, {size: 36});"
+              style="width: 100%; box-sizing: border-box; padding: 0.85rem 1rem; border-radius: 12px; background: rgba(15,23,42,0.8); border: 2px solid var(--neon-cyan); color: #ffffff; font-weight: 800; font-size: 1.1rem;"
             />
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
               De 3 a 20 caracteres. Palabras ofensivas no están permitidas.
             </div>
           </div>
 
-          <!-- Fondo de Escenario -->
-          <div>
-            <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
-              🌌 Fondo de Escenario Virtual:
-            </label>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
-              ${Object.keys(backgrounds).map(k => {
-                const bg = backgrounds[k];
-                return `
-                  <div 
-                    class="studio-option-card ${c.stageBg === k ? 'active' : ''}"
-                    onclick="window.LobbyView.updateStudioProp('stageBg', '${k}')"
-                  >
-                    <span style="font-size: 1.5rem;">${bg.icon}</span>
-                    <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">${bg.name}</span>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
           <!-- Títulos Decorativos -->
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
-              👑 Título Decorativo del Personaje:
+              👑 Título de Honor Desbloqueado:
             </label>
             <select 
               onchange="window.LobbyView.updateStudioProp('title', this.value)"
@@ -2392,8 +2397,31 @@ window.LobbyView = {
       }
       finalEmail = `${nickname.toLowerCase().replace(/[^a-z0-9]/g, '') || 'alumno'}@mentix.player`;
     }
-    if (!room) {
-      console.log('Buscando sala en la red con PIN:', pin);
+    const emojiToAnimal = {
+      '🦊': 'fox',
+      '🐼': 'panda',
+      '🐱': 'cat',
+      '🐶': 'dog',
+      '🦁': 'lion',
+      '🐰': 'rabbit',
+      '🐨': 'koala',
+      '🦉': 'owl',
+      '🐵': 'monkey',
+      '🐻': 'bear',
+      '🐺': 'wolf',
+      '🐯': 'tiger',
+      '🐧': 'penguin',
+      '🦄': 'unicorn',
+      '🐲': 'dragon',
+      '🤖': 'robot'
+    };
+    if (window.AvatarEngine) {
+      const saved = window.AvatarEngine.getSavedAvatar();
+      if (emojiToAnimal[avatar]) {
+        saved.animal = emojiToAnimal[avatar];
+      }
+      if (nickname) saved.alias = nickname;
+      window.AvatarEngine.saveAvatar(saved);
     }
 
     window.realtimeEngine.joinRoom(pin, nickname, avatar, finalEmail, studentId, room);
