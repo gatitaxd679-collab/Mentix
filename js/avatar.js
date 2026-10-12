@@ -478,26 +478,26 @@ window.AvatarEngine = {
   spriteAnimals: ['fox', 'panda', 'cat', 'dog', 'lion', 'rabbit', 'koala', 'owl', 'monkey', 'bear', 'wolf', 'tiger', 'penguin', 'unicorn', 'dragon', 'robot'],
 
   // Coordenadas exactas medidas por píxel para cada uno de los 16 sprites (en viewBox 240x260):
-  // cx: centro horizontal, hatY: tope de la cabeza (para sombreros/coronas), ey: altura exacta de los ojos,
-  // es: escala exacta de distancia entre ojos (para gafas), hs: escala de sombreros,
-  // headW: semiancho de la cabeza (para auriculares/cinta ninja), neckY: línea del cuello, bw: semiancho del torso, bh: alto del torso
+  // cx: centro horizontal, hatY: tope de la cabeza, ey: altura de los ojos, es: escala de ojos, hs: escala de sombrero,
+  // headW: semiancho de cabeza, shY: altura de hombros, chinY: borde inferior de la barbilla en cx,
+  // sw: semiancho de hombros, armW: semiancho exterior de manga, pitW: semiancho exacto de axila, waistW: semiancho de cadera/cintura, hemY: borde inferior sobre las patas
   spriteMeta: {
-    fox:     { cx: 102.4, hatY: 42, ey: 100.8, es: 2.12, hs: 1.55, headW: 78, neckY: 169, bw: 41.5, bh: 54 },
-    panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, neckY: 170, bw: 43.5, bh: 54 },
-    cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, neckY: 161, bw: 42.0, bh: 58 },
-    dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, neckY: 153, bw: 44.0, bh: 64 },
-    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, neckY: 172, bw: 37.5, bh: 50 },
-    rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, neckY: 176, bw: 36.0, bh: 48 },
-    koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, neckY: 161, bw: 42.0, bh: 58 },
-    owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, neckY: 158, bw: 52.0, bh: 58 },
-    monkey:  { cx: 119.6, hatY: 26, ey: 100.3, es: 2.18, hs: 1.55, headW: 80, neckY: 166, bw: 39.5, bh: 54 },
-    bear:    { cx: 119.9, hatY: 25, ey: 99.5,  es: 2.10, hs: 1.60, headW: 82, neckY: 166, bw: 40.0, bh: 55 },
-    wolf:    { cx: 106.3, hatY: 40, ey: 98.8,  es: 2.05, hs: 1.55, headW: 76, neckY: 165, bw: 40.0, bh: 56 },
-    tiger:   { cx: 109.6, hatY: 21, ey: 93.5,  es: 2.52, hs: 1.60, headW: 83, neckY: 159, bw: 44.5, bh: 60 },
-    penguin: { cx: 119.5, hatY: 18, ey: 97.7,  es: 2.34, hs: 1.60, headW: 86, neckY: 158, bw: 49.5, bh: 60 },
-    unicorn: { cx: 120.0, hatY: 38, ey: 107.7, es: 2.02, hs: 1.50, headW: 77, neckY: 170, bw: 38.0, bh: 52 },
-    dragon:  { cx: 119.9, hatY: 24, ey: 99.5,  es: 2.10, hs: 1.55, headW: 82, neckY: 166, bw: 40.0, bh: 55 },
-    robot:   { cx: 119.5, hatY: 32, ey: 96.8,  es: 2.38, hs: 1.55, headW: 80, neckY: 169, bw: 38.5, bh: 53 }
+    fox:     { cx: 102.4, hatY: 42, ey: 100.8, es: 2.12, hs: 1.55, headW: 78, shY: 156, chinY: 169, sw: 40.0, armW: 55.5, pitW: 37.5, waistW: 42.5, hemY: 221 },
+    panda:   { cx: 119.6, hatY: 20, ey: 92.6,  es: 2.16, hs: 1.60, headW: 84, shY: 151, chinY: 160, sw: 43.5, armW: 58.5, pitW: 41.5, waistW: 44.0, hemY: 221 },
+    cat:     { cx: 99.0,  hatY: 32, ey: 96.0,  es: 2.14, hs: 1.55, headW: 76, shY: 152, chinY: 161, sw: 41.0, armW: 57.0, pitW: 38.0, waistW: 42.5, hemY: 220 },
+    dog:     { cx: 119.6, hatY: 18, ey: 90.7,  es: 2.55, hs: 1.60, headW: 82, shY: 145, chinY: 154, sw: 41.0, armW: 58.5, pitW: 39.5, waistW: 44.5, hemY: 218 },
+    lion:    { cx: 118.0, hatY: 24, ey: 102.0, es: 2.45, hs: 1.55, headW: 92, shY: 170, chinY: 184, sw: 42.0, armW: 52.0, pitW: 35.5, waistW: 39.5, hemY: 223 },
+    rabbit:  { cx: 119.9, hatY: 66, ey: 107.6, es: 1.98, hs: 1.45, headW: 63, shY: 170, chinY: 176, sw: 34.0, armW: 48.5, pitW: 33.0, waistW: 36.5, hemY: 223 },
+    koala:   { cx: 119.9, hatY: 30, ey: 98.6,  es: 2.48, hs: 1.55, headW: 78, shY: 152, chinY: 160, sw: 41.0, armW: 56.5, pitW: 38.0, waistW: 42.5, hemY: 219 },
+    owl:     { cx: 120.0, hatY: 18, ey: 88.0,  es: 2.35, hs: 1.60, headW: 83, shY: 141, chinY: 151, sw: 51.0, armW: 65.5, pitW: 48.0, waistW: 49.0, hemY: 218 },
+    monkey:  { cx: 119.6, hatY: 26, ey: 100.3, es: 2.18, hs: 1.55, headW: 80, shY: 160, chinY: 166, sw: 39.0, armW: 53.5, pitW: 36.5, waistW: 40.0, hemY: 221 },
+    bear:    { cx: 119.9, hatY: 25, ey: 99.5,  es: 2.10, hs: 1.60, headW: 82, shY: 160, chinY: 166, sw: 39.5, armW: 54.0, pitW: 37.0, waistW: 40.5, hemY: 222 },
+    wolf:    { cx: 106.3, hatY: 40, ey: 98.8,  es: 2.05, hs: 1.55, headW: 76, shY: 154, chinY: 165, sw: 38.0, armW: 54.0, pitW: 36.5, waistW: 40.5, hemY: 219 },
+    tiger:   { cx: 109.6, hatY: 21, ey: 93.5,  es: 2.52, hs: 1.60, headW: 83, shY: 150, chinY: 159, sw: 44.5, armW: 59.5, pitW: 41.5, waistW: 44.5, hemY: 220 },
+    penguin: { cx: 119.5, hatY: 18, ey: 97.7,  es: 2.34, hs: 1.60, headW: 86, shY: 148, chinY: 158, sw: 48.5, armW: 66.0, pitW: 48.5, waistW: 51.0, hemY: 225 },
+    unicorn: { cx: 120.0, hatY: 38, ey: 107.7, es: 2.02, hs: 1.50, headW: 77, shY: 164, chinY: 170, sw: 37.5, armW: 51.0, pitW: 35.0, waistW: 38.5, hemY: 221 },
+    dragon:  { cx: 119.9, hatY: 24, ey: 99.5,  es: 2.10, hs: 1.55, headW: 82, shY: 158, chinY: 165, sw: 39.5, armW: 53.5, pitW: 37.0, waistW: 40.5, hemY: 221 },
+    robot:   { cx: 119.5, hatY: 32, ey: 96.8,  es: 2.38, hs: 1.55, headW: 80, shY: 163, chinY: 169, sw: 37.0, armW: 51.5, pitW: 35.0, waistW: 38.0, hemY: 221 }
   },
 
   // Colores especiales: se aplican como tinte sobre el sprite
@@ -516,7 +516,7 @@ window.AvatarEngine = {
 
   renderSpriteAvatar(c, animal, emote, size, uniqueId) {
     const meta = this.spriteMeta[animal] || this.spriteMeta.fox;
-    const { cx, hatY, ey, es, hs, headW, neckY, bw, bh } = meta;
+    const { cx, hatY, ey, es, hs, headW, shY, chinY, sw, armW, pitW, waistW, hemY } = meta;
 
     let emoteClass = 'anim-breathing';
     if (emote === 'wave') emoteClass = 'anim-wave';
@@ -527,106 +527,219 @@ window.AvatarEngine = {
     else if (emote === 'focus') emoteClass = 'anim-focus';
     else if (emote === 'clap') emoteClass = 'anim-clap';
 
-    // 1. PRENDAS DE ROPA ILUSTRADAS ADAPTADAS AL CUELLO Y TORSO EXACTO DE CADA ANIMAL
-    const col = c.outfitColor || '#a855f7';
+    // 1. PRENDAS DE ROPA ILUSTRADAS QUE ENVUELVEN HOMBROS, BARBILLA, MANGAS Y CINTURA DE CADA ANIMAL
+    const S = '#2a1810';
     let behind = '';
     let front = '';
-    const sw = bw * 0.84;    // hombros
-    const armW = bw * 1.30;  // mangas sobre los bracitos
-    const hw = bw * 0.96;    // cintura del torso
-    const botY = neckY + bh;
-    const shirtPath = `M${(cx - sw).toFixed(1)} ${neckY - 1}
-                       Q${(cx - armW).toFixed(1)} ${neckY + 8} ${(cx - armW).toFixed(1)} ${neckY + bh * 0.52}
-                       Q${(cx - armW + 7).toFixed(1)} ${neckY + bh * 0.60} ${(cx - hw).toFixed(1)} ${neckY + bh * 0.48}
-                       L${(cx - hw).toFixed(1)} ${botY - 6}
-                       Q${cx} ${botY + 5} ${(cx + hw).toFixed(1)} ${botY - 6}
-                       L${(cx + hw).toFixed(1)} ${neckY + bh * 0.48}
-                       Q${(cx + armW - 7).toFixed(1)} ${neckY + bh * 0.60} ${(cx + armW).toFixed(1)} ${neckY + bh * 0.52}
-                       Q${(cx + armW).toFixed(1)} ${neckY + 8} ${(cx + sw).toFixed(1)} ${neckY - 1}
-                       Q${cx} ${neckY + 9} ${(cx - sw).toFixed(1)} ${neckY - 1} Z`;
+
+    // Punto de control de Bezier para que la curva del cuello pase exactamente por (cx, chinY) desde (cx-sw, shY) hasta (cx+sw, shY)
+    const colCy = 2 * chinY - shY;
+    const slvY = shY + 24;       // borde exterior de la manga (justo antes de las manitas/patitas)
+    const pitY = shY + 27;       // axila donde la manga se une al torso
+    const pitX = pitW || (waistW * 0.90); // semiancho exacto de la línea de axila del sprite
+    const hw = waistW;           // semiancho exacto del torso en la cintura
+    const botY = hemY;
+
+    // Silueta anatómica de camiseta/chaqueta adaptada a la curva real del cuerpo y mangas del animal
+    const shirtPath = [
+      `M ${(cx - sw).toFixed(1)} ${shY}`,
+      `Q ${(cx - armW + 2).toFixed(1)} ${shY + 9} ${(cx - armW).toFixed(1)} ${slvY}`,
+      `Q ${(cx - (armW + pitX) * 0.5).toFixed(1)} ${pitY + 2.5} ${(cx - pitX).toFixed(1)} ${pitY}`,
+      `Q ${(cx - hw - 1).toFixed(1)} ${ (pitY + botY) * 0.5 } ${(cx - hw).toFixed(1)} ${botY - 4}`,
+      `Q ${cx} ${botY + 7} ${(cx + hw).toFixed(1)} ${botY - 4}`,
+      `Q ${(cx + hw + 1).toFixed(1)} ${ (pitY + botY) * 0.5 } ${(cx + pitX).toFixed(1)} ${pitY}`,
+      `Q ${(cx + (armW + pitX) * 0.5).toFixed(1)} ${pitY + 2.5} ${(cx + armW).toFixed(1)} ${slvY}`,
+      `Q ${(cx + armW - 2).toFixed(1)} ${shY + 9} ${(cx + sw).toFixed(1)} ${shY}`,
+      `Q ${cx} ${colCy.toFixed(1)} ${(cx - sw).toFixed(1)} ${shY}`,
+      `Z`
+    ].join(' ');
+
+    // Costuras internas de las mangas y cuello para dar volumen cartoon 2D real
+    const sleeveSeams = `
+      <path d="M ${(cx - pitX).toFixed(1)} ${pitY} Q ${(cx - pitX + 1.5).toFixed(1)} ${shY + 17} ${(cx - pitX + 3).toFixed(1)} ${shY + 12}" fill="none" stroke="${S}" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M ${(cx + pitX).toFixed(1)} ${pitY} Q ${(cx + pitX - 1.5).toFixed(1)} ${shY + 17} ${(cx + pitX - 3).toFixed(1)} ${shY + 12}" fill="none" stroke="${S}" stroke-width="2.8" stroke-linecap="round"/>
+    `;
+    const collarRim = (rimCol) => `
+      <path d="M ${(cx - sw + 2).toFixed(1)} ${shY + 1} Q ${cx} ${colCy.toFixed(1)} ${(cx + sw - 2).toFixed(1)} ${shY + 1} L ${(cx + sw - 6).toFixed(1)} ${shY + 6} Q ${cx} ${(colCy + 7).toFixed(1)} ${(cx - sw + 6).toFixed(1)} ${shY + 6} Z" fill="${rimCol}" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+    `;
 
     switch (c.outfit) {
-      case 'tshirt_purple':
+      case 'tshirt_purple': {
+        const baseCol = c.outfitColor || '#c084fc';
         front = `
-          <path d="${shirtPath}" fill="${c.outfitColor || '#c084fc'}" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
-          <path d="M${(cx - hw + 2).toFixed(1)} ${botY - 15} Q${cx} ${botY - 10} ${(cx + hw - 2).toFixed(1)} ${botY - 15} L${(cx + hw - 1).toFixed(1)} ${botY - 6} Q${cx} ${botY + 4} ${(cx - hw + 1).toFixed(1)} ${botY - 6} Z" fill="#e879f9" opacity="0.65"/>
-          <path d="${shirtPath}" fill="none" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <path d="${shirtPath}" fill="${baseCol}" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <!-- Franja inferior rosa/magenta -->
+          <path d="M ${(cx - hw + 1.5).toFixed(1)} ${botY - 14} Q ${cx} ${botY - 8} ${(cx + hw - 1.5).toFixed(1)} ${botY - 14} L ${(cx + hw).toFixed(1)} ${botY - 4} Q ${cx} ${botY + 6} ${(cx - hw).toFixed(1)} ${botY - 4} Z" fill="#f472b6" opacity="0.85"/>
+          <path d="M ${(cx - hw + 1.5).toFixed(1)} ${botY - 14} Q ${cx} ${botY - 8} ${(cx + hw - 1.5).toFixed(1)} ${botY - 14}" fill="none" stroke="${S}" stroke-width="2.2"/>
+          ${collarRim('#9333ea')}
+          ${sleeveSeams}
+          <path d="${shirtPath}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
         `;
         break;
-      case 'vest_adventurer':
+      }
+      case 'vest_adventurer': {
         front = `
-          <!-- Camisa amarilla base -->
-          <path d="${shirtPath}" fill="#fde047" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
-          <!-- Chaleco rojo encima -->
-          <path d="M${(cx - sw).toFixed(1)} ${neckY} L${(cx - hw).toFixed(1)} ${neckY + bh * 0.35} L${(cx - hw).toFixed(1)} ${botY - 5} Q${cx - hw * 0.4} ${botY + 2} ${(cx - 4).toFixed(1)} ${botY - 4} L${(cx - 4).toFixed(1)} ${neckY + bh * 0.36} Z" fill="#f43f5e" stroke="#2a1810" stroke-width="2.5" stroke-linejoin="round"/>
-          <path d="M${(cx + sw).toFixed(1)} ${neckY} L${(cx + hw).toFixed(1)} ${neckY + bh * 0.35} L${(cx + hw).toFixed(1)} ${botY - 5} Q${cx + hw * 0.4} ${botY + 2} ${(cx + 4).toFixed(1)} ${botY - 4} L${(cx + 4).toFixed(1)} ${neckY + bh * 0.36} Z" fill="#f43f5e" stroke="#2a1810" stroke-width="2.5" stroke-linejoin="round"/>
-          <!-- Cuello en V naranja/amarillo -->
-          <polygon points="${(cx - 16).toFixed(1)},${neckY} ${cx},${neckY + 20} ${(cx + 16).toFixed(1)},${neckY}" fill="#f59e0b" stroke="#2a1810" stroke-width="2.2" stroke-linejoin="round"/>
+          <!-- Camisa amarilla base con mangas -->
+          <path d="${shirtPath}" fill="#fde047" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <!-- Paneles izquierdo y derecho del chaleco rojo sobre el torso -->
+          <path d="M ${(cx - sw + 3).toFixed(1)} ${shY + 1} L ${(cx - pitX).toFixed(1)} ${pitY - 2} L ${(cx - hw).toFixed(1)} ${botY - 4} Q ${(cx - hw * 0.45).toFixed(1)} ${botY + 2} ${(cx - 5).toFixed(1)} ${botY + 1} L ${(cx - 5).toFixed(1)} ${chinY + 4} Q ${(cx - sw * 0.5).toFixed(1)} ${chinY - 1} ${(cx - sw + 3).toFixed(1)} ${shY + 1} Z" fill="#f43f5e" stroke="${S}" stroke-width="2.8" stroke-linejoin="round"/>
+          <path d="M ${(cx + sw - 3).toFixed(1)} ${shY + 1} L ${(cx + pitX).toFixed(1)} ${pitY - 2} L ${(cx + hw).toFixed(1)} ${botY - 4} Q ${(cx + hw * 0.45).toFixed(1)} ${botY + 2} ${(cx + 5).toFixed(1)} ${botY + 1} L ${(cx + 5).toFixed(1)} ${chinY + 4} Q ${(cx + sw * 0.5).toFixed(1)} ${chinY - 1} ${(cx + sw - 3).toFixed(1)} ${shY + 1} Z" fill="#f43f5e" stroke="${S}" stroke-width="2.8" stroke-linejoin="round"/>
+          <!-- Solapas del cuello en V naranjas -->
+          <polygon points="${(cx - 20).toFixed(1)},${chinY - 3} ${(cx - 5).toFixed(1)},${chinY + 15} ${(cx - 5).toFixed(1)},${chinY}" fill="#f59e0b" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <polygon points="${(cx + 20).toFixed(1)},${chinY - 3} ${(cx + 5).toFixed(1)},${chinY + 15} ${(cx + 5).toFixed(1)},${chinY}" fill="#f59e0b" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          ${sleeveSeams}
+          <path d="M ${(cx - sw).toFixed(1)} ${shY} Q ${cx} ${colCy.toFixed(1)} ${(cx + sw).toFixed(1)} ${shY}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linecap="round"/>
         `;
         break;
-      case 'shirt_cyan':
+      }
+      case 'shirt_cyan': {
         front = `
-          <path d="${shirtPath}" fill="#38bdf8" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
-          <line x1="${cx}" y1="${neckY + 7}" x2="${cx}" y2="${botY - 2}" stroke="#2a1810" stroke-width="2.4"/>
-          <circle cx="${(cx - bw * 0.42).toFixed(1)}" cy="${neckY + bh * 0.38}" r="4.5" fill="rgba(255,255,255,0.65)"/>
-          <circle cx="${(cx + bw * 0.38).toFixed(1)}" cy="${neckY + bh * 0.32}" r="4" fill="rgba(255,255,255,0.65)"/>
-          <circle cx="${(cx + bw * 0.44).toFixed(1)}" cy="${neckY + bh * 0.66}" r="4.5" fill="rgba(255,255,255,0.65)"/>
-          <circle cx="${(cx - bw * 0.35).toFixed(1)}" cy="${neckY + bh * 0.72}" r="3.8" fill="rgba(255,255,255,0.65)"/>
+          <path d="${shirtPath}" fill="#38bdf8" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <!-- Camiseta interior blanca en el centro y apertura de camisa veraniega -->
+          <path d="M ${(cx - 6).toFixed(1)} ${chinY} L ${(cx + 6).toFixed(1)} ${chinY} L ${(cx + 5).toFixed(1)} ${botY + 1} L ${(cx - 5).toFixed(1)} ${botY + 1} Z" fill="#ffffff" stroke="${S}" stroke-width="2.4"/>
+          <!-- Estampado veraniego blanco -->
+          <circle cx="${(cx - hw * 0.52).toFixed(1)}" cy="${chinY + 14}" r="4.5" fill="rgba(255,255,255,0.75)"/>
+          <circle cx="${(cx + hw * 0.50).toFixed(1)}" cy="${chinY + 12}" r="4.2" fill="rgba(255,255,255,0.75)"/>
+          <circle cx="${(cx - hw * 0.45).toFixed(1)}" cy="${botY - 14}" r="4.2" fill="rgba(255,255,255,0.75)"/>
+          <circle cx="${(cx + hw * 0.52).toFixed(1)}" cy="${botY - 15}" r="4.5" fill="rgba(255,255,255,0.75)"/>
+          ${collarRim('#0284c7')}
+          ${sleeveSeams}
+          <path d="${shirtPath}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
         `;
         break;
-      case 'tshirt_rainbow':
+      }
+      case 'tshirt_rainbow': {
         front = `
           <defs>
             <linearGradient id="rb_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#f43f5e"/>
-              <stop offset="35%" stop-color="#facc15"/>
-              <stop offset="70%" stop-color="#38bdf8"/>
+              <stop offset="30%" stop-color="#facc15"/>
+              <stop offset="60%" stop-color="#4ade80"/>
+              <stop offset="82%" stop-color="#38bdf8"/>
               <stop offset="100%" stop-color="#c084fc"/>
             </linearGradient>
           </defs>
-          <path d="${shirtPath}" fill="url(#rb_${uniqueId})" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <path d="${shirtPath}" fill="url(#rb_${uniqueId})" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          ${collarRim('#f43f5e')}
+          ${sleeveSeams}
+          <path d="${shirtPath}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
         `;
         break;
-      case 'jacket_brown':
+      }
+      case 'jacket_brown': {
         front = `
-          <path d="${shirtPath}" fill="#b45309" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
-          <polygon points="${(cx - 18).toFixed(1)},${neckY - 1} ${cx},${neckY + 15} ${(cx - 6).toFixed(1)},${neckY + 19}" fill="#ffffff" stroke="#2a1810" stroke-width="2"/>
-          <polygon points="${(cx + 18).toFixed(1)},${neckY - 1} ${cx},${neckY + 15} ${(cx + 6).toFixed(1)},${neckY + 19}" fill="#ffffff" stroke="#2a1810" stroke-width="2"/>
-          <line x1="${cx}" y1="${neckY + 14}" x2="${cx}" y2="${botY - 2}" stroke="#ffffff" stroke-width="2.5"/>
+          <path d="${shirtPath}" fill="#b45309" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <!-- Pretina inferior más oscura -->
+          <path d="M ${(cx - hw + 1).toFixed(1)} ${botY - 10} Q ${cx} ${botY - 5} ${(cx + hw - 1).toFixed(1)} ${botY - 10} L ${(cx + hw).toFixed(1)} ${botY - 4} Q ${cx} ${botY + 6} ${(cx - hw).toFixed(1)} ${botY - 4} Z" fill="#78350f"/>
+          <!-- Cremallera blanca central -->
+          <line x1="${cx}" y1="${chinY + 2}" x2="${cx}" y2="${botY + 1}" stroke="#ffffff" stroke-width="3.2"/>
+          <line x1="${cx - 2.2}" y1="${chinY + 2}" x2="${cx - 2.2}" y2="${botY + 1}" stroke="${S}" stroke-width="1.6"/>
+          <line x1="${cx + 2.2}" y1="${chinY + 2}" x2="${cx + 2.2}" y2="${botY + 1}" stroke="${S}" stroke-width="1.6"/>
+          <!-- Cuello blanco tipo sherpa aviador -->
+          <polygon points="${(cx - 24).toFixed(1)},${chinY - 4} ${cx},${chinY + 8} ${(cx - 10).toFixed(1)},${chinY + 14}" fill="#ffffff" stroke="${S}" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="${(cx + 24).toFixed(1)},${chinY - 4} ${cx},${chinY + 8} ${(cx + 10).toFixed(1)},${chinY + 14}" fill="#ffffff" stroke="${S}" stroke-width="2.5" stroke-linejoin="round"/>
+          ${sleeveSeams}
+          <path d="M ${(cx - sw).toFixed(1)} ${shY} Q ${cx} ${colCy.toFixed(1)} ${(cx + sw).toFixed(1)} ${shY}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linecap="round"/>
         `;
         break;
-      case 'cape':
-        behind = `<path d="M${(cx - bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 1.55).toFixed(1)} ${neckY + bh + 16} Q${cx} ${neckY + bh + 26} ${(cx - bw * 1.55).toFixed(1)} ${neckY + bh + 16} Z" fill="${col}" stroke="#3b1d0e" stroke-width="3" stroke-linejoin="round"/>`;
-        front = `<path d="M${(cx - bw * 0.72).toFixed(1)} ${neckY - 1} Q${cx} ${neckY + 9} ${(cx + bw * 0.72).toFixed(1)} ${neckY - 1}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round"/>
-                 <circle cx="${cx}" cy="${neckY + 4}" r="6" fill="#ffd166" stroke="#3b1d0e" stroke-width="2"/>`;
-        break;
-      case 'hoodie':
+      }
+      case 'hoodie': {
+        const hCol = c.outfitColor || '#3b82f6';
         front = `
-          <path d="${shirtPath}" fill="${col}" stroke="#3b1d0e" stroke-width="2.8" stroke-linejoin="round"/>
-          <path d="M${(cx - bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.62).toFixed(1)} ${botY - 7} Q${cx} ${botY - 2} ${(cx - bw * 0.62).toFixed(1)} ${botY - 7} Z" fill="rgba(0,0,0,0.22)" stroke="#3b1d0e" stroke-width="1.8" stroke-linejoin="round"/>
-          <line x1="${(cx - 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx - 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-          <line x1="${(cx + 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx + 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+          <path d="${shirtPath}" fill="${hCol}" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          ${collarRim(hCol)}
+          <!-- Bolsillo canguro frontal -->
+          <path d="M ${(cx - hw * 0.56).toFixed(1)} ${botY - 21} L ${(cx + hw * 0.56).toFixed(1)} ${botY - 21} L ${(cx + hw * 0.68).toFixed(1)} ${botY - 5} Q ${cx} ${botY} ${(cx - hw * 0.68).toFixed(1)} ${botY - 5} Z" fill="rgba(0,0,0,0.22)" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <!-- Cordones blancos del hoodie -->
+          <line x1="${(cx - 8).toFixed(1)}" y1="${chinY + 2}" x2="${(cx - 8).toFixed(1)}" y2="${chinY + 20}" stroke="${S}" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="${(cx + 8).toFixed(1)}" y1="${chinY + 2}" x2="${(cx + 8).toFixed(1)}" y2="${chinY + 20}" stroke="${S}" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="${(cx - 8).toFixed(1)}" y1="${chinY + 2}" x2="${(cx - 8).toFixed(1)}" y2="${chinY + 20}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="${(cx + 8).toFixed(1)}" y1="${chinY + 2}" x2="${(cx + 8).toFixed(1)}" y2="${chinY + 20}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+          ${sleeveSeams}
+          <path d="${shirtPath}" fill="none" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
         `;
         break;
-      case 'bowtie': {
-        const bwScale = bw / 40;
-        front = `<polygon points="${cx - 2},${neckY + 3} ${(cx - 22 * bwScale).toFixed(1)},${neckY - 8 * bwScale} ${(cx - 22 * bwScale).toFixed(1)},${neckY + 14 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2" stroke-linejoin="round"/>
-                 <polygon points="${cx + 2},${neckY + 3} ${(cx + 22 * bwScale).toFixed(1)},${neckY - 8 * bwScale} ${(cx + 22 * bwScale).toFixed(1)},${neckY + 14 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2" stroke-linejoin="round"/>
-                 <circle cx="${cx}" cy="${neckY + 3}" r="${5.5 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2"/>`;
+      }
+      case 'cape': {
+        const capeCol = (c.outfitColor && c.outfitColor !== '#7928ca') ? c.outfitColor : '#ef4444';
+        const capeOutW = armW + 18;
+        const capeBotY = botY + 14;
+        // Capa amplia ondeando detrás de los hombros y brazos, bien visible a ambos lados
+        behind = `
+          <path d="M ${(cx - sw).toFixed(1)} ${shY + 2}
+                   Q ${(cx - capeOutW - 4).toFixed(1)} ${shY + 34} ${(cx - capeOutW).toFixed(1)} ${capeBotY}
+                   Q ${(cx - capeOutW * 0.5).toFixed(1)} ${capeBotY + 10} ${cx} ${capeBotY + 4}
+                   Q ${(cx + capeOutW * 0.5).toFixed(1)} ${capeBotY + 10} ${(cx + capeOutW).toFixed(1)} ${capeBotY}
+                   Q ${(cx + capeOutW + 4).toFixed(1)} ${shY + 34} ${(cx + sw).toFixed(1)} ${shY + 2} Z"
+                fill="${capeCol}" stroke="${S}" stroke-width="3.4" stroke-linejoin="round"/>
+          <path d="M ${(cx - sw + 4).toFixed(1)} ${shY + 8}
+                   Q ${(cx - capeOutW + 8).toFixed(1)} ${shY + 38} ${(cx - capeOutW + 10).toFixed(1)} ${capeBotY - 3}
+                   Q ${cx} ${capeBotY + 4} ${(cx + capeOutW - 10).toFixed(1)} ${capeBotY - 3}
+                   Q ${(cx + capeOutW - 8).toFixed(1)} ${shY + 38} ${(cx + sw - 4).toFixed(1)} ${shY + 8} Z"
+                fill="rgba(0,0,0,0.18)"/>
+        `;
+        // Esclavina / cuello de la capa abrazando los hombros por delante + broche dorado bajo la barbilla
+        front = `
+          <path d="M ${(cx - sw - 2).toFixed(1)} ${shY}
+                   Q ${cx} ${colCy.toFixed(1)} ${(cx + sw + 2).toFixed(1)} ${shY}
+                   Q ${(cx + sw + 8).toFixed(1)} ${shY + 9} ${(cx + sw - 2).toFixed(1)} ${shY + 13}
+                   Q ${cx} ${(colCy + 13).toFixed(1)} ${(cx - sw + 2).toFixed(1)} ${shY + 13}
+                   Q ${(cx - sw - 8).toFixed(1)} ${shY + 9} ${(cx - sw - 2).toFixed(1)} ${shY} Z"
+                fill="${capeCol}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="${cx}" cy="${chinY + 5}" r="8" fill="#ffd166" stroke="${S}" stroke-width="2.6"/>
+          <circle cx="${cx}" cy="${chinY + 5}" r="4" fill="#f59e0b"/>
+        `;
         break;
       }
       case 'scarf': {
-        const scw = bw * 0.92;
-        front = `<rect x="${(cx - scw).toFixed(1)}" y="${neckY - 7}" width="${(scw * 2).toFixed(1)}" height="16" rx="8" fill="${col}" stroke="#3b1d0e" stroke-width="2.6"/>
-                 <rect x="${(cx + scw * 0.25).toFixed(1)}" y="${neckY + 3}" width="16" height="${Math.min(34, bh * 0.62).toFixed(1)}" rx="6" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>`;
+        const scCol = (c.outfitColor && c.outfitColor !== '#7928ca') ? c.outfitColor : '#f97316';
+        // Bufanda curva que abraza el cuello de hombro a hombro pasando bajo la barbilla + caída lateral con flecos
+        front = `
+          <!-- Caída vertical de la bufanda sobre el pecho derecho -->
+          <path d="M ${(cx + 8).toFixed(1)} ${chinY + 2}
+                   L ${(cx + 25).toFixed(1)} ${chinY}
+                   L ${(cx + 27).toFixed(1)} ${chinY + 34}
+                   Q ${(cx + 17).toFixed(1)} ${chinY + 38} ${(cx + 7).toFixed(1)} ${chinY + 34} Z"
+                fill="${scCol}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="${(cx + 8).toFixed(1)}" y1="${chinY + 27}" x2="${(cx + 26).toFixed(1)}" y2="${chinY + 27}" stroke="#fde047" stroke-width="3.5"/>
+          <!-- Cuello envolvente curvo -->
+          <path d="M ${(cx - sw + 1).toFixed(1)} ${shY - 1}
+                   Q ${cx} ${(colCy - 2).toFixed(1)} ${(cx + sw - 1).toFixed(1)} ${shY - 1}
+                   Q ${(cx + sw + 4).toFixed(1)} ${shY + 9} ${(cx + sw - 3).toFixed(1)} ${shY + 14}
+                   Q ${cx} ${(colCy + 15).toFixed(1)} ${(cx - sw + 3).toFixed(1)} ${shY + 14}
+                   Q ${(cx - sw - 4).toFixed(1)} ${shY + 9} ${(cx - sw + 1).toFixed(1)} ${shY - 1} Z"
+                fill="${scCol}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M ${(cx - sw * 0.55).toFixed(1)} ${chinY - 2} Q ${cx} ${chinY + 7} ${(cx + sw * 0.55).toFixed(1)} ${chinY - 2}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="3" stroke-linecap="round"/>
+        `;
+        break;
+      }
+      case 'bowtie': {
+        const bCol = (c.outfitColor && c.outfitColor !== '#7928ca') ? c.outfitColor : '#ef4444';
+        const by = chinY + 5;
+        front = `
+          <!-- Cuello de camisa blanca elegante bajo la barbilla -->
+          <polygon points="${(cx - 22).toFixed(1)},${chinY - 3} ${cx},${chinY + 7} ${(cx - 11).toFixed(1)},${chinY + 14}" fill="#ffffff" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <polygon points="${(cx + 22).toFixed(1)},${chinY - 3} ${cx},${chinY + 7} ${(cx + 11).toFixed(1)},${chinY + 14}" fill="#ffffff" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <!-- Pajarita centrada -->
+          <polygon points="${cx - 2},${by} ${(cx - 21).toFixed(1)},${by - 9} ${(cx - 21).toFixed(1)},${by + 9}" fill="${bCol}" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <polygon points="${cx + 2},${by} ${(cx + 21).toFixed(1)},${by - 9} ${(cx + 21).toFixed(1)},${by + 9}" fill="${bCol}" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <circle cx="${cx}" cy="${by}" r="5.5" fill="${bCol}" stroke="${S}" stroke-width="2.4"/>
+        `;
         break;
       }
       case 'medal': {
-        const my = neckY + bh * 0.52;
-        front = `<polygon points="${(cx - bw * 0.42).toFixed(1)},${neckY - 1} ${cx},${my - 4} ${(cx - bw * 0.18).toFixed(1)},${neckY + 2}" fill="#3b82f6" stroke="#3b1d0e" stroke-width="1.4"/>
-                 <polygon points="${(cx + bw * 0.42).toFixed(1)},${neckY - 1} ${cx},${my - 4} ${(cx + bw * 0.18).toFixed(1)},${neckY + 2}" fill="#ef4444" stroke="#3b1d0e" stroke-width="1.4"/>
-                 <circle cx="${cx}" cy="${my + 3}" r="12" fill="#ffd166" stroke="#3b1d0e" stroke-width="2.2"/>
-                 <circle cx="${cx}" cy="${my + 3}" r="7.5" fill="#f59e0b"/>`;
+        const my = chinY + 24;
+        const rx = sw * 0.56;
+        const ry = shY + (chinY - shY) * 0.35;
+        front = `
+          <!-- Cintas desde los hombros bajo la barbilla hasta el centro del pecho -->
+          <polygon points="${(cx - rx).toFixed(1)},${ry.toFixed(1)} ${cx},${my - 4} ${(cx - rx + 10).toFixed(1)},${(ry + 3).toFixed(1)}" fill="#3b82f6" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+          <polygon points="${(cx + rx).toFixed(1)},${ry.toFixed(1)} ${cx},${my - 4} ${(cx + rx - 10).toFixed(1)},${(ry + 3).toFixed(1)}" fill="#ef4444" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+          <!-- Medalla dorada con estrella -->
+          <circle cx="${cx}" cy="${my + 3}" r="13" fill="#ffd166" stroke="${S}" stroke-width="2.8"/>
+          <circle cx="${cx}" cy="${my + 3}" r="8.5" fill="#f59e0b"/>
+          <polygon transform="translate(${cx}, ${my + 3}) scale(0.65)" points="0,-10 3,-3 10,-2 5,3 6,10 0,6 -6,10 -5,3 -10,-2 -3,-3" fill="#fef08a"/>
+        `;
         break;
       }
       default:
@@ -745,74 +858,94 @@ window.AvatarEngine = {
         <rect x="10" y="10" width="44" height="44" rx="12" fill="url(#${gid})" stroke="#2a1810" stroke-width="3"/>
       </svg>`;
     }
-    // Outfits (Ropa ilustrada como en la imagen de referencia)
+    // Outfits (Ropa ilustrada con silueta gordita, curvas suaves y costuras como en la imagen de referencia)
     const S = '#2a1810';
-    const tee = 'M18 14 L8 23 L14 31 L19 26 L19 52 L45 52 L45 26 L50 31 L56 23 L46 14 Q32 20 18 14 Z';
+    const tee = 'M 22 14 C 15 15 9 21 7 28 L 15 33 L 18 28 L 16 50 Q 32 54 48 50 L 46 28 L 49 33 L 57 28 C 55 21 49 15 42 14 Q 32 21 22 14 Z';
+    const teeBackNeck = `<path d="M 22 14 Q 32 11 42 14 Q 32 21 22 14 Z" fill="#581c87" stroke="${S}" stroke-width="2.4"/>`;
+    const teeSeams = `<path d="M 18 28 Q 19 22 20 18 M 46 28 Q 45 22 44 18" fill="none" stroke="${S}" stroke-width="2.4" stroke-linecap="round"/>`;
     switch (id) {
       case 'tshirt_purple':
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
+          ${teeBackNeck}
           <path d="${tee}" fill="#c084fc" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <rect x="20" y="42" width="24" height="9" fill="#e879f9" opacity="0.7"/>
+          <path d="M 16.5 41 Q 32 44 47.5 41 L 48 50 Q 32 54 16 50 Z" fill="#e879f9" opacity="0.85"/>
+          <path d="M 16.5 41 Q 32 44 47.5 41" fill="none" stroke="${S}" stroke-width="2"/>
+          ${teeSeams}
           <path d="${tee}" fill="none" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
         </svg>`;
       case 'vest_adventurer':
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
+          <path d="M 22 14 Q 32 11 42 14 Q 32 21 22 14 Z" fill="#b45309" stroke="${S}" stroke-width="2.4"/>
           <path d="${tee}" fill="#fde047" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <path d="M19 15 L19 52 L29 52 L29 27 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
-          <path d="M45 15 L45 52 L35 52 L35 27 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
-          <polygon points="24,15 32,29 40,15" fill="#f59e0b" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M 21 15 L 18 27 L 16 50 Q 23 52 29 51.5 L 29 24 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <path d="M 43 15 L 46 27 L 48 50 Q 41 52 35 51.5 L 35 24 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <polygon points="22,14 32,28 29,15" fill="#f59e0b" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+          <polygon points="42,14 32,28 35,15" fill="#f59e0b" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+          ${teeSeams}
         </svg>`;
       case 'shirt_cyan':
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
+          <path d="M 22 14 Q 32 11 42 14 Q 32 21 22 14 Z" fill="#0369a1" stroke="${S}" stroke-width="2.4"/>
           <path d="${tee}" fill="#38bdf8" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <line x1="32" y1="18" x2="32" y2="52" stroke="${S}" stroke-width="2.6"/>
-          <circle cx="24" cy="30" r="3" fill="#e0f2fe"/><circle cx="39" cy="28" r="2.8" fill="#e0f2fe"/><circle cx="40" cy="41" r="3" fill="#e0f2fe"/><circle cx="25" cy="43" r="2.5" fill="#e0f2fe"/>
+          <path d="M 29 18 L 35 18 L 34 51.5 L 30 51.5 Z" fill="#e0f2fe" stroke="${S}" stroke-width="2.2"/>
+          <circle cx="23" cy="31" r="3" fill="#e0f2fe"/><circle cx="40" cy="29" r="2.8" fill="#e0f2fe"/><circle cx="41" cy="42" r="3" fill="#e0f2fe"/><circle cx="23" cy="43" r="2.6" fill="#e0f2fe"/>
+          ${teeSeams}
+          <path d="${tee}" fill="none" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
         </svg>`;
       case 'tshirt_rainbow': {
         const rg = 'rg_' + Math.random().toString(36).substr(2, 4);
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
           <defs><linearGradient id="${rg}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#f43f5e"/><stop offset="35%" stop-color="#facc15"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/>
+            <stop offset="0%" stop-color="#f43f5e"/><stop offset="32%" stop-color="#facc15"/><stop offset="65%" stop-color="#4ade80"/><stop offset="85%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/>
           </linearGradient></defs>
+          <path d="M 22 14 Q 32 11 42 14 Q 32 21 22 14 Z" fill="#be123c" stroke="${S}" stroke-width="2.4"/>
           <path d="${tee}" fill="url(#${rg})" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          ${teeSeams}
         </svg>`;
       }
       case 'jacket_brown':
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
+          <path d="M 22 14 Q 32 11 42 14 Q 32 21 22 14 Z" fill="#451a03" stroke="${S}" stroke-width="2.4"/>
           <path d="${tee}" fill="#b45309" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <polygon points="22,14 32,26 26,30" fill="#ffffff" stroke="${S}" stroke-width="2.2"/>
-          <polygon points="42,14 32,26 38,30" fill="#ffffff" stroke="${S}" stroke-width="2.2"/>
-          <line x1="32" y1="26" x2="32" y2="52" stroke="#ffffff" stroke-width="2.6"/>
+          <line x1="32" y1="22" x2="32" y2="51.5" stroke="#ffffff" stroke-width="3"/>
+          <polygon points="21,14 32,24 25,29" fill="#ffffff" stroke="${S}" stroke-width="2.3" stroke-linejoin="round"/>
+          <polygon points="43,14 32,24 39,29" fill="#ffffff" stroke="${S}" stroke-width="2.3" stroke-linejoin="round"/>
+          ${teeSeams}
         </svg>`;
       case 'hoodie':
-        return `<svg viewBox="0 0 64 64" width="50" height="50">
-          <path d="${tee}" fill="${color || '#7928ca'}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <rect x="23" y="38" width="18" height="10" rx="3" fill="rgba(0,0,0,0.25)" stroke="${S}" stroke-width="2"/>
-          <line x1="28" y1="19" x2="28" y2="31" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="36" y1="19" x2="36" y2="31" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        return `<svg viewBox="0 0 64 64" width="52" height="52">
+          <path d="M 19 15 Q 32 7 45 15 Q 32 21 19 15 Z" fill="#1d4ed8" stroke="${S}" stroke-width="2.6"/>
+          <path d="${tee}" fill="${color || '#3b82f6'}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M 22 38 L 42 38 L 44 48 Q 32 50 20 48 Z" fill="rgba(0,0,0,0.24)" stroke="${S}" stroke-width="2.2" stroke-linejoin="round"/>
+          <line x1="28" y1="19" x2="28" y2="31" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="36" y1="19" x2="36" y2="31" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+          ${teeSeams}
         </svg>`;
       case 'bowtie':
-        return `<svg viewBox="0 0 64 64" width="48" height="48">
-          <polygon points="30,32 12,20 12,44" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <polygon points="34,32 52,20 52,44" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <circle cx="32" cy="32" r="6" fill="#f87171" stroke="${S}" stroke-width="2.6"/>
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="M 30 32 L 11 19 C 9 25 9 39 11 45 Z" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M 34 32 L 53 19 C 55 25 55 39 53 45 Z" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="32" cy="32" r="6.5" fill="#f87171" stroke="${S}" stroke-width="2.8"/>
         </svg>`;
       case 'scarf':
-        return `<svg viewBox="0 0 64 64" width="48" height="48">
-          <rect x="12" y="20" width="40" height="14" rx="7" fill="#f97316" stroke="${S}" stroke-width="3"/>
-          <rect x="34" y="30" width="13" height="22" rx="5" fill="#ea580c" stroke="${S}" stroke-width="2.8"/>
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="M 34 28 L 47 28 L 49 51 Q 41 54 33 51 Z" fill="#ea580c" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="34" y1="45" x2="48" y2="45" stroke="#fde047" stroke-width="3"/>
+          <path d="M 11 20 Q 32 26 53 20 Q 56 27 51 33 Q 32 38 13 33 Q 8 27 11 20 Z" fill="#f97316" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
         </svg>`;
       case 'cape':
-        return `<svg viewBox="0 0 64 64" width="48" height="48">
-          <path d="M20 14 L44 14 L54 52 Q32 56 10 52 Z" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
-          <circle cx="32" cy="18" r="5" fill="#facc15" stroke="${S}" stroke-width="2.4"/>
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="M 19 14 Q 32 18 45 14 Q 54 32 56 51 Q 32 57 8 51 Q 10 32 19 14 Z" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M 18 14 Q 32 20 46 14 Q 48 19 44 22 Q 32 26 20 22 Q 16 19 18 14 Z" fill="#dc2626" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <circle cx="32" cy="20" r="5.5" fill="#facc15" stroke="${S}" stroke-width="2.4"/>
         </svg>`;
       case 'medal':
-        return `<svg viewBox="0 0 64 64" width="48" height="48">
-          <polygon points="18,12 32,36 25,12" fill="#3b82f6" stroke="${S}" stroke-width="2.2"/>
-          <polygon points="46,12 32,36 39,12" fill="#ef4444" stroke="${S}" stroke-width="2.2"/>
-          <circle cx="32" cy="42" r="12" fill="#facc15" stroke="${S}" stroke-width="2.8"/>
-          <circle cx="32" cy="42" r="7" fill="#f59e0b"/>
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <polygon points="16,11 32,36 24,11" fill="#3b82f6" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <polygon points="48,11 32,36 40,11" fill="#ef4444" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          <circle cx="32" cy="42" r="13" fill="#facc15" stroke="${S}" stroke-width="3"/>
+          <circle cx="32" cy="42" r="8.5" fill="#f59e0b"/>
+          <polygon transform="translate(32, 42) scale(0.6)" points="0,-10 3,-3 10,-2 5,3 6,10 0,6 -6,10 -5,3 -10,-2 -3,-3" fill="#fef08a"/>
         </svg>`;
       default:
         return '';
