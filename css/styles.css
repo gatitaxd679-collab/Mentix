@@ -4432,12 +4432,14 @@ body.light-theme .dart-hit-badge {
   padding: 0.4rem 1rem; border-radius: 9999px; background: #0b0f1f; border: 1px solid rgba(255,255,255,0.15); font-size: 1.4rem;
 }
 
-/* ===== Pedestal iluminado (vista estudiante) ===== */
+/* ===== Pedestal iluminado 3D (vista estudiante) ===== */
+#waiting-avatar-viewport-container { position: relative; }
 #waiting-avatar-viewport-container::after {
-  content: ''; position: absolute; bottom: 0.9rem; left: 50%; transform: translateX(-50%);
-  width: 190px; height: 28px; border-radius: 50%; z-index: 0;
-  background: radial-gradient(ellipse, #f0abfc 0%, #a855f7 55%, rgba(168,85,247,0) 75%);
-  box-shadow: 0 0 35px rgba(217, 70, 239, 0.8);
+  content: ''; position: absolute; bottom: 0.35rem; left: 50%; transform: translateX(-50%);
+  width: 175px; height: 34px; border-radius: 50%; z-index: 0;
+  background: radial-gradient(ellipse at 50% 42%, #f5d0fe 0%, #d946ef 45%, #7e22ce 78%, #4c1d95 100%);
+  border: 2.5px solid #3b0764;
+  box-shadow: 0 7px 0 #581c87, 0 12px 28px rgba(217, 70, 239, 0.85), 0 0 45px rgba(168, 85, 247, 0.65);
 }
 #waiting-avatar-viewport { position: relative; z-index: 1; }
 
@@ -4488,5 +4490,16 @@ body.light-theme .dart-hit-badge {
 .avatar-tail { transform-box: view-box; transform-origin: 148px 200px; animation: tail-wag 1.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .avatar-tail { animation: none; } }
 
-/* La imagen del zorro ya incluye su pedestal */
-.student-pedestal-stage::after, #waiting-avatar-viewport-container::after { display: none !important; }
+.student-pedestal-stage::after { display: none !important; }
+
+/* Animación fluida y viva para los personajes ilustrados (sprites) */
+@keyframes sprite-idle-alive {
+  0%, 100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  25% { transform: translateY(-5px) scale(1.02, 0.98) rotate(-1.5deg); }
+  50% { transform: translateY(-8px) scale(0.99, 1.03) rotate(0deg); }
+  75% { transform: translateY(-4px) scale(1.02, 0.98) rotate(1.5deg); }
+}
+.sprite-avatar.anim-breathing {
+  transform-origin: 50% 92%;
+  animation: sprite-idle-alive 2.8s ease-in-out infinite !important;
+}

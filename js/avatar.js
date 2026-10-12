@@ -472,12 +472,115 @@ window.AvatarEngine = {
     `;
   },
 
+  // =========================================================================
+  // 🖼️ PERSONAJES ILUSTRADOS (sprites estilo Kahoot bonito y animado)
+  // =========================================================================
+  spriteAnimals: ['fox', 'panda', 'cat', 'dog', 'lion', 'rabbit', 'koala', 'owl', 'monkey', 'bear', 'wolf', 'tiger'],
+
+  // Posición de la cabeza en cada sprite (lienzo 240x260): cx = centro, ey = altura de ojos, hs = escala de cabeza
+  spriteMeta: {
+    fox:    { cx: 102, ey: 98,  hs: 1.75 },
+    panda:  { cx: 120, ey: 88,  hs: 1.7 },
+    cat:    { cx: 99,  ey: 95,  hs: 1.55 },
+    dog:    { cx: 120, ey: 83,  hs: 1.45 },
+    lion:   { cx: 120, ey: 105, hs: 1.35 },
+    rabbit: { cx: 119, ey: 118, hs: 1.35 },
+    koala:  { cx: 120, ey: 96,  hs: 1.45 },
+    owl:    { cx: 120, ey: 82,  hs: 1.65 },
+    monkey: { cx: 119, ey: 103, hs: 1.45 },
+    bear:   { cx: 120, ey: 98,  hs: 1.65 },
+    wolf:   { cx: 106, ey: 100, hs: 1.7 },
+    tiger:  { cx: 109, ey: 89,  hs: 1.7 }
+  },
+
+  // Colores especiales: se aplican como tinte sobre el sprite
+  themeFilterCss(themeColor) {
+    const map = {
+      neon_cyan: 'hue-rotate(150deg) saturate(1.4)',
+      pink_punk: 'hue-rotate(305deg) saturate(1.3)',
+      cyber_purple: 'hue-rotate(245deg) saturate(1.3)',
+      golden: 'hue-rotate(18deg) saturate(1.5) brightness(1.12)',
+      midnight: 'brightness(0.62) saturate(0.8) contrast(1.1)',
+      arctic_white: 'saturate(0.25) brightness(1.25)',
+      emerald: 'hue-rotate(95deg) saturate(1.3)'
+    };
+    return map[themeColor] ? `filter:${map[themeColor]};` : '';
+  },
+
+  renderSpriteAvatar(c, animal, emote, size, uniqueId) {
+    const meta = this.spriteMeta[animal] || { cx: 120, ey: 98, hs: 1.6 };
+    const { cx, ey, hs } = meta;
+    const k = hs / 1.7;
+    const neckY = ey + 38 * hs;
+
+    let emoteClass = 'anim-breathing';
+    if (emote === 'wave') emoteClass = 'anim-wave';
+    else if (emote === 'celebrate') emoteClass = 'anim-celebrate';
+    else if (emote === 'dance') emoteClass = 'anim-dance';
+    else if (emote === 'laugh') emoteClass = 'anim-laugh';
+    else if (emote === 'victory') emoteClass = 'anim-victory';
+    else if (emote === 'focus') emoteClass = 'anim-focus';
+    else if (emote === 'clap') emoteClass = 'anim-clap';
+
+    const col = c.outfitColor || '#7928ca';
+    let behind = '';
+    let front = '';
+    switch (c.outfit) {
+      case 'cape':
+        behind = `<path d="M${cx - 38 * k} ${neckY} L${cx + 38 * k} ${neckY} L${cx + 62 * k} ${neckY + 82 * k} L${cx - 62 * k} ${neckY + 82 * k} Z" fill="${col}" stroke="#3b1d0e" stroke-width="2.5" stroke-linejoin="round"/>`;
+        front = `<circle cx="${cx}" cy="${neckY + 6}" r="${5 * k}" fill="#ffd166" stroke="#3b1d0e" stroke-width="1.8"/>`;
+        break;
+      case 'hoodie':
+        front = `<rect x="${cx - 34 * k}" y="${neckY + 4}" width="${68 * k}" height="${56 * k}" rx="${16 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.5" opacity="0.94"/>
+                 <rect x="${cx - 20 * k}" y="${neckY + 34 * k}" width="${40 * k}" height="${18 * k}" rx="${6 * k}" fill="rgba(0,0,0,0.2)"/>
+                 <line x1="${cx - 7 * k}" y1="${neckY + 8}" x2="${cx - 7 * k}" y2="${neckY + 28 * k}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+                 <line x1="${cx + 7 * k}" y1="${neckY + 8}" x2="${cx + 7 * k}" y2="${neckY + 28 * k}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`;
+        break;
+      case 'bowtie':
+        front = `<polygon points="${cx - 2},${neckY + 4} ${cx - 20 * k},${neckY - 6 * k} ${cx - 20 * k},${neckY + 14 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.8"/>
+                 <polygon points="${cx + 2},${neckY + 4} ${cx + 20 * k},${neckY - 6 * k} ${cx + 20 * k},${neckY + 14 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.8"/>
+                 <circle cx="${cx}" cy="${neckY + 4}" r="${5 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="1.5"/>`;
+        break;
+      case 'scarf':
+        front = `<rect x="${cx - 34 * k}" y="${neckY - 6 * k}" width="${68 * k}" height="${15 * k}" rx="${7 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>
+                 <rect x="${cx + 12 * k}" y="${neckY + 4 * k}" width="${14 * k}" height="${30 * k}" rx="${5 * k}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2"/>`;
+        break;
+      case 'medal':
+        front = `<polygon points="${cx - 12 * k},${neckY - 2} ${cx},${neckY + 26 * k} ${cx - 22 * k},${neckY + 2}" fill="#3b82f6"/>
+                 <polygon points="${cx + 12 * k},${neckY - 2} ${cx},${neckY + 26 * k} ${cx + 22 * k},${neckY + 2}" fill="#ef4444"/>
+                 <circle cx="${cx}" cy="${neckY + 34 * k}" r="${11 * k}" fill="#ffd166" stroke="#3b1d0e" stroke-width="2"/>
+                 <circle cx="${cx}" cy="${neckY + 34 * k}" r="${7 * k}" fill="#f59e0b"/>`;
+        break;
+      default:
+        break;
+    }
+
+    const headwearSvg = this.generateHeadwearSVG(c.headwear, c.headwearColor);
+    const eyewearSvg = this.generateEyewearSVG(c.eyewear, c.eyewearColor);
+    const tx = cx - 60 * hs;
+    const ty = ey - 62 * hs;
+
+    return `
+      <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
+        <svg id="${uniqueId}" class="mentix-avatar-svg sprite-avatar ${emoteClass}" viewBox="0 0 240 260" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));">
+          ${behind}
+          <image href="assets/sprites/${animal}.png" x="0" y="0" width="240" height="260" style="${this.themeFilterCss(c.themeColor)}" />
+          ${front}
+          <g transform="translate(${tx.toFixed(1)}, ${ty.toFixed(1)}) scale(${hs})">
+            ${eyewearSvg}
+            ${headwearSvg}
+          </g>
+        </svg>
+      </div>
+    `;
+  },
+
   // Renderiza solo el icono de cabeza vectorial compacto para pills y listas
   renderIconSVG(cfg, size = 32) {
     const c = { ...this.defaultConfig, ...(cfg || {}) };
     const animal = c.animal || 'fox';
-    if (animal === 'fox') {
-      return `<img src="assets/zorro_avatar.png" alt="Zorro" draggable="false" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;object-position:50% 38%;transform:scale(1.5);" />`;
+    if (this.spriteAnimals.includes(animal)) {
+      return `<span style="display:inline-block;width:${size}px;height:${size}px;vertical-align:middle;background:url('assets/sprites/${animal}.png') center / contain no-repeat;${this.themeFilterCss(c.themeColor)}"></span>`;
     }
     const uniqueId = 'head_' + Math.random().toString(36).substr(2, 6);
 
@@ -518,18 +621,9 @@ window.AvatarEngine = {
 
     let emoteClass = 'anim-breathing';
 
-    // El zorro usa literalmente la imagen aprobada por el usuario
-    if (animal === 'fox') {
-      if (emote === 'wave') emoteClass = 'anim-wave';
-      else if (emote === 'celebrate') emoteClass = 'anim-celebrate';
-      else if (emote === 'dance') emoteClass = 'anim-dance';
-      else if (emote === 'victory') emoteClass = 'anim-victory';
-      return `
-        <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
-          <img src="assets/zorro_avatar.png" alt="Zorro" class="mentix-avatar-svg ${emoteClass}" draggable="false"
-            style="height: ${size}px; width: auto; max-width: 100%; border-radius: 14px; object-fit: contain; image-rendering: auto; user-select: none;" />
-        </div>
-      `;
+    // Animales con arte ilustrado (sprites): se dibujan con el estilo bonito y animado
+    if (this.spriteAnimals.includes(animal)) {
+      return this.renderSpriteAvatar(c, animal, emote, size, uniqueId);
     }
     if (emote === 'wave') emoteClass = 'anim-wave';
     else if (emote === 'celebrate') emoteClass = 'anim-celebrate';
