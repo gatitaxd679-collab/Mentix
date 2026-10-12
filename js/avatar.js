@@ -527,41 +527,87 @@ window.AvatarEngine = {
     else if (emote === 'focus') emoteClass = 'anim-focus';
     else if (emote === 'clap') emoteClass = 'anim-clap';
 
-    // 1. PRENDAS DE ROPA ADAPTADAS AL CUELLO Y TORSO EXACTO DE CADA ANIMAL
-    const col = c.outfitColor || '#7928ca';
+    // 1. PRENDAS DE ROPA ILUSTRADAS ADAPTADAS AL CUELLO Y TORSO EXACTO DE CADA ANIMAL
+    const col = c.outfitColor || '#a855f7';
     let behind = '';
     let front = '';
+    const sw = bw * 0.84;    // hombros
+    const armW = bw * 1.30;  // mangas sobre los bracitos
+    const hw = bw * 0.96;    // cintura del torso
+    const botY = neckY + bh;
+    const shirtPath = `M${(cx - sw).toFixed(1)} ${neckY - 1}
+                       Q${(cx - armW).toFixed(1)} ${neckY + 8} ${(cx - armW).toFixed(1)} ${neckY + bh * 0.52}
+                       Q${(cx - armW + 7).toFixed(1)} ${neckY + bh * 0.60} ${(cx - hw).toFixed(1)} ${neckY + bh * 0.48}
+                       L${(cx - hw).toFixed(1)} ${botY - 6}
+                       Q${cx} ${botY + 5} ${(cx + hw).toFixed(1)} ${botY - 6}
+                       L${(cx + hw).toFixed(1)} ${neckY + bh * 0.48}
+                       Q${(cx + armW - 7).toFixed(1)} ${neckY + bh * 0.60} ${(cx + armW).toFixed(1)} ${neckY + bh * 0.52}
+                       Q${(cx + armW).toFixed(1)} ${neckY + 8} ${(cx + sw).toFixed(1)} ${neckY - 1}
+                       Q${cx} ${neckY + 9} ${(cx - sw).toFixed(1)} ${neckY - 1} Z`;
+
     switch (c.outfit) {
+      case 'tshirt_purple':
+        front = `
+          <path d="${shirtPath}" fill="${c.outfitColor || '#c084fc'}" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <path d="M${(cx - hw + 2).toFixed(1)} ${botY - 15} Q${cx} ${botY - 10} ${(cx + hw - 2).toFixed(1)} ${botY - 15} L${(cx + hw - 1).toFixed(1)} ${botY - 6} Q${cx} ${botY + 4} ${(cx - hw + 1).toFixed(1)} ${botY - 6} Z" fill="#e879f9" opacity="0.65"/>
+          <path d="${shirtPath}" fill="none" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+        `;
+        break;
+      case 'vest_adventurer':
+        front = `
+          <!-- Camisa amarilla base -->
+          <path d="${shirtPath}" fill="#fde047" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <!-- Chaleco rojo encima -->
+          <path d="M${(cx - sw).toFixed(1)} ${neckY} L${(cx - hw).toFixed(1)} ${neckY + bh * 0.35} L${(cx - hw).toFixed(1)} ${botY - 5} Q${cx - hw * 0.4} ${botY + 2} ${(cx - 4).toFixed(1)} ${botY - 4} L${(cx - 4).toFixed(1)} ${neckY + bh * 0.36} Z" fill="#f43f5e" stroke="#2a1810" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M${(cx + sw).toFixed(1)} ${neckY} L${(cx + hw).toFixed(1)} ${neckY + bh * 0.35} L${(cx + hw).toFixed(1)} ${botY - 5} Q${cx + hw * 0.4} ${botY + 2} ${(cx + 4).toFixed(1)} ${botY - 4} L${(cx + 4).toFixed(1)} ${neckY + bh * 0.36} Z" fill="#f43f5e" stroke="#2a1810" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Cuello en V naranja/amarillo -->
+          <polygon points="${(cx - 16).toFixed(1)},${neckY} ${cx},${neckY + 20} ${(cx + 16).toFixed(1)},${neckY}" fill="#f59e0b" stroke="#2a1810" stroke-width="2.2" stroke-linejoin="round"/>
+        `;
+        break;
+      case 'shirt_cyan':
+        front = `
+          <path d="${shirtPath}" fill="#38bdf8" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <line x1="${cx}" y1="${neckY + 7}" x2="${cx}" y2="${botY - 2}" stroke="#2a1810" stroke-width="2.4"/>
+          <circle cx="${(cx - bw * 0.42).toFixed(1)}" cy="${neckY + bh * 0.38}" r="4.5" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="${(cx + bw * 0.38).toFixed(1)}" cy="${neckY + bh * 0.32}" r="4" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="${(cx + bw * 0.44).toFixed(1)}" cy="${neckY + bh * 0.66}" r="4.5" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="${(cx - bw * 0.35).toFixed(1)}" cy="${neckY + bh * 0.72}" r="3.8" fill="rgba(255,255,255,0.65)"/>
+        `;
+        break;
+      case 'tshirt_rainbow':
+        front = `
+          <defs>
+            <linearGradient id="rb_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f43f5e"/>
+              <stop offset="35%" stop-color="#facc15"/>
+              <stop offset="70%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#c084fc"/>
+            </linearGradient>
+          </defs>
+          <path d="${shirtPath}" fill="url(#rb_${uniqueId})" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+        `;
+        break;
+      case 'jacket_brown':
+        front = `
+          <path d="${shirtPath}" fill="#b45309" stroke="#2a1810" stroke-width="2.8" stroke-linejoin="round"/>
+          <polygon points="${(cx - 18).toFixed(1)},${neckY - 1} ${cx},${neckY + 15} ${(cx - 6).toFixed(1)},${neckY + 19}" fill="#ffffff" stroke="#2a1810" stroke-width="2"/>
+          <polygon points="${(cx + 18).toFixed(1)},${neckY - 1} ${cx},${neckY + 15} ${(cx + 6).toFixed(1)},${neckY + 19}" fill="#ffffff" stroke="#2a1810" stroke-width="2"/>
+          <line x1="${cx}" y1="${neckY + 14}" x2="${cx}" y2="${botY - 2}" stroke="#ffffff" stroke-width="2.5"/>
+        `;
+        break;
       case 'cape':
         behind = `<path d="M${(cx - bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 0.88).toFixed(1)} ${neckY} L${(cx + bw * 1.55).toFixed(1)} ${neckY + bh + 16} Q${cx} ${neckY + bh + 26} ${(cx - bw * 1.55).toFixed(1)} ${neckY + bh + 16} Z" fill="${col}" stroke="#3b1d0e" stroke-width="3" stroke-linejoin="round"/>`;
         front = `<path d="M${(cx - bw * 0.72).toFixed(1)} ${neckY - 1} Q${cx} ${neckY + 9} ${(cx + bw * 0.72).toFixed(1)} ${neckY - 1}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round"/>
                  <circle cx="${cx}" cy="${neckY + 4}" r="6" fill="#ffd166" stroke="#3b1d0e" stroke-width="2"/>`;
         break;
-      case 'hoodie': {
-        const sw = bw * 0.84;    // hombros
-        const armW = bw * 1.30;  // mangas sobre los bracitos
-        const hw = bw * 0.96;    // cintura del torso
-        const botY = neckY + bh;
+      case 'hoodie':
         front = `
-          <!-- Chaqueta Hoodie contorneada al cuerpo y brazos del animal -->
-          <path d="M${(cx - sw).toFixed(1)} ${neckY - 1}
-                   Q${(cx - armW).toFixed(1)} ${neckY + 8} ${(cx - armW).toFixed(1)} ${neckY + bh * 0.58}
-                   Q${(cx - armW + 6).toFixed(1)} ${neckY + bh * 0.66} ${(cx - hw).toFixed(1)} ${neckY + bh * 0.56}
-                   L${(cx - hw).toFixed(1)} ${botY - 6}
-                   Q${cx} ${botY + 5} ${(cx + hw).toFixed(1)} ${botY - 6}
-                   L${(cx + hw).toFixed(1)} ${neckY + bh * 0.56}
-                   Q${(cx + armW - 6).toFixed(1)} ${neckY + bh * 0.66} ${(cx + armW).toFixed(1)} ${neckY + bh * 0.58}
-                   Q${(cx + armW).toFixed(1)} ${neckY + 8} ${(cx + sw).toFixed(1)} ${neckY - 1}
-                   Q${cx} ${neckY + 8} ${(cx - sw).toFixed(1)} ${neckY - 1} Z"
-                fill="${col}" stroke="#3b1d0e" stroke-width="2.8" stroke-linejoin="round"/>
-          <!-- Bolsillo canguro frontal -->
+          <path d="${shirtPath}" fill="${col}" stroke="#3b1d0e" stroke-width="2.8" stroke-linejoin="round"/>
           <path d="M${(cx - bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.52).toFixed(1)} ${neckY + bh * 0.56} L${(cx + bw * 0.62).toFixed(1)} ${botY - 7} Q${cx} ${botY - 2} ${(cx - bw * 0.62).toFixed(1)} ${botY - 7} Z" fill="rgba(0,0,0,0.22)" stroke="#3b1d0e" stroke-width="1.8" stroke-linejoin="round"/>
-          <!-- Cordones blancos del hoodie -->
           <line x1="${(cx - 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx - 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
           <line x1="${(cx + 8).toFixed(1)}" y1="${neckY + 4}" x2="${(cx + 8).toFixed(1)}" y2="${neckY + bh * 0.44}" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
         `;
         break;
-      }
       case 'bowtie': {
         const bwScale = bw / 40;
         front = `<polygon points="${cx - 2},${neckY + 3} ${(cx - 22 * bwScale).toFixed(1)},${neckY - 8 * bwScale} ${(cx - 22 * bwScale).toFixed(1)},${neckY + 14 * bwScale}" fill="${col}" stroke="#3b1d0e" stroke-width="2.2" stroke-linejoin="round"/>
@@ -570,9 +616,9 @@ window.AvatarEngine = {
         break;
       }
       case 'scarf': {
-        const sw = bw * 0.92;
-        front = `<rect x="${(cx - sw).toFixed(1)}" y="${neckY - 7}" width="${(sw * 2).toFixed(1)}" height="16" rx="8" fill="${col}" stroke="#3b1d0e" stroke-width="2.6"/>
-                 <rect x="${(cx + sw * 0.25).toFixed(1)}" y="${neckY + 3}" width="16" height="${Math.min(34, bh * 0.62).toFixed(1)}" rx="6" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>`;
+        const scw = bw * 0.92;
+        front = `<rect x="${(cx - scw).toFixed(1)}" y="${neckY - 7}" width="${(scw * 2).toFixed(1)}" height="16" rx="8" fill="${col}" stroke="#3b1d0e" stroke-width="2.6"/>
+                 <rect x="${(cx + scw * 0.25).toFixed(1)}" y="${neckY + 3}" width="16" height="${Math.min(34, bh * 0.62).toFixed(1)}" rx="6" fill="${col}" stroke="#3b1d0e" stroke-width="2.4"/>`;
         break;
       }
       case 'medal': {
@@ -629,7 +675,6 @@ window.AvatarEngine = {
       `;
     } else if (c.headwear && c.headwear !== 'none') {
       const headwearSvg = this.generateHeadwearSVG(c.headwear, hCol);
-      // En generateHeadwearSVG la base del sombrero/corona está en (60, 44) (o 60,30 para el lazo)
       const anchorY = (c.headwear === 'bow') ? 32 : 44;
       const txHat = cx - 60 * hs;
       const tyHat = hatY - anchorY * hs;
@@ -650,6 +695,128 @@ window.AvatarEngine = {
         </svg>
       </div>
     `;
+  },
+
+  // Iconos vectoriales ilustrados (NO emojis) para el menú rápido izquierdo y el panel derecho de prendas
+  renderQuickMenuIconSVG(catKey) {
+    switch (catKey) {
+      case 'animal':
+        return `<svg viewBox="0 0 48 48" width="32" height="32"><circle cx="14" cy="18" r="5" fill="#fb923c" stroke="#2a1810" stroke-width="2.2"/><circle cx="24" cy="13" r="5" fill="#fb923c" stroke="#2a1810" stroke-width="2.2"/><circle cx="34" cy="18" r="5" fill="#fb923c" stroke="#2a1810" stroke-width="2.2"/><path d="M14 31 C14 23 34 23 34 31 C34 37 28 39 24 39 C20 39 14 37 14 31 Z" fill="#fb923c" stroke="#2a1810" stroke-width="2.4"/></svg>`;
+      case 'hat':
+        return `<svg viewBox="0 0 48 48" width="34" height="34"><ellipse cx="24" cy="33" rx="19" ry="6" fill="#d946ef" stroke="#2a1810" stroke-width="2.4"/><path d="M13 32 C13 16 19 14 24 17 C29 14 35 16 35 32 Z" fill="#e879f9" stroke="#2a1810" stroke-width="2.4"/><path d="M13 29 Q24 33 35 29" stroke="#701a75" stroke-width="3.5" fill="none"/></svg>`;
+      case 'shirt':
+        return `<svg viewBox="0 0 48 48" width="34" height="34"><path d="M15 11 L8 18 L13 24 L16 20 L16 38 L32 38 L32 20 L35 24 L40 18 L33 11 Q24 16 15 11 Z" fill="#38bdf8" stroke="#2a1810" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
+      case 'palette':
+        return `<svg viewBox="0 0 48 48" width="34" height="34"><path d="M24 9 C14 9 8 16 8 25 C8 34 15 39 23 39 C27 39 29 36 29 33 C29 30 27 29 29 27 C31 25 34 27 37 25 C40 23 40 18 37 14 C34 10 29 9 24 9 Z" fill="#f59e0b" stroke="#2a1810" stroke-width="2.4"/><circle cx="16" cy="21" r="3" fill="#ef4444"/><circle cx="22" cy="16" r="3" fill="#38bdf8"/><circle cx="29" cy="18" r="3" fill="#a855f7"/><circle cx="16" cy="29" r="3" fill="#10b981"/></svg>`;
+      case 'glasses':
+        return `<svg viewBox="0 0 48 48" width="34" height="34"><circle cx="15" cy="26" r="8" fill="rgba(56,189,248,0.25)" stroke="#38bdf8" stroke-width="2.6"/><circle cx="33" cy="26" r="8" fill="rgba(56,189,248,0.25)" stroke="#38bdf8" stroke-width="2.6"/><line x1="23" y1="25" x2="25" y2="25" stroke="#38bdf8" stroke-width="2.6"/><path d="M7 25 L10 18 M41 25 L38 18" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+      default:
+        return '';
+    }
+  },
+
+  renderItemIconSVG(prop, id, color = '#a855f7') {
+    if (id === 'none') {
+      return `<svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="18" fill="rgba(255,255,255,0.06)" stroke="#64748b" stroke-width="3" stroke-dasharray="4,3"/><line x1="20" y1="20" x2="44" y2="44" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+    }
+    if (prop === 'headwear') {
+      return `<svg viewBox="14 6 92 56" width="52" height="52" style="overflow:visible;">${this.generateHeadwearSVG(id, color)}</svg>`;
+    }
+    if (prop === 'eyewear') {
+      return `<svg viewBox="20 42 80 42" width="52" height="52" style="overflow:visible;">${this.generateEyewearSVG(id, color)}</svg>`;
+    }
+    if (prop === 'themeColor') {
+      const gradMap = {
+        default: ['#fb923c', '#f97316', '#ea580c'],
+        neon_cyan: ['#67e8f9', '#00f5d4', '#0284c7'],
+        pink_punk: ['#f9a8d4', '#f43f5e', '#be185d'],
+        cyber_purple: ['#e879f9', '#a855f7', '#6d28d9'],
+        golden: ['#fef08a', '#facc15', '#ca8a04'],
+        midnight: ['#64748b', '#1e293b', '#0f172a'],
+        arctic_white: ['#ffffff', '#e0f2fe', '#94a3b8'],
+        emerald: ['#6ee7b7', '#10b981', '#047857']
+      };
+      const g = gradMap[id] || ['#f43f5e', '#facc15', '#38bdf8'];
+      const gid = 'tg_' + id + '_' + Math.random().toString(36).substr(2, 4);
+      return `<svg viewBox="0 0 64 64" width="46" height="46">
+        <defs><linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${g[0]}"/><stop offset="50%" stop-color="${g[1]}"/><stop offset="100%" stop-color="${g[2]}"/>
+        </linearGradient></defs>
+        <rect x="10" y="10" width="44" height="44" rx="12" fill="url(#${gid})" stroke="#2a1810" stroke-width="3"/>
+      </svg>`;
+    }
+    // Outfits (Ropa ilustrada como en la imagen de referencia)
+    const S = '#2a1810';
+    const tee = 'M18 14 L8 23 L14 31 L19 26 L19 52 L45 52 L45 26 L50 31 L56 23 L46 14 Q32 20 18 14 Z';
+    switch (id) {
+      case 'tshirt_purple':
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="${tee}" fill="#c084fc" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="20" y="42" width="24" height="9" fill="#e879f9" opacity="0.7"/>
+          <path d="${tee}" fill="none" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+        </svg>`;
+      case 'vest_adventurer':
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="${tee}" fill="#fde047" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M19 15 L19 52 L29 52 L29 27 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <path d="M45 15 L45 52 L35 52 L35 27 Z" fill="#f43f5e" stroke="${S}" stroke-width="2.6" stroke-linejoin="round"/>
+          <polygon points="24,15 32,29 40,15" fill="#f59e0b" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+        </svg>`;
+      case 'shirt_cyan':
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="${tee}" fill="#38bdf8" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="32" y1="18" x2="32" y2="52" stroke="${S}" stroke-width="2.6"/>
+          <circle cx="24" cy="30" r="3" fill="#e0f2fe"/><circle cx="39" cy="28" r="2.8" fill="#e0f2fe"/><circle cx="40" cy="41" r="3" fill="#e0f2fe"/><circle cx="25" cy="43" r="2.5" fill="#e0f2fe"/>
+        </svg>`;
+      case 'tshirt_rainbow': {
+        const rg = 'rg_' + Math.random().toString(36).substr(2, 4);
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <defs><linearGradient id="${rg}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f43f5e"/><stop offset="35%" stop-color="#facc15"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/>
+          </linearGradient></defs>
+          <path d="${tee}" fill="url(#${rg})" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+        </svg>`;
+      }
+      case 'jacket_brown':
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="${tee}" fill="#b45309" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <polygon points="22,14 32,26 26,30" fill="#ffffff" stroke="${S}" stroke-width="2.2"/>
+          <polygon points="42,14 32,26 38,30" fill="#ffffff" stroke="${S}" stroke-width="2.2"/>
+          <line x1="32" y1="26" x2="32" y2="52" stroke="#ffffff" stroke-width="2.6"/>
+        </svg>`;
+      case 'hoodie':
+        return `<svg viewBox="0 0 64 64" width="50" height="50">
+          <path d="${tee}" fill="${color || '#7928ca'}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="23" y="38" width="18" height="10" rx="3" fill="rgba(0,0,0,0.25)" stroke="${S}" stroke-width="2"/>
+          <line x1="28" y1="19" x2="28" y2="31" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="36" y1="19" x2="36" y2="31" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>`;
+      case 'bowtie':
+        return `<svg viewBox="0 0 64 64" width="48" height="48">
+          <polygon points="30,32 12,20 12,44" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <polygon points="34,32 52,20 52,44" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="32" cy="32" r="6" fill="#f87171" stroke="${S}" stroke-width="2.6"/>
+        </svg>`;
+      case 'scarf':
+        return `<svg viewBox="0 0 64 64" width="48" height="48">
+          <rect x="12" y="20" width="40" height="14" rx="7" fill="#f97316" stroke="${S}" stroke-width="3"/>
+          <rect x="34" y="30" width="13" height="22" rx="5" fill="#ea580c" stroke="${S}" stroke-width="2.8"/>
+        </svg>`;
+      case 'cape':
+        return `<svg viewBox="0 0 64 64" width="48" height="48">
+          <path d="M20 14 L44 14 L54 52 Q32 56 10 52 Z" fill="#ef4444" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="32" cy="18" r="5" fill="#facc15" stroke="${S}" stroke-width="2.4"/>
+        </svg>`;
+      case 'medal':
+        return `<svg viewBox="0 0 64 64" width="48" height="48">
+          <polygon points="18,12 32,36 25,12" fill="#3b82f6" stroke="${S}" stroke-width="2.2"/>
+          <polygon points="46,12 32,36 39,12" fill="#ef4444" stroke="${S}" stroke-width="2.2"/>
+          <circle cx="32" cy="42" r="12" fill="#facc15" stroke="${S}" stroke-width="2.8"/>
+          <circle cx="32" cy="42" r="7" fill="#f59e0b"/>
+        </svg>`;
+      default:
+        return '';
+    }
   },
 
   // Renderiza solo el icono de cabeza vectorial compacto para pills y listas
@@ -1133,60 +1300,125 @@ window.AvatarEngine = {
     }
   },
 
-  // Gorros y accesorios para la cabeza
+  // Gorros y accesorios para la cabeza (ilustración cartoon 2D con contorno grueso #2a1810, anclado en (60, 44))
   generateHeadwearSVG(headwear, color = '#00f5d4') {
+    const S = '#2a1810';
     switch (headwear) {
-      case 'headphones':
+      case 'fedora':
         return `
-          <path d="M18 64 C12 24 108 24 102 64" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <rect x="12" y="56" width="12" height="24" rx="6" fill="#111" stroke="${color}" stroke-width="2"/>
-          <rect x="96" y="56" width="12" height="24" rx="6" fill="#111" stroke="${color}" stroke-width="2"/>
-          <circle cx="18" cy="68" r="3" fill="${color}" />
-          <circle cx="102" cy="68" r="3" fill="${color}" />
+          <!-- Sombrero Fedora marrón clásico con cinta -->
+          <ellipse cx="60" cy="44" rx="46" ry="10" fill="#8b5a2b" stroke="${S}" stroke-width="3.2"/>
+          <path d="M22 43 Q60 51 98 43" fill="none" stroke="#6b421b" stroke-width="2.5"/>
+          <path d="M30 43 C32 18 44 14 60 16 C76 14 88 18 90 43 Z" fill="#a66c38" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M44 18 Q60 24 76 18" fill="none" stroke="#78491d" stroke-width="3" stroke-linecap="round"/>
+          <path d="M31 36 Q60 42 89 36 L90 42 Q60 48 30 42 Z" fill="#4a2c11" stroke="${S}" stroke-width="2.2"/>
+        `;
+      case 'bucket_hat':
+        return `
+          <!-- Sombrero pescador marrón con franja azul -->
+          <path d="M14 44 Q60 34 106 44 Q98 53 60 51 Q22 53 14 44 Z" fill="#9c6635" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M28 41 L34 18 Q60 13 86 18 L92 41 Z" fill="#b07540" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M29 33 Q60 38 91 33 L92 40 Q60 45 28 40 Z" fill="#3b82f6" stroke="${S}" stroke-width="2.4"/>
+          <path d="M38 22 Q60 19 82 22" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2.5" stroke-linecap="round"/>
         `;
       case 'gamer_cap':
         return `
-          <path d="M26 44 Q60 22 94 44 Z" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <path d="M78 44 Q114 42 120 50 Q100 48 76 46 Z" fill="#0f172a" stroke="#111" stroke-width="2"/>
-          <circle cx="60" cy="30" r="3" fill="#ffffff" />
+          <!-- Gorra deportiva amarilla/naranja con visera -->
+          <path d="M24 44 C24 16 96 16 96 44 Z" fill="${color === '#00f5d4' ? '#fbbf24' : color}" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M44 19 C44 26 42 36 42 44 M76 19 C76 26 78 36 78 44" stroke="rgba(0,0,0,0.18)" stroke-width="2" fill="none"/>
+          <path d="M20 42 Q60 36 104 43 Q112 49 88 51 Q54 48 20 42 Z" fill="#d97706" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="60" cy="18" r="4" fill="#d97706" stroke="${S}" stroke-width="2.4"/>
+        `;
+      case 'beret':
+        return `
+          <!-- Boina francesa rosa/coral -->
+          <path d="M26 44 Q16 30 34 20 Q64 10 96 22 Q110 30 92 44 Z" fill="${color === '#00f5d4' ? '#fb7185' : color}" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <rect x="28" y="40" width="64" height="7" rx="3.5" fill="#e11d48" stroke="${S}" stroke-width="2.6"/>
+          <path d="M58 15 L63 8" stroke="${S}" stroke-width="3.2" stroke-linecap="round"/>
+          <ellipse cx="52" cy="24" rx="16" ry="5" fill="rgba(255,255,255,0.28)" transform="rotate(-10 52 24)"/>
+        `;
+      case 'red_cap':
+        return `
+          <!-- Gorra roja con visera frontal e insignia blanca -->
+          <path d="M24 43 C24 15 96 15 96 43 Z" fill="#ef4444" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <circle cx="60" cy="29" r="6.5" fill="#ffffff" stroke="${S}" stroke-width="2.2"/>
+          <path d="M18 42 Q60 35 102 42 Q94 52 60 51 Q26 52 18 42 Z" fill="#dc2626" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="60" cy="16" r="3.5" fill="#dc2626" stroke="${S}" stroke-width="2.2"/>
+        `;
+      case 'captain_cap':
+        return `
+          <!-- Gorra de capitán púrpura/azul con cinta dorada e insignia -->
+          <path d="M18 30 C18 14 102 14 102 30 L92 42 L28 42 Z" fill="#7c3aed" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <rect x="28" y="36" width="64" height="7" rx="2" fill="#fbbf24" stroke="${S}" stroke-width="2.5"/>
+          <path d="M24 43 Q60 52 96 43 L92 40 Q60 44 28 40 Z" fill="#1e293b" stroke="${S}" stroke-width="2.8" stroke-linejoin="round"/>
+          <circle cx="60" cy="28" r="5.5" fill="#fbbf24" stroke="${S}" stroke-width="2.2"/>
+        `;
+      case 'sun_hat':
+        return `
+          <!-- Sombrero de sol amarillo dorado de ala ancha -->
+          <ellipse cx="60" cy="43" rx="48" ry="11" fill="#f59e0b" stroke="${S}" stroke-width="3.2"/>
+          <path d="M30 42 C32 18 88 18 90 42 Z" fill="#fbbf24" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M30 35 Q60 41 90 35 L90 41 Q60 47 30 41 Z" fill="#d97706" stroke="${S}" stroke-width="2.4"/>
+          <ellipse cx="52" cy="26" rx="14" ry="4.5" fill="rgba(255,255,255,0.32)"/>
+        `;
+      case 'flower_bucket':
+        return `
+          <!-- Sombrero lila coquette con cinta y lazo -->
+          <path d="M16 44 Q60 35 104 44 Q96 53 60 51 Q24 53 16 44 Z" fill="#a855f7" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M28 41 L34 19 Q60 14 86 19 L92 41 Z" fill="#c084fc" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M29 34 Q60 39 91 34 L92 40 Q60 45 28 40 Z" fill="#7e22ce" stroke="${S}" stroke-width="2.4"/>
+          <polygon points="75,37 65,31 65,43" fill="#f472b6" stroke="${S}" stroke-width="2"/>
+          <polygon points="79,37 89,31 89,43" fill="#f472b6" stroke="${S}" stroke-width="2"/>
+          <circle cx="77" cy="37" r="3.5" fill="#fbcfe8" stroke="${S}" stroke-width="2"/>
+        `;
+      case 'headphones':
+        return `
+          <path d="M18 64 C12 20 108 20 102 64" stroke="${color}" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M18 64 C12 20 108 20 102 64" stroke="${S}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <rect x="10" y="54" width="14" height="26" rx="7" fill="#1e293b" stroke="${S}" stroke-width="2.8"/>
+          <rect x="96" y="54" width="14" height="26" rx="7" fill="#1e293b" stroke="${S}" stroke-width="2.8"/>
+          <circle cx="17" cy="67" r="4" fill="${color}" />
+          <circle cx="103" cy="67" r="4" fill="${color}" />
         `;
       case 'party_hat':
         return `
-          <polygon points="60,2 42,42 78,42" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <circle cx="60" cy="2" r="6" fill="#ffd166" />
-          <line x1="48" y1="28" x2="72" y2="28" stroke="#ffffff" stroke-width="2.5"/>
-          <line x1="52" y1="16" x2="68" y2="16" stroke="#ffffff" stroke-width="2.5"/>
+          <polygon points="60,2 38,44 82,44" fill="${color}" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M44 32 L76 32 M49 20 L71 20" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="60" cy="4" r="7" fill="#ffd166" stroke="${S}" stroke-width="2.6"/>
         `;
       case 'crown':
         return `
-          <polygon points="34,44 40,24 50,36 60,18 70,36 80,24 86,44" fill="#ffd166" stroke="#111" stroke-width="2.5"/>
-          <circle cx="40" cy="24" r="3" fill="#ef4444" />
-          <circle cx="60" cy="18" r="3.5" fill="#3b82f6" />
-          <circle cx="80" cy="24" r="3" fill="#10b981" />
+          <polygon points="30,44 36,20 48,34 60,14 72,34 84,20 90,44" fill="#ffd166" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <rect x="30" y="39" width="60" height="6" rx="2" fill="#f59e0b" stroke="${S}" stroke-width="2.4"/>
+          <circle cx="36" cy="20" r="3.5" fill="#ef4444" stroke="${S}" stroke-width="1.8"/>
+          <circle cx="60" cy="14" r="4" fill="#3b82f6" stroke="${S}" stroke-width="1.8"/>
+          <circle cx="84" cy="20" r="3.5" fill="#10b981" stroke="${S}" stroke-width="1.8"/>
         `;
       case 'grad_hat':
         return `
-          <polygon points="60,24 16,36 60,46 104,36" fill="#0f172a" stroke="#111" stroke-width="2.5"/>
-          <rect x="42" y="42" width="36" height="14" fill="#1e293b" />
-          <circle cx="60" cy="35" r="3" fill="#ffd166" />
-          <line x1="60" y1="35" x2="84" y2="44" stroke="#ffd166" stroke-width="2"/>
+          <polygon points="60,20 14,34 60,46 106,34" fill="#1e293b" stroke="${S}" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M38 40 L38 50 Q60 56 82 50 L82 40" fill="#334155" stroke="${S}" stroke-width="2.8"/>
+          <circle cx="60" cy="33" r="4" fill="#ffd166" stroke="${S}" stroke-width="2"/>
+          <path d="M60 33 Q82 36 88 52" stroke="#ffd166" stroke-width="3" fill="none" stroke-linecap="round"/>
         `;
       case 'ninja_band':
         return `
-          <path d="M22 48 L98 48 L98 58 L22 58 Z" fill="${color}" stroke="#111" stroke-width="2"/>
-          <rect x="48" y="49" width="24" height="8" rx="2" fill="#cbd5e1" stroke="#111" stroke-width="1.2"/>
+          <path d="M20 44 Q60 48 100 44 L98 56 Q60 60 22 56 Z" fill="${color}" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="44" y="45" width="32" height="11" rx="3" fill="#e2e8f0" stroke="${S}" stroke-width="2.4"/>
+          <circle cx="49" cy="50.5" r="1.5" fill="${S}"/>
+          <circle cx="71" cy="50.5" r="1.5" fill="${S}"/>
         `;
       case 'beanie':
         return `
-          <path d="M26 50 C24 24 96 24 94 50 Z" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <rect x="22" y="46" width="76" height="10" rx="4" fill="#0f172a" stroke="#111" stroke-width="2"/>
-          <circle cx="60" cy="20" r="6" fill="#ffffff" />
+          <path d="M24 46 C22 18 98 18 96 46 Z" fill="${color}" stroke="${S}" stroke-width="3.2"/>
+          <rect x="20" y="40" width="80" height="12" rx="6" fill="#f8fafc" stroke="${S}" stroke-width="3"/>
+          <circle cx="60" cy="16" r="7.5" fill="#f8fafc" stroke="${S}" stroke-width="2.8"/>
         `;
       case 'bow':
         return `
-          <polygon points="50,30 36,22 36,38" fill="#f43f5e" stroke="#111" stroke-width="1.5"/>
-          <polygon points="70,30 84,22 84,38" fill="#f43f5e" stroke="#111" stroke-width="1.5"/>
-          <circle cx="60" cy="30" r="4.5" fill="#f43f5e" stroke="#111" stroke-width="1.5"/>
+          <path d="M58 34 L34 20 C28 26 28 40 34 46 Z" fill="#f43f5e" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M62 34 L86 20 C92 26 92 40 86 46 Z" fill="#f43f5e" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="60" cy="34" r="6.5" fill="#fb7185" stroke="${S}" stroke-width="2.8"/>
         `;
       case 'none':
       default:
@@ -1194,38 +1426,55 @@ window.AvatarEngine = {
     }
   },
 
-  // Gafas y accesorios de ojos
+  // Gafas y accesorios de ojos (ilustración cartoon 2D con contorno grueso #2a1810, anclado en (60, 64))
   generateEyewearSVG(eyewear, color = '#111111') {
+    const S = '#2a1810';
     switch (eyewear) {
+      case 'retro_shades':
+        return `
+          <!-- Gafas retro montura rosa/roja con cristales celestes -->
+          <rect x="26" y="54" width="30" height="20" rx="6" fill="#38bdf8" stroke="#f43f5e" stroke-width="4.2"/>
+          <rect x="64" y="54" width="30" height="20" rx="6" fill="#38bdf8" stroke="#f43f5e" stroke-width="4.2"/>
+          <rect x="24.5" y="52.5" width="33" height="23" rx="7.5" fill="none" stroke="${S}" stroke-width="2.4"/>
+          <rect x="62.5" y="52.5" width="33" height="23" rx="7.5" fill="none" stroke="${S}" stroke-width="2.4"/>
+          <line x1="56" y1="62" x2="64" y2="62" stroke="#f43f5e" stroke-width="4.5"/>
+          <line x1="56" y1="60" x2="64" y2="60" stroke="${S}" stroke-width="2"/>
+          <line x1="31" y1="58" x2="40" y2="69" stroke="rgba(255,255,255,0.65)" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="69" y1="58" x2="78" y2="69" stroke="rgba(255,255,255,0.65)" stroke-width="2.6" stroke-linecap="round"/>
+        `;
       case 'sunglasses':
         return `
           <!-- Gafas de sol negras pro gamer -->
-          <path d="M30 56 L55 56 L51 72 L34 72 Z" fill="#111111" stroke="#374151" stroke-width="2"/>
-          <path d="M65 56 L90 56 L86 72 L69 72 Z" fill="#111111" stroke="#374151" stroke-width="2"/>
-          <line x1="55" y1="62" x2="65" y2="62" stroke="#111" stroke-width="3"/>
-          <line x1="33" y1="60" x2="48" y2="69" stroke="rgba(255,255,255,0.4)" stroke-width="1.8"/>
-          <line x1="68" y1="60" x2="83" y2="69" stroke="rgba(255,255,255,0.4)" stroke-width="1.8"/>
+          <path d="M26 55 L56 55 L52 73 L30 73 Z" fill="#111827" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M64 55 L94 55 L90 73 L68 73 Z" fill="#111827" stroke="${S}" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="55" y1="61" x2="65" y2="61" stroke="${S}" stroke-width="3.5"/>
+          <line x1="31" y1="59" x2="45" y2="69" stroke="rgba(255,255,255,0.5)" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="69" y1="59" x2="83" y2="69" stroke="rgba(255,255,255,0.5)" stroke-width="2.4" stroke-linecap="round"/>
         `;
       case 'nerd_glasses':
         return `
-          <circle cx="44" cy="64" r="14" fill="none" stroke="${color}" stroke-width="3"/>
-          <circle cx="76" cy="64" r="14" fill="none" stroke="${color}" stroke-width="3"/>
-          <line x1="58" y1="64" x2="62" y2="64" stroke="${color}" stroke-width="3"/>
+          <circle cx="43" cy="64" r="14" fill="rgba(255,255,255,0.22)" stroke="${color === '#111111' ? '#3b82f6' : color}" stroke-width="3.8"/>
+          <circle cx="77" cy="64" r="14" fill="rgba(255,255,255,0.22)" stroke="${color === '#111111' ? '#3b82f6' : color}" stroke-width="3.8"/>
+          <circle cx="43" cy="64" r="15.5" fill="none" stroke="${S}" stroke-width="2"/>
+          <circle cx="77" cy="64" r="15.5" fill="none" stroke="${S}" stroke-width="2"/>
+          <line x1="57" y1="64" x2="63" y2="64" stroke="${S}" stroke-width="3.5"/>
         `;
       case 'cyber_visor':
         return `
-          <rect x="28" cy="56" y="56" width="64" height="15" rx="6" fill="#030712" stroke="#00f5d4" stroke-width="2.5"/>
-          <line x1="32" y1="63.5" x2="88" y2="63.5" stroke="#00f5d4" stroke-width="2" stroke-dasharray="4,2"/>
+          <rect x="24" y="55" width="72" height="17" rx="7" fill="#0f172a" stroke="#00f5d4" stroke-width="3.2"/>
+          <rect x="22.5" y="53.5" width="75" height="20" rx="8.5" fill="none" stroke="${S}" stroke-width="2.2"/>
+          <line x1="30" y1="63.5" x2="90" y2="63.5" stroke="#00f5d4" stroke-width="2.5" stroke-dasharray="5,3"/>
         `;
       case 'monocle':
         return `
-          <circle cx="76" cy="64" r="13" fill="none" stroke="#ffd166" stroke-width="2.5"/>
-          <path d="M89 64 Q96 82 90 98" stroke="#ffd166" stroke-width="1.5" fill="none"/>
+          <circle cx="76" cy="64" r="13.5" fill="rgba(56,189,248,0.22)" stroke="#fbbf24" stroke-width="3.5"/>
+          <circle cx="76" cy="64" r="15" fill="none" stroke="${S}" stroke-width="2"/>
+          <path d="M89 64 Q96 82 90 98" stroke="#fbbf24" stroke-width="2.2" fill="none"/>
         `;
       case 'pirate_patch':
         return `
-          <ellipse cx="76" cy="64" rx="12" ry="13" fill="#111111" stroke="#333" stroke-width="1.5"/>
-          <line x1="28" y1="46" x2="98" y2="76" stroke="#111" stroke-width="2.5"/>
+          <line x1="24" y1="48" x2="96" y2="74" stroke="${S}" stroke-width="3.5"/>
+          <ellipse cx="76" cy="64" rx="13" ry="14" fill="#1e293b" stroke="${S}" stroke-width="3"/>
         `;
       case 'none':
       default:

@@ -1268,40 +1268,67 @@ window.LobbyView = {
     const AE = window.AvatarEngine || {};
     const animalItems = Object.keys(AE.animals || {}).map(k => ({ id: k, label: AE.animals[k].name, animal: true }));
     return {
-      animal: { icon: '🐾', title: 'Personaje', prop: 'animal', items: animalItems },
+      animal: { title: 'Personaje', prop: 'animal', items: animalItems },
       hat: {
-        icon: '🎩', title: 'Sombreros', prop: 'headwear', colorProp: 'headwearColor',
+        title: 'Sombreros', prop: 'headwear', colorProp: 'headwearColor',
         items: [
-          { id: 'none', icon: '🚫', label: 'Ninguno' }, { id: 'headphones', icon: '🎧', label: 'Auriculares' },
-          { id: 'gamer_cap', icon: '🧢', label: 'Gorra' }, { id: 'party_hat', icon: '🎉', label: 'Fiesta' },
-          { id: 'crown', icon: '👑', label: 'Corona' }, { id: 'grad_hat', icon: '🎓', label: 'Birrete' },
-          { id: 'ninja_band', icon: '🥷', label: 'Ninja' }, { id: 'beanie', icon: '🧶', label: 'Beanie' },
-          { id: 'bow', icon: '🎀', label: 'Lazo' }
+          { id: 'fedora', label: 'Fedora' },
+          { id: 'bucket_hat', label: 'Pescador' },
+          { id: 'gamer_cap', label: 'Gorra Amarilla' },
+          { id: 'beret', label: 'Boina' },
+          { id: 'red_cap', label: 'Gorra Roja' },
+          { id: 'captain_cap', label: 'Capitán' },
+          { id: 'sun_hat', label: 'Sombrero Sol' },
+          { id: 'flower_bucket', label: 'Lila Coquette' },
+          { id: 'crown', label: 'Corona Real' },
+          { id: 'headphones', label: 'Auriculares' },
+          { id: 'party_hat', label: 'Fiesta' },
+          { id: 'grad_hat', label: 'Birrete' },
+          { id: 'ninja_band', label: 'Ninja' },
+          { id: 'beanie', label: 'Beanie' },
+          { id: 'bow', label: 'Lazo' },
+          { id: 'none', label: 'Quitar' }
         ]
       },
       shirt: {
-        icon: '👕', title: 'Ropa', prop: 'outfit', colorProp: 'outfitColor',
+        title: 'Ropa', prop: 'outfit', colorProp: 'outfitColor',
         items: [
-          { id: 'hoodie', icon: '🧥', label: 'Hoodie' }, { id: 'bowtie', icon: '👔', label: 'Pajarita' },
-          { id: 'scarf', icon: '🧣', label: 'Bufanda' }, { id: 'cape', icon: '🦸', label: 'Capa' },
-          { id: 'medal', icon: '🥇', label: 'Medalla' }, { id: 'none', icon: '🐾', label: 'Natural' }
+          { id: 'tshirt_purple', label: 'Camiseta Violeta' },
+          { id: 'vest_adventurer', label: 'Chaleco Aventura' },
+          { id: 'shirt_cyan', label: 'Camisa Turquesa' },
+          { id: 'tshirt_rainbow', label: 'Arcoíris' },
+          { id: 'jacket_brown', label: 'Chaqueta' },
+          { id: 'hoodie', label: 'Hoodie' },
+          { id: 'bowtie', label: 'Pajarita' },
+          { id: 'scarf', label: 'Bufanda' },
+          { id: 'cape', label: 'Capa Héroe' },
+          { id: 'medal', label: 'Medalla' },
+          { id: 'none', label: 'Natural' }
         ]
       },
       palette: {
-        icon: '🎨', title: 'Colores', prop: 'themeColor',
+        title: 'Colores', prop: 'themeColor',
         items: [
-          { id: 'default', icon: '🦊', label: 'Clásico' }, { id: 'neon_cyan', icon: '⚡', label: 'Cyan' },
-          { id: 'pink_punk', icon: '💖', label: 'Rosa' }, { id: 'cyber_purple', icon: '👾', label: 'Violeta' },
-          { id: 'golden', icon: '👑', label: 'Oro' }, { id: 'midnight', icon: '🌑', label: 'Noche' },
-          { id: 'arctic_white', icon: '❄️', label: 'Ártico' }, { id: 'emerald', icon: '💎', label: 'Esmeralda' }
+          { id: 'default', label: 'Clásico' },
+          { id: 'neon_cyan', label: 'Cyan' },
+          { id: 'pink_punk', label: 'Rosa' },
+          { id: 'cyber_purple', label: 'Violeta' },
+          { id: 'golden', label: 'Oro' },
+          { id: 'midnight', label: 'Noche' },
+          { id: 'arctic_white', label: 'Ártico' },
+          { id: 'emerald', label: 'Esmeralda' }
         ]
       },
       glasses: {
-        icon: '🕶️', title: 'Gafas', prop: 'eyewear', colorProp: 'eyewearColor',
+        title: 'Gafas', prop: 'eyewear', colorProp: 'eyewearColor',
         items: [
-          { id: 'none', icon: '🚫', label: 'Ninguna' }, { id: 'sunglasses', icon: '🕶️', label: 'Sol' },
-          { id: 'nerd_glasses', icon: '👓', label: 'Nerd' }, { id: 'cyber_visor', icon: '🥽', label: 'Visor' },
-          { id: 'monocle', icon: '🧐', label: 'Monóculo' }, { id: 'pirate_patch', icon: '🏴‍☠️', label: 'Parche' }
+          { id: 'retro_shades', label: 'Retro Pop' },
+          { id: 'sunglasses', label: 'Gafas Pro' },
+          { id: 'nerd_glasses', label: 'Gafas Nerd' },
+          { id: 'cyber_visor', label: 'Visor Cyber' },
+          { id: 'monocle', label: 'Monóculo' },
+          { id: 'pirate_patch', label: 'Parche' },
+          { id: 'none', label: 'Ninguna' }
         ]
       }
     };
@@ -1309,8 +1336,11 @@ window.LobbyView = {
 
   renderQuickMenu() {
     const cat = this.getQuickCatalog();
+    const AE = window.AvatarEngine;
     return Object.keys(cat).map(k => `
-      <button class="student-quick-btn ${this.quickCat === k ? 'active' : ''}" title="${cat[k].title}" onclick="window.LobbyView.setQuickCat('${k}')">${cat[k].icon}</button>
+      <button class="student-quick-btn ${this.quickCat === k ? 'active' : ''}" title="${cat[k].title}" onclick="window.LobbyView.setQuickCat('${k}')">
+        ${AE && AE.renderQuickMenuIconSVG ? AE.renderQuickMenuIconSVG(k) : cat[k].title[0]}
+      </button>
     `).join('');
   },
 
@@ -1319,7 +1349,8 @@ window.LobbyView = {
     const catalog = this.getQuickCatalog();
     const cat = catalog[key];
     if (!cat) return;
-    const av = window.AvatarEngine.getSavedAvatar();
+    const AE = window.AvatarEngine;
+    const av = AE.getSavedAvatar();
 
     const menu = document.getElementById('student-quick-menu');
     if (menu) menu.innerHTML = this.renderQuickMenu();
@@ -1330,7 +1361,9 @@ window.LobbyView = {
     if (grid) {
       grid.innerHTML = cat.items.map(it => `
         <button class="student-item-btn ${av[cat.prop] === it.id ? 'active' : ''}" title="${it.label}" onclick="window.LobbyView.applyQuickItem('${cat.prop}', '${it.id}')">
-          ${it.animal ? window.AvatarEngine.renderIconSVG({ ...av, animal: it.id }, 52) : `<span>${it.icon}</span>`}
+          ${it.animal
+            ? AE.renderIconSVG({ ...av, animal: it.id }, 52)
+            : (AE.renderItemIconSVG ? AE.renderItemIconSVG(cat.prop, it.id, av[cat.colorProp]) : '')}
         </button>
       `).join('');
     }
@@ -1974,26 +2007,35 @@ window.LobbyView = {
         </div>
       `;
     } else if (this.currentStudioTab === 'accessories' || this.currentStudioTab === 'appearance') {
+      const AE = window.AvatarEngine;
       const headwears = [
-        { id: 'none', label: 'Sin Gorro', icon: '❌' },
-        { id: 'headphones', label: 'Auriculares RGB', icon: '🎧' },
-        { id: 'gamer_cap', label: 'Gorra Gamer', icon: '🧢' },
-        { id: 'party_hat', label: 'Gorro Fiesta', icon: '🎉' },
-        { id: 'crown', label: 'Corona Real', icon: '👑' },
-        { id: 'grad_hat', label: 'Birrete Graduado', icon: '🎓' },
-        { id: 'ninja_band', label: 'Cinta Ninja', icon: '🥷' },
-        { id: 'beanie', label: 'Gorro Beanie', icon: '🧶' },
-        { id: 'bow', label: 'Lazo Coquette', icon: '🎀' }
+        { id: 'fedora', label: 'Fedora Clásico' },
+        { id: 'bucket_hat', label: 'Sombrero Pescador' },
+        { id: 'gamer_cap', label: 'Gorra Amarilla' },
+        { id: 'beret', label: 'Boina Francesa' },
+        { id: 'red_cap', label: 'Gorra Roja' },
+        { id: 'captain_cap', label: 'Gorra Capitán' },
+        { id: 'sun_hat', label: 'Sombrero de Sol' },
+        { id: 'flower_bucket', label: 'Sombrero Coquette' },
+        { id: 'crown', label: 'Corona Real' },
+        { id: 'headphones', label: 'Auriculares RGB' },
+        { id: 'party_hat', label: 'Gorro Fiesta' },
+        { id: 'grad_hat', label: 'Birrete Graduado' },
+        { id: 'ninja_band', label: 'Cinta Ninja' },
+        { id: 'beanie', label: 'Gorro Beanie' },
+        { id: 'bow', label: 'Lazo Coquette' },
+        { id: 'none', label: 'Sin Gorro' }
       ];
       const headwearColors = ['#00f5d4', '#f72585', '#ffd166', '#7928ca', '#3b82f6', '#10b981', '#111827', '#ffffff'];
 
       const eyewears = [
-        { id: 'none', label: 'Sin Gafas', icon: '❌' },
-        { id: 'sunglasses', label: 'Gafas de Sol Pro', icon: '🕶️' },
-        { id: 'nerd_glasses', label: 'Gafas Nerd', icon: '👓' },
-        { id: 'cyber_visor', label: 'Visor Cyberpunk', icon: '🥽' },
-        { id: 'monocle', label: 'Monóculo Clásico', icon: '🧐' },
-        { id: 'pirate_patch', label: 'Parche Pirata', icon: '🏴‍☠️' }
+        { id: 'retro_shades', label: 'Gafas Retro Pop' },
+        { id: 'sunglasses', label: 'Gafas de Sol Pro' },
+        { id: 'nerd_glasses', label: 'Gafas Nerd' },
+        { id: 'cyber_visor', label: 'Visor Cyberpunk' },
+        { id: 'monocle', label: 'Monóculo Clásico' },
+        { id: 'pirate_patch', label: 'Parche Pirata' },
+        { id: 'none', label: 'Sin Gafas' }
       ];
       const eyewearColors = ['#111827', '#00f5d4', '#f72585', '#ffd166', '#7928ca', '#3b82f6', '#ffffff'];
 
@@ -2010,15 +2052,18 @@ window.LobbyView = {
           <!-- Gorros y Accesorios de Cabeza -->
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
-              🎩 Gorro o Sombrero:
+              Sombreros y Gorros Ilustrados:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.55rem; margin-bottom: 0.65rem;">
               ${headwears.map(h => `
                 <button 
-                  class="btn btn-sm ${c.headwear === h.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('headwear', '${h.id}')"
-                  style="border-radius: 10px; font-weight: 800; font-size: 0.82rem;"
-                >${h.icon} ${h.label}</button>
+                  class="studio-option-card ${c.headwear === h.id ? 'active' : ''}" 
+                  onclick="window.LobbyView.updateStudioProp('headwear', '${h.id}'); window.LobbyView.renderStudioTabContent();"
+                  style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; padding: 0.5rem;"
+                >
+                  <div style="width: 48px; height: 48px;">${AE && AE.renderItemIconSVG ? AE.renderItemIconSVG('headwear', h.id, c.headwearColor) : ''}</div>
+                  <span style="font-weight: 800; font-size: 0.75rem; color: #ffffff; text-align: center;">${h.label}</span>
+                </button>
               `).join('')}
             </div>
             ${c.headwear !== 'none' ? `
@@ -2029,7 +2074,7 @@ window.LobbyView = {
                     <div 
                       class="studio-color-swatch ${c.headwearColor === color ? 'active' : ''}" 
                       style="background: ${color}; width: 26px; height: 26px;"
-                      onclick="window.LobbyView.updateStudioProp('headwearColor', '${color}')"
+                      onclick="window.LobbyView.updateStudioProp('headwearColor', '${color}'); window.LobbyView.renderStudioTabContent();"
                     ></div>
                   `).join('')}
                 </div>
@@ -2040,15 +2085,18 @@ window.LobbyView = {
           <!-- Gafas y Ojos -->
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.45rem;">
-              🕶️ Gafas y Visores:
+              Gafas y Visores Ilustrados:
             </label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 0.55rem; margin-bottom: 0.65rem;">
               ${eyewears.map(e => `
                 <button 
-                  class="btn btn-sm ${c.eyewear === e.id ? 'btn-cyan' : 'btn-outline'}" 
-                  onclick="window.LobbyView.updateStudioProp('eyewear', '${e.id}')"
-                  style="border-radius: 10px; font-weight: 800; font-size: 0.82rem;"
-                >${e.icon} ${e.label}</button>
+                  class="studio-option-card ${c.eyewear === e.id ? 'active' : ''}" 
+                  onclick="window.LobbyView.updateStudioProp('eyewear', '${e.id}'); window.LobbyView.renderStudioTabContent();"
+                  style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; padding: 0.5rem;"
+                >
+                  <div style="width: 48px; height: 48px;">${AE && AE.renderItemIconSVG ? AE.renderItemIconSVG('eyewear', e.id, c.eyewearColor) : ''}</div>
+                  <span style="font-weight: 800; font-size: 0.75rem; color: #ffffff; text-align: center;">${e.label}</span>
+                </button>
               `).join('')}
             </div>
             ${c.eyewear !== 'none' ? `
@@ -2059,7 +2107,7 @@ window.LobbyView = {
                     <div 
                       class="studio-color-swatch ${c.eyewearColor === color ? 'active' : ''}" 
                       style="background: ${color}; width: 26px; height: 26px;"
-                      onclick="window.LobbyView.updateStudioProp('eyewearColor', '${color}')"
+                      onclick="window.LobbyView.updateStudioProp('eyewearColor', '${color}'); window.LobbyView.renderStudioTabContent();"
                     ></div>
                   `).join('')}
                 </div>
@@ -2085,13 +2133,19 @@ window.LobbyView = {
         </div>
       `;
     } else if (this.currentStudioTab === 'clothing') {
+      const AE = window.AvatarEngine;
       const outfits = [
-        { id: 'hoodie', label: 'Hoodie Gamer', icon: '🧥', desc: 'Sudadera con capucha y cordones' },
-        { id: 'bowtie', label: 'Pajarita Elegante', icon: '👔', desc: 'Camisa blanca con corbatín' },
-        { id: 'scarf', label: 'Bufanda Invierno', icon: '🧣', desc: 'Bufanda cálida envolvente' },
-        { id: 'cape', label: 'Capa de Superhéroe', icon: '🦸', desc: 'Capa con emblema dorado' },
-        { id: 'medal', label: 'Medalla de Oro', icon: '🥇', desc: 'Medalla de primer lugar' },
-        { id: 'none', label: 'Pelaje Natural', icon: '🐾', desc: 'Aspecto natural del animal' }
+        { id: 'tshirt_purple', label: 'Camiseta Violeta', desc: 'Camiseta deportiva con franja clara' },
+        { id: 'vest_adventurer', label: 'Chaleco Aventura', desc: 'Chaleco rojo sobre camisa amarilla' },
+        { id: 'shirt_cyan', label: 'Camisa Turquesa', desc: 'Camisa abierta de verano con diseño' },
+        { id: 'tshirt_rainbow', label: 'Camiseta Arcoíris', desc: 'Diseño tie-dye multicolor vibrante' },
+        { id: 'jacket_brown', label: 'Chaqueta Aviador', desc: 'Chaqueta café con cuello blanco' },
+        { id: 'hoodie', label: 'Hoodie Gamer', desc: 'Sudadera con capucha y cordones' },
+        { id: 'bowtie', label: 'Pajarita Elegante', desc: 'Camisa blanca con corbatín' },
+        { id: 'scarf', label: 'Bufanda Invierno', desc: 'Bufanda cálida envolvente' },
+        { id: 'cape', label: 'Capa de Superhéroe', desc: 'Capa con emblema dorado' },
+        { id: 'medal', label: 'Medalla de Oro', desc: 'Medalla de primer lugar' },
+        { id: 'none', label: 'Pelaje Natural', desc: 'Aspecto natural del animal' }
       ];
       const outfitColors = ['#7928ca', '#f72585', '#00f5d4', '#10b981', '#3b82f6', '#f59e0b', '#111827', '#ffffff'];
 
@@ -2099,7 +2153,7 @@ window.LobbyView = {
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
           <div>
             <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #00f5d4; text-transform: uppercase; margin-bottom: 0.65rem;">
-              👕 Prenda o Accesorio de Cuerpo:
+              Prendas y Ropa Ilustrada:
             </label>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.65rem;">
               ${outfits.map(o => `
@@ -2107,7 +2161,7 @@ window.LobbyView = {
                   class="studio-option-card ${c.outfit === o.id ? 'active' : ''}"
                   onclick="window.LobbyView.updateStudioProp('outfit', '${o.id}'); window.LobbyView.renderStudioTabContent();"
                 >
-                  <span style="font-size: 1.6rem;">${o.icon}</span>
+                  <div style="width: 48px; height: 48px; flex-shrink: 0;">${AE && AE.renderItemIconSVG ? AE.renderItemIconSVG('outfit', o.id, c.outfitColor) : ''}</div>
                   <div>
                     <div style="font-weight: 900; font-size: 0.88rem; color: #ffffff;">${o.label}</div>
                     <div style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.2;">${o.desc}</div>
@@ -2120,14 +2174,14 @@ window.LobbyView = {
           ${c.outfit !== 'none' ? `
             <div>
               <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #ffffff; margin-bottom: 0.45rem;">
-                🎨 Color de la Prenda:
+                Color de la Prenda:
               </label>
               <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 ${outfitColors.map(color => `
                   <div 
                     class="studio-color-swatch ${c.outfitColor === color ? 'active' : ''}" 
                     style="background: ${color}; width: 32px; height: 32px;"
-                    onclick="window.LobbyView.updateStudioProp('outfitColor', '${color}')"
+                    onclick="window.LobbyView.updateStudioProp('outfitColor', '${color}'); window.LobbyView.renderStudioTabContent();"
                   ></div>
                 `).join('')}
               </div>
