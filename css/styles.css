@@ -4414,25 +4414,14 @@ body:not(.light-theme) {
 .host-stage {
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.25rem;
-  min-height: 430px; padding: 2rem 1.5rem 2.2rem; border-radius: 24px;
-  background: url('../assets/mentix_host_players_bg.jpg') center center / cover no-repeat !important;
-  border: 2.5px solid rgba(0, 245, 212, 0.75);
-  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.25), 0 0 32px rgba(0, 245, 212, 0.35), 0 14px 42px rgba(0,0,0,0.55);
-}
-/* Sutil brillo inferior para integrar a los avatares sin tapar el paisaje */
-.host-stage-floor-ring {
-  position: absolute; left: 6%; right: 6%; bottom: 5%; height: 55%; border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 65%, rgba(0, 245, 212, 0.12) 0%, transparent 72%);
+  min-height: 440px; padding: 2rem 1.5rem 2.2rem; border-radius: 24px;
+  background: url('../assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important;
   border: none;
-  box-shadow: none;
-  pointer-events: none; z-index: 0;
+  box-shadow: 0 14px 42px rgba(0,0,0,0.55);
 }
+.host-stage-floor-ring,
 .host-stage-inner-spotlight {
-  position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%);
-  width: min(440px, 68%); height: 140px; border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 55%, rgba(0, 255, 136, 0.18) 0%, rgba(255, 230, 0, 0.08) 50%, transparent 75%);
-  border: none;
-  box-shadow: none; pointer-events: none; z-index: 0;
+  display: none !important;
 }
 .host-stage-outer-ring {
   position: relative; z-index: 2; width: 100%;

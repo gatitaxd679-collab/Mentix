@@ -939,9 +939,7 @@ window.LobbyView = {
     // Si solo hay 1 jugador conectado, queda solo en el centro sin conversar
     if (list.length === 1) {
       return `
-        <div class="host-stage host-stage-arena">
-          <div class="host-stage-floor-ring"></div>
-          <div class="host-stage-inner-spotlight"></div>
+        <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important;">
           <div class="host-stage-center-zone">
             ${renderAvatarMember(list[0], 'solo', 108, 0)}
           </div>
@@ -985,9 +983,7 @@ window.LobbyView = {
     const outerGroups = groups.slice(1);
 
     return `
-      <div class="host-stage host-stage-arena">
-        <div class="host-stage-floor-ring"></div>
-        <div class="host-stage-inner-spotlight"></div>
+      <div class="host-stage host-stage-arena" style="background: url('assets/mentix_host_players_bg.jpg?v=20261012p') center center / cover no-repeat !important;">
         ${outerGroups.length > 0 ? `
           <div class="host-stage-outer-ring">
             ${outerGroups.map((grp, idx) => renderGroupUnit(grp, idx + 1, false)).join('')}
