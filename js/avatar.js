@@ -475,22 +475,26 @@ window.AvatarEngine = {
   // =========================================================================
   // 🖼️ PERSONAJES ILUSTRADOS (sprites estilo Kahoot bonito y animado)
   // =========================================================================
-  spriteAnimals: ['fox', 'panda', 'cat', 'dog', 'lion', 'rabbit', 'koala', 'owl', 'monkey', 'bear', 'wolf', 'tiger'],
+  spriteAnimals: ['fox', 'panda', 'cat', 'dog', 'lion', 'rabbit', 'koala', 'owl', 'monkey', 'bear', 'wolf', 'tiger', 'penguin', 'unicorn', 'dragon', 'robot'],
 
   // Posición de la cabeza en cada sprite (lienzo 240x260): cx = centro, ey = altura de ojos, hs = escala de cabeza
   spriteMeta: {
-    fox:    { cx: 102, ey: 98,  hs: 1.75 },
-    panda:  { cx: 120, ey: 88,  hs: 1.7 },
-    cat:    { cx: 99,  ey: 95,  hs: 1.55 },
-    dog:    { cx: 120, ey: 83,  hs: 1.45 },
-    lion:   { cx: 120, ey: 105, hs: 1.35 },
-    rabbit: { cx: 119, ey: 118, hs: 1.35 },
-    koala:  { cx: 120, ey: 96,  hs: 1.45 },
-    owl:    { cx: 120, ey: 82,  hs: 1.65 },
-    monkey: { cx: 119, ey: 103, hs: 1.45 },
-    bear:   { cx: 120, ey: 98,  hs: 1.65 },
-    wolf:   { cx: 106, ey: 100, hs: 1.7 },
-    tiger:  { cx: 109, ey: 89,  hs: 1.7 }
+    fox:     { cx: 102, ey: 98,  hs: 1.75 },
+    panda:   { cx: 120, ey: 88,  hs: 1.7 },
+    cat:     { cx: 99,  ey: 95,  hs: 1.55 },
+    dog:     { cx: 120, ey: 83,  hs: 1.45 },
+    lion:    { cx: 120, ey: 105, hs: 1.35 },
+    rabbit:  { cx: 119, ey: 118, hs: 1.35 },
+    koala:   { cx: 120, ey: 96,  hs: 1.45 },
+    owl:     { cx: 120, ey: 82,  hs: 1.65 },
+    monkey:  { cx: 119, ey: 103, hs: 1.45 },
+    bear:    { cx: 120, ey: 98,  hs: 1.65 },
+    wolf:    { cx: 106, ey: 100, hs: 1.7 },
+    tiger:   { cx: 109, ey: 89,  hs: 1.7 },
+    penguin: { cx: 120, ey: 90,  hs: 1.65 },
+    unicorn: { cx: 120, ey: 106, hs: 1.55 },
+    dragon:  { cx: 120, ey: 98,  hs: 1.65 },
+    robot:   { cx: 120, ey: 96,  hs: 1.55 }
   },
 
   // Colores especiales: se aplican como tinte sobre el sprite
