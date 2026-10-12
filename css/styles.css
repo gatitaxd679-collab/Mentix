@@ -4482,3 +4482,8 @@ body.light-theme .dart-hit-badge {
   .student-items-panel { order: 3; }
   .student-xp { width: 100%; max-width: 260px; }
 }
+
+/* Cola que se mueve y balanceo del personaje */
+@keyframes tail-wag { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(9deg); } }
+.avatar-tail { transform-box: view-box; transform-origin: 148px 200px; animation: tail-wag 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .avatar-tail { animation: none; } }

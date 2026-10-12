@@ -525,8 +525,10 @@ window.AvatarEngine = {
     const headSvg = this.generateHeadSVG(animal, primary, secondary, c.expression);
     const headwearSvg = this.generateHeadwearSVG(c.headwear, c.headwearColor);
     const eyewearSvg = this.generateEyewearSVG(c.eyewear, c.eyewearColor);
-    const outfitSvg = this.generateOutfitSVG(c.outfit, c.outfitColor, primary);
+    const outfitSvg = this.generateOutfitSVG(c.outfit, c.outfitColor, primary, secondary, animal);
     const armsSvg = this.generateArmsSVG(emote, primary);
+    const tailSvg = this.generateTailSVG(animal, primary, secondary);
+    const legsSvg = this.generateLegsSVG(primary, animal);
 
     return `
       <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
@@ -537,27 +539,28 @@ window.AvatarEngine = {
           width="${size}" 
           height="${size}" 
           xmlns="http://www.w3.org/2000/svg"
-          style="filter: drop-shadow(0 14px 28px rgba(0,0,0,0.65)); overflow: visible;"
+          style="filter: drop-shadow(0 10px 18px rgba(0,0,0,0.5)); overflow: visible;"
         >
           <defs>
             <radialGradient id="shadow_${uniqueId}" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(0, 245, 212, 0.45)" />
-              <stop offset="65%" stop-color="rgba(0,0,0,0.55)" />
+              <stop offset="0%" stop-color="rgba(0,0,0,0.45)" />
               <stop offset="100%" stop-color="rgba(0,0,0,0)" />
             </radialGradient>
           </defs>
 
           <!-- Sombra proyectada en el suelo -->
-          <ellipse cx="120" cy="245" rx="55" ry="12" fill="url(#shadow_${uniqueId})" />
+          <ellipse cx="120" cy="242" rx="58" ry="10" fill="url(#shadow_${uniqueId})" />
 
-          <!-- Cuerpo y Ropa -->
+          <!-- Cola, piernas, cuerpo y brazos -->
+          ${tailSvg}
+          ${legsSvg}
           <g class="avatar-body-group">
             ${outfitSvg}
             ${armsSvg}
           </g>
 
-          <!-- Cabeza del Animal Kahoot centrada -->
-          <g transform="translate(60, 25)">
+          <!-- Cabeza grande estilo chibi -->
+          <g transform="translate(51, 8) scale(1.15)">
             ${headSvg}
             ${eyewearSvg}
             ${headwearSvg}
@@ -1042,107 +1045,128 @@ window.AvatarEngine = {
     }
   },
 
-  // Ropa y cuerpo del animal
-  generateOutfitSVG(outfit, color = '#7928ca', primary = '#f45d22') {
-    switch (outfit) {
-      case 'hoodie':
+  // Cola del animal (detrás del cuerpo) con movimiento
+  generateTailSVG(animal, primary = '#f45d22', secondary = '#ffffff') {
+    const S = '#111';
+    switch (animal) {
+      case 'fox':
         return `
-          <!-- Sudadera hoodie gamer con capucha drapeada y cordones -->
-          <path d="M72 138 L168 138 L162 216 L78 216 Z" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <path d="M86 138 Q120 158 154 138 Q120 148 86 138 Z" fill="rgba(0,0,0,0.25)" />
-          <path d="M96 182 L144 182 L140 210 L100 210 Z" fill="rgba(0,0,0,0.18)" rx="4"/>
-          <!-- Cordones neón -->
-          <line x1="112" y1="150" x2="112" y2="174" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="128" y1="150" x2="128" y2="174" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Pantalón / Base -->
-          <path d="M78 216 L162 216 L158 244 L124 244 L120 224 L116 244 L82 244 Z" fill="#111827" stroke="#111" stroke-width="2"/>
-        `;
-      case 'bowtie':
+          <g class="avatar-tail">
+            <path d="M146 206 C 196 226 238 192 220 136 C 213 116 192 122 192 142 C 192 168 174 188 146 192 Z" fill="${primary}" stroke="${S}" stroke-width="2.8" stroke-linejoin="round"/>
+            <path d="M220 136 C 213 116 192 122 192 142 C 192 152 194 160 198 166 C 212 164 224 152 220 136 Z" fill="${secondary}" stroke="${S}" stroke-width="2.4" stroke-linejoin="round"/>
+          </g>`;
+      case 'cat': case 'tiger': case 'lion': case 'dog': case 'wolf': case 'unicorn': case 'dragon':
         return `
-          <!-- Camisa con pajarita elegante -->
-          <path d="M78 138 L162 138 L158 216 L82 216 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
-          <polygon points="106,144 94,136 94,152" fill="${color}" stroke="#111" stroke-width="1.8"/>
-          <polygon points="134,144 146,136 146,152" fill="${color}" stroke="#111" stroke-width="1.8"/>
-          <circle cx="120" cy="144" r="5" fill="${color}" stroke="#111" stroke-width="1.5"/>
-          <path d="M82 216 L158 216 L156 244 L122 244 L120 224 L118 244 L84 244 Z" fill="#111827" stroke="#111" stroke-width="2"/>
-        `;
-      case 'scarf':
-        return `
-          <path d="M76 138 L164 138 L160 216 L80 216 Z" fill="${primary}" stroke="#111" stroke-width="2"/>
-          <!-- Bufanda alrededor del cuello -->
-          <rect x="74" y="132" width="92" height="18" rx="8" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <rect x="130" y="146" width="16" height="34" rx="4" fill="${color}" stroke="#111" stroke-width="2"/>
-          <path d="M80 216 L160 216 L156 244 L122 244 L120 224 L118 244 L84 244 Z" fill="#111827" stroke="#111" stroke-width="2"/>
-        `;
-      case 'cape':
-        return `
-          <!-- Capa ondeante de superhéroe -->
-          <path d="M60 142 L180 142 L196 226 L44 226 Z" fill="${color}" stroke="#111" stroke-width="2.5"/>
-          <path d="M78 138 L162 138 L158 216 L82 216 Z" fill="#0f172a" stroke="#111" stroke-width="2"/>
-          <!-- Emblema en el pecho -->
-          <polygon points="120,154 130,168 120,182 110,168" fill="#ffd166" />
-          <path d="M82 216 L158 216 L156 244 L122 244 L120 224 L118 244 L84 244 Z" fill="#111827" stroke="#111" stroke-width="2"/>
-        `;
-      case 'medal':
-        return `
-          <path d="M78 138 L162 138 L158 216 L82 216 Z" fill="#0f172a" stroke="#111" stroke-width="2"/>
-          <!-- Cinta de medalla y medalla de oro -->
-          <polygon points="110,138 120,164 104,142" fill="#3b82f6" />
-          <polygon points="130,138 120,164 136,142" fill="#ef4444" />
-          <circle cx="120" cy="172" r="12" fill="#ffd166" stroke="#111" stroke-width="2"/>
-          <circle cx="120" cy="172" r="8" fill="#f59e0b" />
-          <path d="M82 216 L158 216 L156 244 L122 244 L120 224 L118 244 L84 244 Z" fill="#111827" stroke="#111" stroke-width="2"/>
-        `;
-      case 'none':
+          <g class="avatar-tail">
+            <path d="M150 208 C 190 216 214 190 206 156" stroke="${S}" stroke-width="18" fill="none" stroke-linecap="round"/>
+            <path d="M150 208 C 190 216 214 190 206 156" stroke="${primary}" stroke-width="13" fill="none" stroke-linecap="round"/>
+            <circle cx="206" cy="156" r="7.5" fill="${secondary}" stroke="${S}" stroke-width="2"/>
+          </g>`;
       default:
         return `
-          <!-- Cuerpo natural del animal -->
-          <path d="M76 138 L164 138 L158 216 L82 216 Z" fill="${primary}" stroke="#111" stroke-width="2.5"/>
-          <ellipse cx="120" cy="180" rx="24" ry="26" fill="#ffffff" />
-          <path d="M82 216 L158 216 L154 244 L122 244 L120 224 L118 244 L86 244 Z" fill="${primary}" stroke="#111" stroke-width="2"/>
-        `;
+          <g class="avatar-tail">
+            <circle cx="164" cy="206" r="13" fill="${secondary === '#1a1a1a' ? '#ffffff' : secondary}" stroke="${S}" stroke-width="2.5"/>
+          </g>`;
     }
   },
 
-  // Brazos y patas según emote
+  // Piernas pequeñas con patitas oscuras
+  generateLegsSVG(primary = '#f45d22', animal = 'fox') {
+    const foot = (animal === 'panda' || animal === 'fox' || animal === 'cat' || animal === 'dog' || animal === 'wolf') ? '#2b1608' : '#3f2a1a';
+    return `
+      <path d="M94 204 L94 230 Q94 238 102 238 L116 238 Q119 238 119 232 L119 204 Z" fill="${primary}" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M121 204 L121 232 Q121 238 124 238 L138 238 Q146 238 146 230 L146 204 Z" fill="${primary}" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="105" cy="236" rx="13" ry="6.5" fill="${foot}" stroke="#111" stroke-width="2"/>
+      <ellipse cx="135" cy="236" rx="13" ry="6.5" fill="${foot}" stroke="#111" stroke-width="2"/>
+    `;
+  },
+
+  // Torso base redondeado del animal (con pancita clara) + prendas
+  generateOutfitSVG(outfit, color = '#7928ca', primary = '#f45d22', secondary = '#ffffff', animal = 'fox') {
+    const bellyMap = { panda: '#ffffff', lion: '#fde68a', wolf: '#e5e7eb', tiger: '#fff7ed', dragon: '#fde68a' };
+    const belly = bellyMap[animal] || (secondary === '#1a1a1a' ? '#ffffff' : secondary);
+    const torsoPath = 'M86 148 Q86 140 96 140 L144 140 Q154 140 154 148 L158 202 Q158 214 146 214 L94 214 Q82 214 82 202 Z';
+    const base = `
+      <path d="${torsoPath}" fill="${primary}" stroke="#111" stroke-width="2.8" stroke-linejoin="round"/>
+      <path d="M106 150 Q120 158 134 150 Q142 176 136 204 Q120 212 104 204 Q98 176 106 150 Z" fill="${belly}"/>
+    `;
+    switch (outfit) {
+      case 'hoodie':
+        return `
+          <path d="${torsoPath}" fill="${color}" stroke="#111" stroke-width="2.8" stroke-linejoin="round"/>
+          <path d="M98 184 L142 184 L146 208 Q120 214 94 208 Z" fill="rgba(0,0,0,0.2)"/>
+          <ellipse cx="120" cy="146" rx="26" ry="8" fill="rgba(0,0,0,0.28)"/>
+          <line x1="112" y1="150" x2="112" y2="172" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="128" y1="150" x2="128" y2="172" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        `;
+      case 'bowtie':
+        return `
+          <path d="${torsoPath}" fill="#ffffff" stroke="#111" stroke-width="2.8" stroke-linejoin="round"/>
+          <polygon points="118,152 100,142 100,162" fill="${color}" stroke="#111" stroke-width="1.8"/>
+          <polygon points="122,152 140,142 140,162" fill="${color}" stroke="#111" stroke-width="1.8"/>
+          <circle cx="120" cy="152" r="5" fill="${color}" stroke="#111" stroke-width="1.5"/>
+        `;
+      case 'scarf':
+        return `
+          ${base}
+          <rect x="86" y="138" width="68" height="17" rx="8" fill="${color}" stroke="#111" stroke-width="2.5"/>
+          <rect x="134" y="150" width="15" height="32" rx="5" fill="${color}" stroke="#111" stroke-width="2.2"/>
+        `;
+      case 'cape':
+        return `
+          <path d="M80 142 L160 142 L180 224 L60 224 Z" fill="${color}" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+          ${base}
+          <polygon points="120,158 129,170 120,182 111,170" fill="#ffd166" stroke="#111" stroke-width="1.5"/>
+        `;
+      case 'medal':
+        return `
+          ${base}
+          <polygon points="108,142 120,168 100,146" fill="#3b82f6"/>
+          <polygon points="132,142 120,168 140,146" fill="#ef4444"/>
+          <circle cx="120" cy="176" r="12" fill="#ffd166" stroke="#111" stroke-width="2"/>
+          <circle cx="120" cy="176" r="7.5" fill="#f59e0b"/>
+        `;
+      case 'none':
+      default:
+        return base;
+    }
+  },
+
+  // Brazos cortos según gesto (hombros en 88,154 y 152,154)
   generateArmsSVG(emote, primary = '#f45d22') {
+    const arm = (d) => `
+      <path d="${d}" stroke="#111" stroke-width="15.5" stroke-linecap="round" fill="none"/>
+      <path d="${d}" stroke="${primary}" stroke-width="10.5" stroke-linecap="round" fill="none"/>`;
     if (emote === 'wave') {
       return `
-        <!-- Brazo izquierdo en reposo -->
-        <path d="M74 146 L58 175 L62 195" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <!-- Brazo derecho saludando alegremente -->
-        <g class="arm-waving">
-          <path d="M166 146 L186 118 L180 86" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-          <circle cx="180" cy="84" r="9" fill="${primary}" stroke="#111" stroke-width="2"/>
-        </g>
+        ${arm('M88 156 Q72 174 78 194')}
+        <g class="arm-waving">${arm('M152 156 Q178 146 180 116')}</g>
       `;
     } else if (emote === 'celebrate' || emote === 'victory') {
       return `
-        <!-- Ambos brazos arriba celebrando -->
-        <path d="M74 146 L50 115 L56 86" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <circle cx="56" cy="84" r="9" fill="${primary}" stroke="#111" stroke-width="2"/>
-        <path d="M166 146 L190 115 L184 86" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <circle cx="184" cy="84" r="9" fill="${primary}" stroke="#111" stroke-width="2"/>
+        ${arm('M88 156 Q62 144 62 112')}
+        ${arm('M152 156 Q178 144 178 112')}
       `;
     } else if (emote === 'dance') {
       return `
-        <path d="M74 146 L48 160 L68 180" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <path d="M166 146 L192 130 L176 100" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
+        ${arm('M88 156 Q58 164 70 190')}
+        ${arm('M152 156 Q184 146 170 116')}
       `;
     } else if (emote === 'focus') {
       return `
-        <path d="M74 146 L94 172 L110 166" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <path d="M166 146 L146 172 L130 166" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
+        ${arm('M88 156 Q100 188 116 178')}
+        ${arm('M152 156 Q140 188 124 178')}
       `;
-    } else {
-      // Idle / Normal
+    } else if (emote === 'clap') {
       return `
-        <path d="M74 146 L58 175 L62 195" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <circle cx="62" cy="195" r="8" fill="${primary}" />
-        <path d="M166 146 L182 175 L178 195" stroke="${primary}" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <circle cx="178" cy="195" r="8" fill="${primary}" />
+        ${arm('M88 156 Q104 176 118 166')}
+        ${arm('M152 156 Q136 176 122 166')}
       `;
     }
+    return `
+      ${arm('M88 156 Q72 174 78 194')}
+      ${arm('M152 156 Q168 174 162 194')}
+    `;
   },
 
   // Icono de jugador para toda la app: usa su avatarConfig, o convierte su emoji a animal Kahoot
