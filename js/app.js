@@ -374,7 +374,7 @@ class AppRouter {
       if (user) {
         userSlot.innerHTML = `
           <button class="btn btn-outline" style="padding: 0.4rem 0.85rem; border-radius: 9999px;" onclick="window.appRouter.navigate('profile')">
-            <span style="font-size: 1.2rem;">${user.avatar}</span>
+            <span style="font-size: 1.2rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(user, 26) : user.avatar}</span>
             <span style="font-weight: 700; font-size: 0.9rem;">${user.name}</span>
             <span class="badge-tag" style="background: rgba(0,245,212,0.15); color: var(--neon-cyan); font-size: 0.7rem; padding: 0.15rem 0.4rem;">
               Niv. ${user.level}

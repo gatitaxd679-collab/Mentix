@@ -94,7 +94,7 @@ window.PodiumView = {
       <div style="background: #0f1629; border: 1px solid rgba(77,163,255,0.5); border-radius: 18px; width: 100%; max-width: 620px; max-height: 85vh; overflow-y: auto; padding: 1.5rem; text-align: left; box-shadow: 0 20px 60px rgba(0,0,0,0.6); color: #fff;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
           <div style="font-size: 1.2rem; font-weight: 900;">
-            <span style="font-size: 1.4rem; margin-right: 0.35rem;">${this.esc(player.avatar || '👤')}</span>
+            <span style="font-size: 1.4rem; margin-right: 0.35rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(player, 30) : player.avatar}</span>
             ${this.esc(player.nickname)} <span style="color: #4da3ff;">· ${fails.length} ${fails.length === 1 ? 'fallo' : 'fallos'}</span>
           </div>
           <button onclick="document.getElementById('failures-modal-overlay').remove()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; padding: 0.35rem 0.75rem; cursor: pointer; font-weight: 800;">✕</button>
@@ -190,7 +190,7 @@ window.PodiumView = {
           ${second ? `
             <div class="podium-step second">
               <div class="avatar-podium" style="border-color: #e0e6ed;">
-                ${second.avatar || '🥈'}
+                ${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(second, 64) : second.avatar}
               </div>
               <div style="font-weight: 800; font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">
                 ${second.nickname}
@@ -208,7 +208,7 @@ window.PodiumView = {
           <div class="podium-step first">
             <div class="avatar-podium">
               <div class="crown-icon">👑</div>
-              ${first.avatar || '🥇'}
+              ${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(first, 80) : first.avatar}
             </div>
             <div style="font-weight: 900; font-size: 1.25rem; color: #ffd700; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">
               ${first.nickname}
@@ -225,7 +225,7 @@ window.PodiumView = {
           ${third ? `
             <div class="podium-step third">
               <div class="avatar-podium" style="border-color: #cd7f32;">
-                ${third.avatar || '🥉'}
+                ${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(third, 64) : third.avatar}
               </div>
               <div style="font-weight: 800; font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">
                 ${third.nickname}
@@ -299,7 +299,7 @@ window.PodiumView = {
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 0.75rem 0.5rem; font-weight: 800;">${i + 1}</td>
                     <td style="padding: 0.75rem; font-weight: 700;">
-                      <span style="font-size: 1.2rem; margin-right: 0.35rem;">${p.avatar || '👤'}</span>
+                      <span style="font-size: 1.2rem; margin-right: 0.35rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(p, 30) : p.avatar}</span>
                       ${p.nickname}
                     </td>
                     <td style="padding: 0.75rem; font-weight: 800; color: var(--neon-cyan);">${(p.score || 0).toLocaleString()}</td>

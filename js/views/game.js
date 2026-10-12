@@ -1100,7 +1100,7 @@ window.GameView = {
     card.id = `host-live-card-${playerId}`;
     card.innerHTML = `
       <div class="host-live-answer-author">
-        <div class="host-live-author-avatar">${player.avatar || '🎓'}</div>
+        <div class="host-live-author-avatar">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(player, 38) : player.avatar}</div>
         <div class="host-live-author-name">${this.escapeHtml(player.nickname || 'Estudiante')}</div>
       </div>
       <div class="host-live-answer-bubble">
@@ -1790,7 +1790,7 @@ window.GameView = {
     toast.className = 'glass-panel';
     toast.style.cssText = 'background: rgba(15, 23, 42, 0.95); border: 2px solid var(--neon-cyan); padding: 0.75rem 1rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); display: flex; align-items: center; gap: 0.75rem; animation: bounce-in 0.35s ease; pointer-events: auto;';
     toast.innerHTML = `
-      <div style="font-size: 1.8rem;">${data.avatar || '🎯'}</div>
+      <div style="font-size: 1.8rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(data, 40) : data.avatar}</div>
       <div style="flex: 1;">
         <div style="font-weight: 900; font-size: 0.95rem; color: var(--text-primary);">${this.escapeHtml(data.playerName || 'Estudiante')}</div>
         <div style="font-size: 0.82rem; color: var(--neon-gold); font-weight: 800;">${this.escapeHtml(data.detail || '¡Acción realizada!')} (+${data.bonusPoints || 0} pts)</div>
@@ -2254,7 +2254,7 @@ window.GameView = {
                   return `
                     <div class="host-live-answer-card ${q.type === 'open' || isAnsCorrect ? 'correct-text-card' : 'wrong-text-card'}">
                       <div class="host-live-answer-author">
-                        <div class="host-live-author-avatar">${p.avatar || '🎓'}</div>
+                        <div class="host-live-author-avatar">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(p, 38) : p.avatar}</div>
                         <div class="host-live-author-name">${this.escapeHtml(p.nickname || 'Estudiante')}</div>
                         <span style="margin-left: auto; font-size: 0.85rem; font-weight: 900; color: ${q.type === 'open' || isAnsCorrect ? '#00f5d4' : '#f72585'};">
                           ${q.type === 'open' ? '💡 Válida' : (isAnsCorrect ? '✓ Correcto' : '✗ No coincide')}

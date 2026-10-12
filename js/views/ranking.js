@@ -119,7 +119,7 @@ window.RankingView = {
           ${top2 ? `
             <div class="glass-panel" style="padding: 1.75rem; text-align: center; border-color: #e0e6ed;">
               <div style="font-size: 2rem; margin-bottom: 0.25rem;">🥈</div>
-              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${top2.avatar}</div>
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(top2, 58) : top2.avatar}</div>
               <h3 style="font-size: 1.2rem; margin-bottom: 0.25rem;">${top2.name}</h3>
               <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${top2.institution}</div>
               <div style="font-size: 1.4rem; font-weight: 900; color: var(--text-primary);">${top2.xp.toLocaleString()} <span style="font-size:0.85rem; color:var(--text-muted);">XP</span></div>
@@ -130,7 +130,7 @@ window.RankingView = {
           <!-- Top 1 (Líder Supremo) -->
           <div class="glass-panel" style="padding: 2rem; text-align: center; border-color: #ffd700; box-shadow: 0 0 35px rgba(255, 215, 0, 0.25); transform: translateY(-8px);">
             <div style="font-size: 2.5rem; margin-bottom: 0.25rem; animation: float-crown 2s infinite;">👑</div>
-            <div style="font-size: 3.2rem; margin-bottom: 0.5rem;">${top1.avatar}</div>
+            <div style="font-size: 3.2rem; margin-bottom: 0.5rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(top1, 72) : top1.avatar}</div>
             <h3 style="font-size: 1.35rem; margin-bottom: 0.25rem; color: #ffd700;">${top1.name}</h3>
             <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${top1.institution}</div>
             <div style="font-size: 1.7rem; font-weight: 900; color: #ffd700;">${top1.xp.toLocaleString()} <span style="font-size:0.9rem; color:var(--text-muted);">XP</span></div>
@@ -143,7 +143,7 @@ window.RankingView = {
           ${top3 ? `
             <div class="glass-panel" style="padding: 1.75rem; text-align: center; border-color: #cd7f32;">
               <div style="font-size: 2rem; margin-bottom: 0.25rem;">🥉</div>
-              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${top3.avatar}</div>
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(top3, 58) : top3.avatar}</div>
               <h3 style="font-size: 1.2rem; margin-bottom: 0.25rem;">${top3.name}</h3>
               <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${top3.institution}</div>
               <div style="font-size: 1.4rem; font-weight: 900; color: var(--text-primary);">${top3.xp.toLocaleString()} <span style="font-size:0.85rem; color:var(--text-muted);">XP</span></div>
@@ -172,7 +172,7 @@ window.RankingView = {
                       ${idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
                     </td>
                     <td style="padding: 0.85rem; font-weight: 700;">
-                      <span style="font-size: 1.3rem; margin-right: 0.4rem;">${p.avatar}</span>
+                      <span style="font-size: 1.3rem; margin-right: 0.4rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(p, 30) : p.avatar}</span>
                       ${p.name}
                     </td>
                     <td style="padding: 0.85rem; color: var(--text-secondary); font-size: 0.88rem;">

@@ -162,7 +162,7 @@ window.HomeView = {
             </button>
           ` : `
             <button class="btn btn-outline" onclick="window.appRouter.navigate('profile')">
-              <span>${currentUser.avatar}</span> Mi Perfil (${currentUser.levelName})
+              <span>${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(currentUser, 22) : currentUser.avatar}</span> Mi Perfil (${currentUser.levelName})
             </button>
           `}
         </div>

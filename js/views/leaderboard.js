@@ -54,7 +54,7 @@ window.LeaderboardView = {
               <div class="glass-panel" style="${bgGlow} padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-radius: var(--border-radius-md); box-shadow: 0 8px 25px rgba(0,0,0,0.6); transition: var(--transition-bounce);">
                 <div style="display: flex; align-items: center; gap: 0.85rem; overflow: hidden;">
                   <span style="font-size: 1.5rem; font-weight: 900; width: 36px; text-align: center; color: #ffffff !important; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">${rankIcon}</span>
-                  <span style="font-size: 1.8rem;">${p.avatar || '😎'}</span>
+                  <span style="font-size: 1.8rem;">${window.AvatarEngine ? window.AvatarEngine.renderPlayerIcon(p, 40) : p.avatar}</span>
                   <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     <div style="font-weight: 900; font-size: 1.15rem; color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.95);">${p.nickname}</div>
                     <div style="font-size: 0.85rem; color: rgba(220, 235, 255, 0.85); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">

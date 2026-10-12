@@ -1145,6 +1145,25 @@ window.AvatarEngine = {
     }
   },
 
+  // Icono de jugador para toda la app: usa su avatarConfig, o convierte su emoji a animal Kahoot
+  emojiToAnimalMap: {
+    '🦊': 'fox', '🐼': 'panda', '🐱': 'cat', '🐶': 'dog', '🦁': 'lion', '🐰': 'rabbit', '🐨': 'koala',
+    '🦉': 'owl', '🐵': 'monkey', '🐻': 'bear', '🐺': 'wolf', '🐯': 'tiger', '🐧': 'penguin',
+    '🦄': 'unicorn', '🐲': 'dragon', '🤖': 'robot'
+  },
+
+  renderPlayerIcon(player, size = 36) {
+    try {
+      const cfg = player && player.avatarConfig;
+      if (cfg) return this.renderIconSVG(cfg, size);
+      const animal = this.emojiToAnimalMap[player && player.avatar];
+      if (animal) {
+        return this.renderIconSVG({ ...this.defaultConfig, animal, headwear: 'none', eyewear: 'none', themeColor: 'default' }, size);
+      }
+    } catch (e) { /* fallback al emoji */ }
+    return (player && player.avatar) || '🦊';
+  },
+
   // Manejador de rotación interactiva 3D con arrastre de ratón o toque táctil
   attachInteractive3D(containerEl, config) {
     if (!containerEl) return;
