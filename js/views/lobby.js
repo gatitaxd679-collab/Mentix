@@ -1262,6 +1262,97 @@ window.LobbyView = {
     });
   },
 
+  quickCat: 'hat',
+
+  getQuickCatalog() {
+    const AE = window.AvatarEngine || {};
+    const animalItems = Object.keys(AE.animals || {}).map(k => ({ id: k, label: AE.animals[k].name, animal: true }));
+    return {
+      animal: { icon: '🐾', title: 'Personaje', prop: 'animal', items: animalItems },
+      hat: {
+        icon: '🎩', title: 'Sombreros', prop: 'headwear', colorProp: 'headwearColor',
+        items: [
+          { id: 'none', icon: '🚫', label: 'Ninguno' }, { id: 'headphones', icon: '🎧', label: 'Auriculares' },
+          { id: 'gamer_cap', icon: '🧢', label: 'Gorra' }, { id: 'party_hat', icon: '🎉', label: 'Fiesta' },
+          { id: 'crown', icon: '👑', label: 'Corona' }, { id: 'grad_hat', icon: '🎓', label: 'Birrete' },
+          { id: 'ninja_band', icon: '🥷', label: 'Ninja' }, { id: 'beanie', icon: '🧶', label: 'Beanie' },
+          { id: 'bow', icon: '🎀', label: 'Lazo' }
+        ]
+      },
+      shirt: {
+        icon: '👕', title: 'Ropa', prop: 'outfit', colorProp: 'outfitColor',
+        items: [
+          { id: 'hoodie', icon: '🧥', label: 'Hoodie' }, { id: 'bowtie', icon: '👔', label: 'Pajarita' },
+          { id: 'scarf', icon: '🧣', label: 'Bufanda' }, { id: 'cape', icon: '🦸', label: 'Capa' },
+          { id: 'medal', icon: '🥇', label: 'Medalla' }, { id: 'none', icon: '🐾', label: 'Natural' }
+        ]
+      },
+      palette: {
+        icon: '🎨', title: 'Colores', prop: 'themeColor',
+        items: [
+          { id: 'default', icon: '🦊', label: 'Clásico' }, { id: 'neon_cyan', icon: '⚡', label: 'Cyan' },
+          { id: 'pink_punk', icon: '💖', label: 'Rosa' }, { id: 'cyber_purple', icon: '👾', label: 'Violeta' },
+          { id: 'golden', icon: '👑', label: 'Oro' }, { id: 'midnight', icon: '🌑', label: 'Noche' },
+          { id: 'arctic_white', icon: '❄️', label: 'Ártico' }, { id: 'emerald', icon: '💎', label: 'Esmeralda' }
+        ]
+      },
+      glasses: {
+        icon: '🕶️', title: 'Gafas', prop: 'eyewear', colorProp: 'eyewearColor',
+        items: [
+          { id: 'none', icon: '🚫', label: 'Ninguna' }, { id: 'sunglasses', icon: '🕶️', label: 'Sol' },
+          { id: 'nerd_glasses', icon: '👓', label: 'Nerd' }, { id: 'cyber_visor', icon: '🥽', label: 'Visor' },
+          { id: 'monocle', icon: '🧐', label: 'Monóculo' }, { id: 'pirate_patch', icon: '🏴‍☠️', label: 'Parche' }
+        ]
+      }
+    };
+  },
+
+  renderQuickMenu() {
+    const cat = this.getQuickCatalog();
+    return Object.keys(cat).map(k => `
+      <button class="student-quick-btn ${this.quickCat === k ? 'active' : ''}" title="${cat[k].title}" onclick="window.LobbyView.setQuickCat('${k}')">${cat[k].icon}</button>
+    `).join('');
+  },
+
+  setQuickCat(key) {
+    this.quickCat = key;
+    const catalog = this.getQuickCatalog();
+    const cat = catalog[key];
+    if (!cat) return;
+    const av = window.AvatarEngine.getSavedAvatar();
+
+    const menu = document.getElementById('student-quick-menu');
+    if (menu) menu.innerHTML = this.renderQuickMenu();
+    const title = document.getElementById('student-items-title');
+    if (title) title.textContent = cat.title;
+
+    const grid = document.getElementById('student-items-grid');
+    if (grid) {
+      grid.innerHTML = cat.items.map(it => `
+        <button class="student-item-btn ${av[cat.prop] === it.id ? 'active' : ''}" title="${it.label}" onclick="window.LobbyView.applyQuickItem('${cat.prop}', '${it.id}')">
+          ${it.animal ? window.AvatarEngine.renderIconSVG({ ...av, animal: it.id }, 40) : `<span>${it.icon}</span>`}
+        </button>
+      `).join('');
+    }
+
+    const colors = document.getElementById('student-items-colors');
+    if (colors) {
+      const palette = ['#00f5d4', '#f72585', '#ffd166', '#7928ca', '#3b82f6', '#10b981', '#111827', '#ffffff'];
+      colors.innerHTML = cat.colorProp ? palette.map(c => `
+        <span class="studio-color-swatch ${av[cat.colorProp] === c ? 'active' : ''}" style="background:${c}; width:26px; height:26px;" onclick="window.LobbyView.applyQuickItem('${cat.colorProp}', '${c}')"></span>
+      `).join('') : '';
+    }
+  },
+
+  applyQuickItem(prop, val) {
+    if (!window.AvatarEngine) return;
+    window.AvatarEngine.saveAvatar({ [prop]: val });
+    this.updateMyCharacterPanel();
+    this.broadcastAvatarUpdate();
+    this.setQuickCat(this.quickCat);
+    if (window.soundEngine) window.soundEngine.playClick();
+  },
+
   renderWaitingView(container) {
     const p = window.realtimeEngine.localPlayer;
     let room = window.realtimeEngine.currentRoom;
@@ -1332,189 +1423,48 @@ window.LobbyView = {
           </div>
         </div>
 
-        <!-- Pestañas Móviles (visibles solo en pantallas pequeñas) -->
-        <div class="gamified-mobile-tabs">
-          <button class="btn btn-sm ${this.waitingMobileTab === 'character' ? 'btn-cyan' : 'btn-outline'}" onclick="window.LobbyView.switchWaitingTab('character')" style="flex: 1; font-weight: 800; border-radius: 9999px;">
-            👤 Mi Personaje
-          </button>
-          <button class="btn btn-sm ${this.waitingMobileTab === 'minigames' ? 'btn-cyan' : 'btn-outline'}" onclick="window.LobbyView.switchWaitingTab('minigames')" style="flex: 1; font-weight: 800; border-radius: 9999px;">
-            🎮 Minijuegos
-          </button>
-          <button class="btn btn-sm ${this.waitingMobileTab === 'classmates' ? 'btn-cyan' : 'btn-outline'}" onclick="window.LobbyView.switchWaitingTab('classmates')" style="flex: 1; font-weight: 800; border-radius: 9999px;">
-            👥 Compañeros (${classmates.length + 1})
+        <!-- Banner superior del estudiante -->
+        <div class="student-wait-banner">
+          <div class="student-wait-banner-text">
+            <div>Modifica tu avatar mientras esperas a que el profesor inicie</div>
+            <small>${room?.challenge?.title || 'Reto MENTIX'} • ${classmates.length + 1} conectados</small>
+          </div>
+          <button id="btn-ready-toggle" class="student-ready-btn ${p?.isReady ? 'is-ready' : ''}" onclick="window.LobbyView.toggleReadyStatus()">
+            ${p?.isReady ? '🟢 ¡Listo!' : '¡Listo!'}
           </button>
         </div>
 
-        <!-- Layout Principal de 3 Paneles AAA -->
-        <div class="gamified-lobby-grid">
-          
-          <!-- ==========================================
-               PANEL IZQUIERDO: MI PERSONAJE
-               ========================================== -->
-          <div class="gamified-panel-left ${this.waitingMobileTab !== 'character' ? 'mobile-hidden' : ''}" id="waiting-panel-character">
-            <div class="glass-panel" style="padding: 1.5rem 1.25rem; border-radius: 20px; border-color: rgba(0, 245, 212, 0.35); display: flex; flex-direction: column; gap: 1rem;">
-              
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; color: var(--neon-cyan); text-transform: uppercase;">
-                  Modifica tu avatar mientras esperas a que el profesor inicie
-                </span>
-                <span class="badge-tag" style="background: rgba(121, 40, 202, 0.25); border: 1px solid #7928ca; color: #d8b4fe; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;">
-                  Nivel ${p?.level || 1}
-                </span>
-              </div>
-
-              <!-- Escenario del Avatar con Rotación Interactiva -->
-              <div 
-                id="waiting-avatar-viewport-container"
-                class="avatar-stage-viewport" 
-                style="background: ${stageBgCss}; min-height: 270px; border-color: ${p?.isReady ? '#10b981' : 'rgba(0, 245, 212, 0.5)'}; box-shadow: ${p?.isReady ? '0 0 35px rgba(16, 185, 129, 0.45)' : '0 10px 30px rgba(0,0,0,0.5)'};"
-              >
-                <div id="waiting-avatar-viewport">
-                  ${window.AvatarEngine ? window.AvatarEngine.renderSVG(avatarConfig, { size: 230 }) : `<span style="font-size: 4rem;">${p?.avatar || '😎'}</span>`}
-                </div>
-                <div style="font-size: 0.72rem; color: rgba(255,255,255,0.7); font-weight: 700; margin-top: 0.4rem; pointer-events: none;">
-                  🔄 Arrastra para girar 360°
-                </div>
-              </div>
-
-              <!-- Badge Oficial Kahoot [ 🦊 Eimy  NIV. 3 ] -->
-              <div style="display: flex; justify-content: center; margin: 0.4rem 0 0.15rem 0;" id="waiting-my-badge-container">
-                ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(p, { size: 34 }) : ''}
-              </div>
-
-              <!-- Título y Progreso de XP -->
-              <div style="text-align: center;">
-                <div style="font-size: 0.82rem; font-weight: 800; color: #ffd166; margin-bottom: 0.55rem;" id="waiting-my-title">
-                  ${p?.title || 'Novato Curioso'}
-                </div>
-
-                <!-- Barra de XP -->
-                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem;">
-                  <span id="waiting-my-xp">XP: ${p?.xp || 60}</span>
-                  <span id="waiting-my-level">Nivel ${p?.level || 1}</span>
-                </div>
-                <div class="xp-progress-track">
-                  <div class="xp-progress-fill" id="waiting-my-xp-bar" style="width: ${xpPercent}%;"></div>
-                </div>
-              </div>
-
-              <!-- Selector Rápido de Gestos / Poses -->
-              <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.4rem;">
-                  Gestos Rápidos:
-                </label>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem;">
-                  <button class="btn btn-sm btn-outline" onclick="window.LobbyView.triggerQuickEmote('wave')" title="Saludar" style="padding: 0.4rem 0.2rem; font-size: 0.78rem; font-weight: 800;">
-                    👋 Saludo
-                  </button>
-                  <button class="btn btn-sm btn-outline" onclick="window.LobbyView.triggerQuickEmote('celebrate')" title="Celebrar" style="padding: 0.4rem 0.2rem; font-size: 0.78rem; font-weight: 800;">
-                    🎉 Salto
-                  </button>
-                  <button class="btn btn-sm btn-outline" onclick="window.LobbyView.triggerQuickEmote('dance')" title="Bailar" style="padding: 0.4rem 0.2rem; font-size: 0.78rem; font-weight: 800;">
-                    💃 Baile
-                  </button>
-                  <button class="btn btn-sm btn-outline" onclick="window.LobbyView.triggerQuickEmote('victory')" title="Victoria" style="padding: 0.4rem 0.2rem; font-size: 0.78rem; font-weight: 800;">
-                    ✌️ Victoria
-                  </button>
-                </div>
-              </div>
-
-              <!-- Botones Principales: Personalizar y Estoy Listo -->
-              <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.25rem;">
-                <button 
-                  class="btn btn-cyan btn-lg" 
-                  style="width: 100%; font-weight: 900; font-size: 1.05rem; padding: 0.85rem; border-radius: 14px; background: linear-gradient(135deg, #00f5d4, #0ea5e9); color: #020617 !important; box-shadow: 0 4px 20px rgba(0, 245, 212, 0.4);"
-                  onclick="window.LobbyView.openAvatarStudio()"
-                >
-                  <span>🎨</span> AVATAR STUDIO
-                </button>
-
-                <button 
-                  id="btn-ready-toggle"
-                  class="btn btn-lg" 
-                  style="width: 100%; font-weight: 900; font-size: 1.05rem; padding: 0.85rem; border-radius: 14px; transition: all 0.2s; ${p?.isReady ? 'background: #10b981; color: #ffffff !important; border: 2px solid #10b981; box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);' : 'background: rgba(15, 23, 42, 0.8); color: #ffd166 !important; border: 2px solid #ffd166;'}"
-                  onclick="window.LobbyView.toggleReadyStatus()"
-                >
-                  ${p?.isReady ? '<span>🟢</span> ¡ESTOY LISTO!' : '<span>✏️</span> MARCAR COMO LISTO'}
-                </button>
-              </div>
-
-            </div>
+        <!-- Escenario: menú rápido | avatar en pedestal | panel de prendas -->
+        <div class="student-wait-stage">
+          <div class="student-quick-menu" id="student-quick-menu">
+            ${this.renderQuickMenu()}
           </div>
 
-          <!-- ==========================================
-               PANEL CENTRAL: MUNDO INTERACTIVO / MINIJUEGOS
-               ========================================== -->
-          <div class="gamified-panel-center ${this.waitingMobileTab !== 'minigames' ? 'mobile-hidden' : ''}" id="waiting-panel-minigames">
-            <div class="glass-panel" style="padding: 1.5rem 1.4rem; border-radius: 20px; border-color: rgba(0, 245, 212, 0.35); min-height: 480px; display: flex; flex-direction: column;">
-              
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
-                <div>
-                  <div style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 900; color: #00f5d4; text-transform: uppercase;">
-                    <span>🎮</span> MUNDO INTERACTIVO & MINIJUEGOS
-                  </div>
-                  <h2 style="font-size: 1.35rem; font-weight: 900; margin: 0.2rem 0 0; color: #ffffff;">
-                    Zona de Calentamiento
-                  </h2>
-                </div>
-                <div style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(255, 209, 102, 0.15); border: 1px solid #ffd166; padding: 0.3rem 0.75rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 800; color: #ffd166;">
-                  <span>⏳</span> Esperando inicio por el docente
-                </div>
-              </div>
-
-              <!-- Contenedor Dinámico de Minijuegos de Espera -->
-              <div id="gamified-minigames-container" style="flex: 1; margin-bottom: 1.25rem;">
-                <!-- Minijuegos renderizados por window.LobbyMinigames.init(...) -->
-              </div>
-
-              <!-- Barra Inferior de Reacciones Flotantes a la Sala -->
-              <div style="background: rgba(10, 20, 45, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 0.85rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
-                <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-secondary); display: flex; align-items: center; gap: 0.35rem;">
-                  <span>🔥</span> Reaccionar en vivo:
-                </span>
-                <div style="display: flex; gap: 0.45rem; flex-wrap: wrap;">
-                  ${['🔥', '🎉', '🚀', '💯', '👏', '👋'].map(em => `
-                    <button 
-                      class="btn btn-sm btn-outline" 
-                      style="font-size: 1.25rem; padding: 0.3rem 0.6rem; border-radius: 10px; background: rgba(15, 23, 42, 0.8);"
-                      onclick="window.LobbyView.sendLobbyReaction('${em}')"
-                      title="Enviar reacción"
-                    >
-                      ${em}
-                    </button>
-                  `).join('')}
-                </div>
-              </div>
-
+          <div class="student-avatar-zone">
+            <div id="waiting-my-badge-container" style="margin-bottom: 0.5rem;">
+              ${window.AvatarEngine ? window.AvatarEngine.renderBadgeHTML(p, { size: 34 }) : ''}
             </div>
+            <div id="waiting-avatar-viewport-container" class="avatar-stage-viewport student-pedestal-stage">
+              <div id="waiting-avatar-viewport">
+                ${window.AvatarEngine ? window.AvatarEngine.renderSVG(avatarConfig, { size: 250 }) : `<span style="font-size: 4rem;">${p?.avatar || '🦊'}</span>`}
+              </div>
+            </div>
+            <div class="student-xp">
+              <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #cbd5e1; font-weight: 700; margin-bottom: 0.25rem;">
+                <span id="waiting-my-xp">XP: ${p?.xp || 60}</span>
+                <span id="waiting-my-level">Nivel ${p?.level || 1}</span>
+              </div>
+              <div class="xp-progress-track"><div class="xp-progress-fill" id="waiting-my-xp-bar" style="width: ${xpPercent}%;"></div></div>
+              <div id="waiting-my-title" style="display:none;">${p?.title || ''}</div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top: 0.6rem; border-radius: 9999px; font-weight: 800;" onclick="window.LobbyView.openAvatarStudio()">🎨 Más opciones</button>
           </div>
 
-          <!-- ==========================================
-               PANEL DERECHO: SALA DE COMPAÑEROS
-               ========================================== -->
-          <div class="gamified-panel-right ${this.waitingMobileTab !== 'classmates' ? 'mobile-hidden' : ''}" id="waiting-panel-classmates">
-            <div class="glass-panel" style="padding: 1.5rem 1.25rem; border-radius: 20px; border-color: rgba(0, 245, 212, 0.35); min-height: 480px; display: flex; flex-direction: column;">
-              
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <span style="font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; color: var(--neon-cyan); text-transform: uppercase;">
-                  SALA DE COMPAÑEROS
-                </span>
-                <span class="badge-tag" style="background: rgba(0, 245, 212, 0.15); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;" id="waiting-classmates-badge">
-                  👤 ${classmates.length + 1}
-                </span>
-              </div>
-
-              <!-- Lista de Compañeros con Avatares Renderizados -->
-              <div id="waiting-classmates-list" style="display: flex; flex-direction: column; gap: 0.65rem; overflow-y: auto; max-height: 450px; flex: 1; padding-right: 0.25rem;">
-                ${this.renderClassmatesItems(classmates, p)}
-              </div>
-
-              <!-- Contenedor de Notificaciones Toast de Nuevas Llegadas -->
-              <div id="waiting-toasts-container" style="margin-top: 0.75rem;"></div>
-
-            </div>
+          <div class="student-items-panel">
+            <div class="student-items-title" id="student-items-title"></div>
+            <div class="student-items-grid" id="student-items-grid"></div>
+            <div class="student-items-colors" id="student-items-colors"></div>
           </div>
-
         </div>
 
         <!-- ==========================================
@@ -1593,6 +1543,7 @@ window.LobbyView = {
     `;
 
     // Inicializar visualización interactiva 3D
+    if (window.AvatarEngine) this.setQuickCat(this.quickCat || 'hat');
     const viewportEl = document.getElementById('waiting-avatar-viewport-container');
     if (viewportEl && window.AvatarEngine) {
       window.AvatarEngine.attachInteractive3D(viewportEl, avatarConfig);

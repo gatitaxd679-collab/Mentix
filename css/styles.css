@@ -4440,3 +4440,45 @@ body.light-theme .dart-hit-badge {
   box-shadow: 0 0 35px rgba(217, 70, 239, 0.8);
 }
 #waiting-avatar-viewport { position: relative; z-index: 1; }
+
+/* ===== Vista estudiante: sala de espera (diseño mockup) ===== */
+.student-wait-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  max-width: 1000px; margin: 0 auto 1.25rem; padding: 0.9rem 1.25rem; border-radius: 18px;
+  background: #0b0f1f; border: 1.5px solid rgba(168,85,247,0.45); box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.student-wait-banner-text { color: #fff; font-weight: 800; font-size: 1.1rem; line-height: 1.3; max-width: 520px; }
+.student-wait-banner-text small { display: block; color: #94a3b8; font-weight: 600; font-size: 0.8rem; margin-top: 0.15rem; }
+.student-ready-btn {
+  border: 0; cursor: pointer; padding: 0.8rem 1.8rem; border-radius: 14px; font-weight: 900; font-size: 1.1rem; color: #fff;
+  background: linear-gradient(90deg, #06b6d4, #a855f7, #f97316); box-shadow: 0 4px 18px rgba(168,85,247,0.5); transition: transform .15s;
+}
+.student-ready-btn:hover { transform: scale(1.05); }
+.student-ready-btn.is-ready { background: #10b981; box-shadow: 0 0 25px rgba(16,185,129,0.6); }
+.student-wait-stage {
+  display: grid; grid-template-columns: 70px 1fr 280px; gap: 1.25rem; align-items: center;
+  max-width: 1000px; margin: 0 auto; min-height: 470px; padding: 1.25rem; border-radius: 22px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.18), transparent 40%), radial-gradient(ellipse at 50% 100%, #3b0764, #0f0720 70%);
+  border: 1.5px solid rgba(168,85,247,0.35);
+}
+.student-quick-menu { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border-radius: 18px; background: #0b0f1f; border: 1px solid rgba(255,255,255,0.12); }
+.student-quick-btn { width: 52px; height: 52px; border-radius: 14px; border: 0; background: rgba(255,255,255,0.05); font-size: 1.6rem; cursor: pointer; transition: all .15s; }
+.student-quick-btn:hover { background: rgba(255,255,255,0.12); }
+.student-quick-btn.active { background: rgba(168,85,247,0.35); box-shadow: 0 0 14px rgba(168,85,247,0.6); }
+.student-avatar-zone { display: flex; flex-direction: column; align-items: center; }
+.student-pedestal-stage { background: transparent !important; border: 0 !important; box-shadow: none !important; min-height: 290px; width: 100%; }
+.student-pedestal-stage::before { background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.18), transparent 65%) !important; clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%); }
+.student-xp { width: 220px; margin-top: 0.6rem; }
+.student-items-panel { padding: 0.9rem; border-radius: 18px; background: #0b0f1f; border: 1px solid rgba(255,255,255,0.12); align-self: center; }
+.student-items-title { color: #fff; font-weight: 800; padding: 0.5rem 0.75rem; border-radius: 10px; background: rgba(255,255,255,0.06); margin-bottom: 0.7rem; font-size: 0.9rem; }
+.student-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; max-height: 300px; overflow-y: auto; }
+.student-item-btn { aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; background: rgba(255,255,255,0.06); font-size: 1.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.student-item-btn:hover { background: rgba(255,255,255,0.14); transform: scale(1.05); }
+.student-item-btn.active { border-color: #fff; background: rgba(168,85,247,0.3); }
+.student-items-colors { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.7rem; }
+@media (max-width: 760px) {
+  .student-wait-stage { grid-template-columns: 1fr; }
+  .student-quick-menu { flex-direction: row; justify-content: center; order: 2; }
+  .student-items-panel { order: 3; }
+  .student-xp { width: 100%; max-width: 260px; }
+}
