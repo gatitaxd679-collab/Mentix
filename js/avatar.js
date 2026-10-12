@@ -476,6 +476,9 @@ window.AvatarEngine = {
   renderIconSVG(cfg, size = 32) {
     const c = { ...this.defaultConfig, ...(cfg || {}) };
     const animal = c.animal || 'fox';
+    if (animal === 'fox') {
+      return `<img src="assets/zorro_avatar.png" alt="Zorro" draggable="false" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;object-position:50% 38%;transform:scale(1.5);" />`;
+    }
     const uniqueId = 'head_' + Math.random().toString(36).substr(2, 6);
 
     const theme = this.themeColorMap[c.themeColor];
@@ -514,6 +517,20 @@ window.AvatarEngine = {
     const secondary = theme?.secondary || baseAnimal.secondaryColor;
 
     let emoteClass = 'anim-breathing';
+
+    // El zorro usa literalmente la imagen aprobada por el usuario
+    if (animal === 'fox') {
+      if (emote === 'wave') emoteClass = 'anim-wave';
+      else if (emote === 'celebrate') emoteClass = 'anim-celebrate';
+      else if (emote === 'dance') emoteClass = 'anim-dance';
+      else if (emote === 'victory') emoteClass = 'anim-victory';
+      return `
+        <div class="mentix-avatar-wrapper" style="width: ${size}px; height: ${size}px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
+          <img src="assets/zorro_avatar.png" alt="Zorro" class="mentix-avatar-svg ${emoteClass}" draggable="false"
+            style="height: ${size}px; width: auto; max-width: 100%; border-radius: 14px; object-fit: contain; image-rendering: auto; user-select: none;" />
+        </div>
+      `;
+    }
     if (emote === 'wave') emoteClass = 'anim-wave';
     else if (emote === 'celebrate') emoteClass = 'anim-celebrate';
     else if (emote === 'dance') emoteClass = 'anim-dance';
