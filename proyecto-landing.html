@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/project-landing.css?v=20261012t" />
+  <link rel="stylesheet" href="css/project-landing.css?v=20261013a" />
   <style>
     html {
       scroll-behavior: smooth;
@@ -17,6 +17,11 @@
       margin: 0;
       background-color: #f8fafc;
       color: #334155;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    body[data-theme="dark"] {
+      background-color: #070d18;
+      color: #e2e8f0;
     }
     .plp-wrapper {
       border-radius: 0;
@@ -68,8 +73,22 @@
         <a href="#contacto" class="plp-nav-link">Contacto</a>
       </nav>
 
-      <!-- Derecha: Buscador funcional discreto + Botón CTA -->
+      <!-- Derecha: Buscador funcional discreto + Dos sobres de tema + Botón CTA -->
       <div class="plp-header-right">
+        <!-- Dos sobres interactivos para cambiar a tema claro u oscuro -->
+        <div class="plp-envelopes-control" style="background: var(--plp-bg-subtle); border-color: var(--plp-border);">
+          <button type="button" class="plp-envelope-btn light" onclick="setLandingTheme('light')" title="Poner landing page clara (Sobre Claro)">
+            <span class="plp-envelope-icon">✉️</span>
+            <span class="plp-envelope-hide-mobile">Claro</span>
+            <span class="plp-envelope-badge">☀️</span>
+          </button>
+          <button type="button" class="plp-envelope-btn dark" onclick="setLandingTheme('dark')" title="Poner landing page oscura (Sobre Oscuro)">
+            <span class="plp-envelope-icon">✉️</span>
+            <span class="plp-envelope-hide-mobile">Oscuro</span>
+            <span class="plp-envelope-badge">🌙</span>
+          </button>
+        </div>
+
         <div class="plp-search-box" role="search">
           <span class="plp-search-icon" aria-hidden="true">🔍</span>
           <input
@@ -686,6 +705,24 @@
         el.style.opacity = !q || text.includes(q) ? '1' : '0.25';
       });
     });
+
+    // Control de temas mediante los Dos Sobres (Sobre Claro / Sobre Oscuro)
+    function setLandingTheme(theme) {
+      const validTheme = theme === 'dark' ? 'dark' : 'light';
+      localStorage.setItem('mentix_landing_theme', validTheme);
+      const wrapper = document.querySelector('.plp-wrapper');
+      if (wrapper) wrapper.setAttribute('data-theme', validTheme);
+      document.body.setAttribute('data-theme', validTheme);
+      document.body.style.backgroundColor = validTheme === 'dark' ? '#070d18' : '#f8fafc';
+      document.querySelectorAll('.plp-envelope-btn').forEach(btn => {
+        if (btn.classList.contains(validTheme)) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+
+    // Inicializar tema guardado en los dos sobres
+    const initialSavedTheme = localStorage.getItem('mentix_landing_theme') || 'light';
+    setLandingTheme(initialSavedTheme);
 
     // IntersectionObserver para animaciones suaves al hacer scroll
     const observer = new IntersectionObserver(

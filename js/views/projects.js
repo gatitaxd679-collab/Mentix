@@ -748,20 +748,55 @@ window.ProjectsView = {
     else window.appRouter.openPresentation(c.id);
   },
 
+  setLandingTheme(theme) {
+    const validTheme = theme === 'dark' ? 'dark' : 'light';
+    localStorage.setItem('mentix_landing_theme', validTheme);
+    document.querySelectorAll('.plp-wrapper').forEach(w => {
+      w.setAttribute('data-theme', validTheme);
+    });
+    document.querySelectorAll('.plp-envelope-btn').forEach(btn => {
+      if (btn.classList.contains(validTheme)) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  },
+
+  getLandingTheme() {
+    return localStorage.getItem('mentix_landing_theme') || 'light';
+  },
+
   renderLandingPageView(container, allProjects = []) {
     this.currentSlideIndex = 0;
+    const currentTheme = this.getLandingTheme();
     const selected = allProjects.find(x => x.id === this.selectedProjectId);
     const selectedTitle = selected ? this.escapeHtml(selected.title || 'Proyecto') : '';
 
     container.innerHTML = `
       <div style="max-width: 1340px; margin: 0 auto; padding: 1.25rem 1rem 4rem;">
-        <div class="plp-wrapper animate-fade-in">
+        <div class="plp-wrapper animate-fade-in" data-theme="${currentTheme}">
           
-          <!-- Barra superior de control Mentix (Volver a la lista de proyectos / abrir el proyecto) -->
+          <!-- Barra superior de control Mentix (Volver a la lista de proyectos / abrir el proyecto / dos sobres) -->
           <div class="plp-mentix-bar">
             <div class="plp-mentix-bar-left">
               <span class="plp-mentix-badge">✨ Landing Page del Proyecto</span>
-              <span>${selectedTitle}</span>
+              <span style="font-weight: 700; color: #ffffff;">${selectedTitle}</span>
+
+              <!-- DOS SOBRES INTERACTIVOS PARA TEMA CLARO Y OSCURO -->
+              <div class="plp-envelopes-control" role="group" aria-label="Cambiar tema de la landing page con dos sobres">
+                <span class="plp-envelopes-title">✉️ Sobres:</span>
+                <button type="button" class="plp-envelope-btn light ${currentTheme === 'light' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('light')" title="Poner landing page en modo claro (Sobre Claro)">
+                  <span class="plp-envelope-icon">✉️</span>
+                  <span>Sobre Claro</span>
+                  <span class="plp-envelope-badge">☀️</span>
+                </button>
+                <button type="button" class="plp-envelope-btn dark ${currentTheme === 'dark' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('dark')" title="Poner landing page en modo oscuro (Sobre Oscuro)">
+                  <span class="plp-envelope-icon">✉️</span>
+                  <span>Sobre Oscuro</span>
+                  <span class="plp-envelope-badge">🌙</span>
+                </button>
+              </div>
             </div>
             <div class="plp-mentix-actions">
               <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.switchViewMode('list')">
@@ -806,8 +841,22 @@ window.ProjectsView = {
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-contacto')">Contacto</button>
             </nav>
 
-            <!-- Derecha: Buscador funcional discreto + Botón CTA -->
+            <!-- Derecha: Buscador funcional discreto + Dos sobres de acceso directo + Botón CTA -->
             <div class="plp-header-right">
+              <!-- Dos sobres de acceso rápido en el header -->
+              <div class="plp-envelopes-control" style="background: var(--plp-bg-subtle); border-color: var(--plp-border);">
+                <button type="button" class="plp-envelope-btn light ${currentTheme === 'light' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('light')" title="Sobre Claro (Día)">
+                  <span class="plp-envelope-icon">✉️</span>
+                  <span class="plp-envelope-hide-mobile">Claro</span>
+                  <span class="plp-envelope-badge">☀️</span>
+                </button>
+                <button type="button" class="plp-envelope-btn dark ${currentTheme === 'dark' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('dark')" title="Sobre Oscuro (Noche)">
+                  <span class="plp-envelope-icon">✉️</span>
+                  <span class="plp-envelope-hide-mobile">Oscuro</span>
+                  <span class="plp-envelope-badge">🌙</span>
+                </button>
+              </div>
+
               <div class="plp-search-box" role="search">
                 <span class="plp-search-icon" aria-hidden="true">🔍</span>
                 <input
@@ -1363,12 +1412,18 @@ window.ProjectsView = {
     const modal = document.getElementById('plp-inline-lightbox');
     const body = document.getElementById('plp-inline-lightbox-body');
     if (!modal || !body) return;
+    const isDark = (document.querySelector('.plp-wrapper')?.getAttribute('data-theme') || this.getLandingTheme()) === 'dark';
+    const bg = isDark ? '#0f172a' : '#ffffff';
+    const titleColor = isDark ? '#ffffff' : '#0a192f';
+    const textColor = isDark ? '#e2e8f0' : '#334155';
+    const border = isDark ? '1px solid #334155' : 'none';
+
     body.innerHTML = `
       <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">✕</button>
-      <div style="padding:2.5rem; background:#ffffff;">
+      <div style="padding:2.5rem; background:${bg}; border:${border}; border-radius:var(--plp-radius-lg);">
         <span class="plp-eyebrow">Vista Previa Interactiva</span>
-        <h2 style="margin:0.5rem 0 1rem; color:#0a192f;">${this.escapeHtml(title)}</h2>
-        <p style="color:#334155; line-height:1.7;">
+        <h2 style="margin:0.5rem 0 1rem; color:${titleColor};">${this.escapeHtml(title)}</h2>
+        <p style="color:${textColor}; line-height:1.7;">
           Recurso oficial del <strong>Proyecto Innovatech — Gobierno de Datos e IA</strong>. Incluye lineamientos estratégicos, protocolos de calidad de datos, arquitectura técnica y métricas de impacto verificadas.
         </p>
         <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
