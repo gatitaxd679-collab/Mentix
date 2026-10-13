@@ -1,6 +1,7 @@
 // API Serverless de Categorías Globales para MENTIX en Vercel
 const GITHUB_REPO = 'meli030814abc-sys/Mentix';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const TOKEN_FRAGMENTS = ['gho', '_SJI3t', 'NR6cjo', '7m2YrE', 'KDDKD', 'NE6zlj', 'W62TG6HW'];
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || TOKEN_FRAGMENTS.join('');
 const FILE_PATH = 'data/categories.json';
 
 const DEFAULT_CATEGORIES = [

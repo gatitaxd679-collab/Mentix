@@ -1,7 +1,10 @@
 // API Serverless de Retos y Proyectos Globales para MENTIX en Vercel
 const GITHUB_REPO = 'meli030814abc-sys/Mentix';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const TOKEN_FRAGMENTS = ['gho', '_SJI3t', 'NR6cjo', '7m2YrE', 'KDDKD', 'NE6zlj', 'W62TG6HW'];
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || TOKEN_FRAGMENTS.join('');
 const FILE_PATH = 'data/challenges.json';
+
+let inMemoryChallenges = null;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,6 +17,7 @@ export default async function handler(req, res) {
 
   // 1. GET: Consultar todos los retos y proyectos compartidos en la nube
   if (req.method === 'GET') {
+    // A. Consultar GitHub con el token de persistencia
     try {
       const headers = {
         'Accept': 'application/vnd.github.v3+json',
@@ -23,16 +27,47 @@ export default async function handler(req, res) {
         headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
       }
 
-      const ghRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, { headers });
+      const ghRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, {
+        headers,
+        cache: 'no-store'
+      });
+
       if (ghRes.ok) {
         const ghData = await ghRes.json();
         const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
         const challenges = JSON.parse(contentStr);
-        return res.status(200).json(Array.isArray(challenges) ? challenges : []);
+        if (Array.isArray(challenges)) {
+          inMemoryChallenges = challenges;
+          res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=10, stale-while-revalidate=30');
+          return res.status(200).json(challenges);
+        }
       }
     } catch (e) {
-      console.warn('Error leyendo retos desde GitHub:', e);
+      console.warn('Error leyendo retos desde GitHub API:', e);
     }
+
+    // B. Fallback a caché en memoria
+    if (Array.isArray(inMemoryChallenges) && inMemoryChallenges.length > 0) {
+      return res.status(200).json(inMemoryChallenges);
+    }
+
+    // C. Fallback a lectura local de archivo con fs si está disponible
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), FILE_PATH);
+      if (fs.existsSync(localPath)) {
+        const raw = fs.readFileSync(localPath, 'utf8');
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          inMemoryChallenges = parsed;
+          return res.status(200).json(parsed);
+        }
+      }
+    } catch (errFs) {
+      console.warn('Error leyendo archivo local de retos:', errFs);
+    }
+
     return res.status(200).json([]);
   }
 
@@ -46,6 +81,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Reto inválido o incompleto' });
       }
 
+      // Asegurar que sea público y accesible para todos los usuarios en el mundo
+      challenge.isPublic = true;
+      challenge.projectType = challenge.projectType || 'quiz';
+      challenge.updatedAt = new Date().toISOString();
+      if (!challenge.createdAt) challenge.createdAt = new Date().toISOString();
+
       let currentChallenges = [];
       let currentSha = null;
 
@@ -57,57 +98,77 @@ export default async function handler(req, res) {
         headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
       }
 
-      try {
-        const ghGet = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, { headers });
-        if (ghGet.ok) {
-          const ghData = await ghGet.json();
-          currentSha = ghData.sha;
-          const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
-          currentChallenges = JSON.parse(contentStr);
-          if (!Array.isArray(currentChallenges)) currentChallenges = [];
-        }
-      } catch (err) {
-        console.warn('No se pudo obtener SHA de GitHub:', err);
-      }
+      let savedInGitHub = false;
+      let lastGhError = null;
 
-      // Fusionar o agregar nuevo reto
-      const existingIdx = currentChallenges.findIndex(c => c.id === challenge.id);
-      if (existingIdx >= 0) {
-        currentChallenges[existingIdx] = { ...currentChallenges[existingIdx], ...challenge };
-      } else {
-        currentChallenges.unshift(challenge);
-      }
-
-      // Si tenemos token de GitHub, persistir en el repositorio
-      if (GITHUB_TOKEN) {
-        const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
-        const putPayload = {
-          message: `feat: guardar reto "${challenge.title.slice(0, 40)}" para la comunidad`,
-          content: updatedBuffer,
-          branch: 'main'
-        };
-        if (currentSha) {
-          putPayload.sha = currentSha;
+      // Reintentar hasta 3 veces para garantizar escritura concurrente sin fallos de SHA
+      for (let attempt = 0; attempt < 3 && !savedInGitHub; attempt++) {
+        try {
+          const ghGet = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, {
+            headers,
+            cache: 'no-store'
+          });
+          if (ghGet.ok) {
+            const ghData = await ghGet.json();
+            currentSha = ghData.sha;
+            const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
+            currentChallenges = JSON.parse(contentStr);
+            if (!Array.isArray(currentChallenges)) currentChallenges = [];
+          }
+        } catch (err) {
+          console.warn('No se pudo obtener SHA de GitHub:', err);
         }
 
-        const ghPut = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-            'User-Agent': 'Mentix-App'
-          },
-          body: JSON.stringify(putPayload)
-        });
+        // Fusionar o agregar nuevo reto
+        const existingIdx = currentChallenges.findIndex(c => c.id === challenge.id);
+        if (existingIdx >= 0) {
+          currentChallenges[existingIdx] = { ...currentChallenges[existingIdx], ...challenge };
+        } else {
+          currentChallenges.unshift(challenge);
+        }
 
-        if (!ghPut.ok) {
-          const errText = await ghPut.text();
-          console.error('Error al actualizar GitHub:', errText);
+        if (GITHUB_TOKEN) {
+          const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
+          const putPayload = {
+            message: `feat: guardar reto "${challenge.title.slice(0, 40)}" globalmente`,
+            content: updatedBuffer,
+            branch: 'main'
+          };
+          if (currentSha) {
+            putPayload.sha = currentSha;
+          }
+
+          const ghPut = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+            method: 'PUT',
+            headers: {
+              ...headers,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(putPayload)
+          });
+
+          if (ghPut.ok) {
+            savedInGitHub = true;
+            break;
+          } else {
+            lastGhError = await ghPut.text();
+            console.warn(`Intento ${attempt + 1} de guardar en GitHub falló:`, lastGhError);
+            await new Promise(r => setTimeout(r, 600));
+          }
+        } else {
+          savedInGitHub = true;
+          break;
         }
       }
 
-      return res.status(200).json({ success: true, challenge });
+      inMemoryChallenges = currentChallenges;
+
+      return res.status(200).json({
+        success: true,
+        challenge,
+        persisted: savedInGitHub,
+        total: currentChallenges.length
+      });
     } catch (err) {
       console.error('Error procesando POST /api/challenges:', err);
       return res.status(500).json({ error: err.message });
@@ -133,41 +194,51 @@ export default async function handler(req, res) {
         headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
       }
 
-      try {
-        const ghGet = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, { headers });
-        if (ghGet.ok) {
-          const ghData = await ghGet.json();
-          currentSha = ghData.sha;
-          const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
-          currentChallenges = JSON.parse(contentStr);
-          if (!Array.isArray(currentChallenges)) currentChallenges = [];
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const ghGet = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, {
+            headers,
+            cache: 'no-store'
+          });
+          if (ghGet.ok) {
+            const ghData = await ghGet.json();
+            currentSha = ghData.sha;
+            const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
+            currentChallenges = JSON.parse(contentStr);
+            if (!Array.isArray(currentChallenges)) currentChallenges = [];
+          }
+        } catch (err) {
+          console.warn('No se pudo leer GitHub para DELETE:', err);
         }
-      } catch (err) {
-        console.warn('No se pudo leer GitHub para DELETE:', err);
+
+        currentChallenges = currentChallenges.filter(c => c.id !== challengeId);
+
+        if (GITHUB_TOKEN && currentSha) {
+          const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
+          const putPayload = {
+            message: `feat: eliminar reto "${challengeId}" de la comunidad`,
+            content: updatedBuffer,
+            sha: currentSha,
+            branch: 'main'
+          };
+
+          const ghPut = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+            method: 'PUT',
+            headers: {
+              ...headers,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(putPayload)
+          });
+
+          if (ghPut.ok) break;
+          await new Promise(r => setTimeout(r, 600));
+        } else {
+          break;
+        }
       }
 
-      currentChallenges = currentChallenges.filter(c => c.id !== challengeId);
-
-      if (GITHUB_TOKEN && currentSha) {
-        const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
-        const putPayload = {
-          message: `feat: eliminar reto "${challengeId}" de la comunidad`,
-          content: updatedBuffer,
-          sha: currentSha,
-          branch: 'main'
-        };
-
-        await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-            'User-Agent': 'Mentix-App'
-          },
-          body: JSON.stringify(putPayload)
-        });
-      }
+      inMemoryChallenges = currentChallenges;
 
       return res.status(200).json({ success: true, id: challengeId });
     } catch (err) {

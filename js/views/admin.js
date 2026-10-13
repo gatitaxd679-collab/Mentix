@@ -234,6 +234,9 @@ window.AdminView = {
     if (confirm('¿Estás seguro de eliminar este reto definitivamente?')) {
       window.appState.challenges = window.appState.challenges.filter(c => c.id !== challengeId);
       saveGlobalState(window.appState);
+      if (window.appRouter && window.appRouter.deleteChallengeFromCloud) {
+        window.appRouter.deleteChallengeFromCloud(challengeId);
+      }
       this.render();
       alert('Reto eliminado.');
     }

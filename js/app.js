@@ -122,6 +122,20 @@ class AppRouter {
     window.addEventListener('hashchange', () => {
       this.restoreInitialRoute();
     });
+
+    // Sincronización global automática: cuando el usuario regresa a la pestaña o periódicamente cada 30 segundos
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.syncChallengesWithCloud();
+        this.syncCategoriesWithCloud();
+      }
+    });
+
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && (this.currentView === 'home' || this.currentView === 'projects')) {
+        this.syncChallengesWithCloud();
+      }
+    }, 30000);
   }
 
   isGuest() {
@@ -184,6 +198,7 @@ class AppRouter {
       case 'home':
         document.getElementById('view-home')?.classList.add('active');
         window.HomeView.render();
+        this.syncChallengesWithCloud();
         break;
 
       case 'creator':
@@ -273,6 +288,7 @@ class AppRouter {
           window.ProjectsView.viewMode = 'list';
           window.ProjectsView.render();
         }
+        this.syncChallengesWithCloud();
         break;
 
       case 'presentation':
@@ -1081,70 +1097,65 @@ class AppRouter {
 
   async pushChallengeToCloud(challenge) {
     if (!challenge || !challenge.id || !challenge.title) return;
-    const cloudChalUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223cda883158';
     try {
-      const getRes = await fetch(cloudChalUrl);
-      let list = [];
-      if (getRes.ok) {
-        const json = await getRes.json();
-        list = json.data?.challenges || [];
-      }
-      const existingIdx = list.findIndex(c => c.id === challenge.id);
-      if (existingIdx >= 0) {
-        list[existingIdx] = { ...list[existingIdx], ...challenge };
-      } else {
-        list.unshift(challenge);
-      }
-      await fetch(cloudChalUrl, {
-        method: 'PUT',
+      challenge.isPublic = true;
+      challenge.projectType = challenge.projectType || 'quiz';
+      challenge.updatedAt = new Date().toISOString();
+
+      const res = await fetch('/api/challenges', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'mentix_global_challenges_v1',
-          data: { challenges: list, updatedAt: new Date().toISOString() }
-        })
+        body: JSON.stringify({ challenge })
       });
-      console.log('☁️ Reto guardado en la nube para todos los usuarios:', challenge.title);
+      if (res.ok) {
+        console.log('☁️ Reto guardado globalmente en MENTIX Cloud:', challenge.title);
+      } else {
+        console.warn('Respuesta no-ok al guardar en /api/challenges:', res.status);
+      }
     } catch(e) {
-      console.warn('Error al subir reto a la nube:', e);
+      console.warn('Error al subir reto a la nube (/api/challenges):', e);
     }
   }
 
   async deleteChallengeFromCloud(challengeId) {
     if (!challengeId) return;
-    const cloudChalUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223cda883158';
     try {
-      const getRes = await fetch(cloudChalUrl);
-      if (getRes.ok) {
-        const json = await getRes.json();
-        const list = (json.data?.challenges || []).filter(c => c.id !== challengeId);
-        await fetch(cloudChalUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'mentix_global_challenges_v1',
-            data: { challenges: list, updatedAt: new Date().toISOString() }
-          })
-        });
-      }
-    } catch(e) {}
+      await fetch(`/api/challenges?id=${encodeURIComponent(challengeId)}`, {
+        method: 'DELETE'
+      });
+      console.log('🗑️ Reto eliminado de MENTIX Cloud:', challengeId);
+    } catch(e) {
+      console.warn('Error eliminando reto de la nube:', e);
+    }
   }
 
   async syncChallengesWithCloud() {
-    const cloudChalUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223cda883158';
     try {
       let cloudChallenges = null;
+
+      // 1. Consultar API global de retos en Vercel
       try {
-        const res = await fetch(cloudChalUrl);
+        const res = await fetch(`/api/challenges?t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.data && Array.isArray(json.data.challenges)) {
-            cloudChallenges = json.data.challenges;
+          if (Array.isArray(json) && json.length > 0) {
+            cloudChallenges = json;
           }
         }
-      } catch (errCloud) {
+      } catch (errApi) {
+        console.warn('No se pudo conectar a /api/challenges:', errApi);
+      }
+
+      // 2. Fallback a archivo estático data/challenges.json
+      if (!cloudChallenges) {
         try {
           const resStatic = await fetch(`data/challenges.json?t=${Date.now()}`);
-          if (resStatic.ok) cloudChallenges = await resStatic.json();
+          if (resStatic.ok) {
+            const jsonStatic = await resStatic.json();
+            if (Array.isArray(jsonStatic) && jsonStatic.length > 0) {
+              cloudChallenges = jsonStatic;
+            }
+          }
         } catch(e) {}
       }
 
@@ -1152,9 +1163,12 @@ class AppRouter {
         const local = Array.isArray(window.appState.challenges) ? window.appState.challenges : [];
         const map = new Map();
         local.forEach(c => { if (c && c.id) map.set(c.id, c); });
-        
+
         cloudChallenges.forEach(c => {
           if (!c || !c.id) return;
+          if (c.isPublic === undefined) c.isPublic = true;
+          if (!c.projectType) c.projectType = 'quiz';
+
           // Si el reto en la nube no tiene preguntas, restaurar preguntas por defecto si es muestra
           if (!Array.isArray(c.questions) || c.questions.length === 0) {
             if (c.id === 'reto_sample_cloud' && typeof DEFAULT_CHALLENGES !== 'undefined' && DEFAULT_CHALLENGES[0]) {
@@ -1168,7 +1182,7 @@ class AppRouter {
             }
           } else {
             const existing = map.get(c.id);
-            // Solo sobreescribir si el reto remoto tiene preguntas reales
+            // Si el remoto tiene preguntas reales, sincronizar
             if (Array.isArray(c.questions) && c.questions.length > 0) {
               map.set(c.id, { ...existing, ...c });
             }

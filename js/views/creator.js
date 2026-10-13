@@ -965,6 +965,10 @@ window.CreatorView = {
     c.authorId = c.authorId || u?.id || ('user_' + (u?.email || u?.name || 'anon'));
     c.authorEmail = c.authorEmail || u?.email || '';
     if (c.plays === undefined) c.plays = 0;
+    c.isPublic = true;
+    c.projectType = c.projectType || 'quiz';
+    c.updatedAt = new Date().toISOString();
+    if (!c.createdAt) c.createdAt = new Date().toISOString();
 
     // Verificar si es edición o nuevo
     const existingIndex = window.appState.challenges.findIndex(item => item.id === c.id);
@@ -979,6 +983,8 @@ window.CreatorView = {
     }
 
     saveGlobalState(window.appState);
+
+    // Publicar inmediatamente en la nube global de MENTIX
     if (window.appRouter && window.appRouter.pushChallengeToCloud) {
       window.appRouter.pushChallengeToCloud(c);
     }
