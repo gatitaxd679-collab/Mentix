@@ -7,8 +7,9 @@ window.ProjectsView = {
   currentCategory: 'all',
   currentTypeFilter: 'all', // 'all' | 'presentation' | 'video' | 'document' | 'url'
   searchQuery: '',
-  viewMode: 'list', // 'list' | 'selector'
+  viewMode: 'landing', // 'landing' | 'selector' | 'list'
   selectedProjectTypeId: 'presentation',
+  currentSlideIndex: 0,
 
   projectModes: [
     {
@@ -259,16 +260,22 @@ window.ProjectsView = {
     const container = document.getElementById('view-projects');
     if (!container) return;
 
-    if (this.viewMode === 'selector') {
-      this.renderProjectSelectorView(container);
-      return;
-    }
-
     const u = window.appState.currentUser;
     // En MENTIX, los proyectos abarcan: Presentaciones, Video Clases, Documentos Didácticos y Enlaces Web/URL
     const allProjects = (window.appState.challenges || []).filter(c => 
       c.projectType === 'presentation' || c.projectType === 'video' || c.projectType === 'document' || c.projectType === 'url'
     );
+
+    if (this.viewMode === 'selector') {
+      this.renderProjectSelectorView(container);
+      return;
+    }
+
+    if (this.viewMode === 'landing') {
+      this.renderLandingPageView(container, allProjects);
+      return;
+    }
+
     const categories = window.appState.categories || [];
 
     // Reconciliar categorías
@@ -339,6 +346,9 @@ window.ProjectsView = {
           </div>
 
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-outline" onclick="window.ProjectsView.switchViewMode('landing')" style="padding: 0.8rem 1.2rem; font-weight: 800; border-color: #10b981; color: #34d399;">
+              <span>🌐</span> Landing Page Proyecto
+            </button>
             <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
               <span>➕</span> <span>Crear Proyecto</span>
             </button>
@@ -696,6 +706,13 @@ window.ProjectsView = {
     this.render();
   },
 
+  switchViewMode(mode) {
+    this.viewMode = mode;
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
   openCreateProjectModal() {
     this.viewMode = 'selector';
     if (!this.selectedProjectTypeId) this.selectedProjectTypeId = 'presentation';
@@ -705,11 +722,658 @@ window.ProjectsView = {
   },
 
   closeCreateProjectModal() {
-    this.viewMode = 'list';
+    this.viewMode = 'landing';
     const modal = document.getElementById('create-project-type-modal');
     if (modal) modal.classList.remove('active');
     if (window.soundEngine) window.soundEngine.playClick();
     this.render();
+  },
+
+  renderLandingPageView(container, allProjects = []) {
+    this.currentSlideIndex = 0;
+    const totalProjects = allProjects.length;
+
+    container.innerHTML = `
+      <div style="max-width: 1340px; margin: 0 auto; padding: 1.25rem 1rem 4rem;">
+        <div class="plp-wrapper animate-fade-in">
+          
+          <!-- Barra superior de control Mentix (Alternar entre Landing Page, Crear Proyecto y Mis Proyectos) -->
+          <div class="plp-mentix-bar">
+            <div class="plp-mentix-bar-left">
+              <span class="plp-mentix-badge">✨ Vista Landing Page de Proyecto</span>
+              <span>Presentación ejecutiva interactiva UX/UI</span>
+            </div>
+            <div class="plp-mentix-actions">
+              <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectsView.openCreateProjectModal()">
+                <span>➕</span> Crear Proyecto
+              </button>
+              <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.switchViewMode('list')">
+                <span>🗂️</span> Mis Proyectos Guardados (${totalProjects})
+              </button>
+              <a href="proyecto-landing.html" target="_blank" class="plp-mentix-btn" style="text-decoration:none;">
+                <span>↗</span> Abrir en Pantalla Completa
+              </a>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               1. BARRA DE NAVEGACIÓN (HEADER) - FIJA (STICKY)
+               ================================================================ -->
+          <header class="plp-header" role="banner" aria-label="Navegación principal del proyecto">
+            <!-- Izquierda: Logotipo e Isotipo Moderno -->
+            <div class="plp-brand" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-inicio')" role="button" tabindex="0" aria-label="Gobierno de Datos e IA - Inicio">
+              <div class="plp-brand-isotipo" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </div>
+              <div class="plp-brand-text">
+                <span class="plp-brand-title">Gobierno de Datos e IA</span>
+                <span class="plp-brand-subtitle">Proyecto Innovatech</span>
+              </div>
+            </div>
+
+            <!-- Centro: Enlaces de navegación rápida con efecto hover suave -->
+            <nav class="plp-nav" role="navigation" aria-label="Enlaces de navegación rápida">
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-inicio')">Inicio</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-sobre')">Sobre el Proyecto</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">Recursos</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-presentaciones')">Presentaciones</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-galeria')">Galería</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-contacto')">Contacto</button>
+            </nav>
+
+            <!-- Derecha: Buscador funcional discreto + Botón CTA -->
+            <div class="plp-header-right">
+              <div class="plp-search-box" role="search">
+                <span class="plp-search-icon" aria-hidden="true">🔍</span>
+                <input
+                  type="search"
+                  class="plp-search-input"
+                  placeholder="Buscar recurso o sección..."
+                  aria-label="Buscar en el proyecto"
+                  oninput="window.ProjectsView.filterLandingSearch(this.value)"
+                />
+              </div>
+              <button type="button" class="plp-cta-btn" onclick="window.ProjectsView.previewLandingDoc('Unirse / Colaborar en el Proyecto Innovatech')">
+                Unirse / Colaborar
+              </button>
+            </div>
+          </header>
+
+          <!-- ================================================================
+               2. SECCIÓN PRINCIPAL (HERO) - DEFINICIÓN DEL PROYECTO
+               ================================================================ -->
+          <section class="plp-hero" id="plp-sec-inicio" aria-labelledby="plp-hero-title">
+            <div class="plp-hero-heading-wrap" id="plp-sec-sobre">
+              <span class="plp-eyebrow">🚀 Innovación Tecnológica & Gobernanza Inteligente</span>
+              <h1 class="plp-hero-main-title" id="plp-hero-title">
+                Transformando el Futuro: <span>Proyecto Innovatech</span>
+              </h1>
+              <p class="plp-section-subtitle">
+                Plataforma integral de Gobierno de Datos e Inteligencia Artificial diseñada para impulsar decisiones estratégicas con ética, transparencia y alto impacto.
+              </p>
+            </div>
+
+            <div class="plp-hero-grid">
+              <!-- Columna Izquierda (Video): Reproductor integrado con miniatura personalizada y botón Play central -->
+              <div class="plp-video-card" id="plp-hero-video-box" aria-label="Video explicativo del proyecto">
+                <div
+                  class="plp-video-poster"
+                  style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80');"
+                  onclick="window.ProjectsView.playLandingVideo()"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Reproducir video explicativo de Proyecto Innovatech"
+                >
+                  <div class="plp-play-btn" aria-hidden="true">▶</div>
+                  <div class="plp-video-caption">
+                    <span>🎬 Video Explicativo: Proyecto Innovatech</span>
+                    <span>03:45 min • Full HD</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Columna Derecha (Definición): Misión, Visión, Impacto y Botón "Saber Más" -->
+              <article class="plp-hero-definition">
+                <h2 class="plp-hero-def-title">Definición del Proyecto</h2>
+                <p class="plp-hero-def-text">
+                  <strong>Misión:</strong> Estructurar un ecosistema de Gobierno de Datos e Inteligencia Artificial que garantice la calidad, seguridad e interoperabilidad de la información para potenciar la innovación educativa y empresarial.
+                </p>
+                <p class="plp-hero-def-text">
+                  <strong>Visión e Impacto:</strong> Convertirnos en el referente regional en analítica ética y automatización inteligente, reduciendo brechas tecnológicas y generando valor sostenible para toda la comunidad.
+                </p>
+
+                <div class="plp-hero-pillars">
+                  <div class="plp-pillar-chip">
+                    <strong>99.4%</strong>
+                    <span>Calidad de Datos</span>
+                  </div>
+                  <div class="plp-pillar-chip">
+                    <strong>+45</strong>
+                    <span>Modelos IA</span>
+                  </div>
+                  <div class="plp-pillar-chip">
+                    <strong>ISO/IEC</strong>
+                    <span>Estándar Ético</span>
+                  </div>
+                </div>
+
+                <button type="button" class="plp-btn-secondary" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">
+                  <span>Saber Más</span>
+                  <span class="plp-arrow" aria-hidden="true">→</span>
+                </button>
+              </article>
+            </div>
+          </section>
+
+          <!-- ================================================================
+               3. SECCIÓN DE DOCUMENTOS Y RECURSOS (CARDS INTERACTIVOS)
+               ================================================================ -->
+          <section class="plp-section-alt" id="plp-sec-recursos" aria-labelledby="plp-docs-heading">
+            <div class="plp-section-alt-inner">
+              <div class="plp-section-header">
+                <span class="plp-eyebrow">📄 Documentación Oficial</span>
+                <h2 class="plp-section-title" id="plp-docs-heading">Documentos y Recursos</h2>
+                <p class="plp-section-subtitle">
+                  Explora y descarga los informes estratégicos, estudios de impacto y el paquete técnico completo del proyecto.
+                </p>
+              </div>
+
+              <div class="plp-docs-grid">
+                <!-- Card 1: Plan de Negocios -->
+                <article class="plp-doc-card" data-plp-search="plan de negocios pdf estrategia modelo">
+                  <div>
+                    <div class="plp-doc-icon-wrap" aria-hidden="true">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                      </svg>
+                    </div>
+                    <span class="plp-doc-meta">DOCUMENTO PDF • 4.2 MB</span>
+                    <h3 class="plp-doc-title">Plan de Negocios</h3>
+                    <p class="plp-doc-desc">
+                      Arquitectura financiera, estrategia de adopción institucional, modelo de sostenibilidad y hoja de ruta 2026–2030.
+                    </p>
+                  </div>
+                  <div class="plp-doc-actions">
+                    <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Plan de Negocios — Proyecto Innovatech')">
+                      👁️ Visualizar
+                    </button>
+                    <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Plan_de_Negocios_Innovatech.pdf')">
+                      ⬇ Descargar
+                    </button>
+                  </div>
+                </article>
+
+                <!-- Card 2: Estudio de Impacto -->
+                <article class="plp-doc-card" data-plp-search="estudio de impacto metricas resultados pdf">
+                  <div>
+                    <div class="plp-doc-icon-wrap" aria-hidden="true">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <path d="M8 17v-3"></path>
+                        <path d="M12 17v-6"></path>
+                        <path d="M16 17v-4"></path>
+                      </svg>
+                    </div>
+                    <span class="plp-doc-meta">DOCUMENTO PDF • 6.8 MB</span>
+                    <h3 class="plp-doc-title">Estudio de Impacto</h3>
+                    <p class="plp-doc-desc">
+                      Evaluación detallada de indicadores de desempeño (KPIs), optimización de procesos y auditoría de transparencia algorítmica.
+                    </p>
+                  </div>
+                  <div class="plp-doc-actions">
+                    <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Estudio de Impacto — Proyecto Innovatech')">
+                      👁️ Visualizar
+                    </button>
+                    <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Estudio_de_Impacto_Innovatech.pdf')">
+                      ⬇ Descargar
+                    </button>
+                  </div>
+                </article>
+
+                <!-- Card 3: Descargar todo -->
+                <article class="plp-doc-card" data-plp-search="descargar todo paquete masivo zip recursos">
+                  <div>
+                    <div class="plp-doc-icon-wrap" aria-hidden="true">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </div>
+                    <span class="plp-doc-meta">DESCARGA MASIVA (.ZIP) • 18.5 MB</span>
+                    <h3 class="plp-doc-title">Descargar todo</h3>
+                    <p class="plp-doc-desc">
+                      Paquete integral con todos los documentos PDF, manuales de arquitectura, datasets de ejemplo y guías de implementación.
+                    </p>
+                  </div>
+                  <div>
+                    <div class="plp-doc-actions">
+                      <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.triggerLandingBulkDownload()">
+                        📦 Descargar todo
+                      </button>
+                    </div>
+                    <div class="plp-progress-wrap" id="plp-bulk-progress-wrap" aria-live="polite">
+                      <div class="plp-progress-track">
+                        <div class="plp-progress-fill" id="plp-bulk-progress-fill"></div>
+                      </div>
+                      <span class="plp-progress-status" id="plp-bulk-progress-status">Preparando descarga... 0%</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================================================================
+               4. SECCIÓN DE PRESENTACIONES (CARRUSEL INTERACTIVO)
+               ================================================================ -->
+          <section class="plp-section" id="plp-sec-presentaciones" aria-labelledby="plp-pres-heading">
+            <div class="plp-section-header">
+              <span class="plp-eyebrow">📊 Diapositivas Ejecutivas</span>
+              <h2 class="plp-section-title" id="plp-pres-heading">Presentaciones del Proyecto</h2>
+              <p class="plp-section-subtitle">
+                Recorre las miniaturas de la presentación actual utilizando las flechas laterales o los indicadores inferiores.
+              </p>
+            </div>
+
+            <div class="plp-carousel-container" role="region" aria-roledescription="carrusel" aria-label="Presentaciones del Proyecto">
+              <button type="button" class="plp-carousel-arrow prev" onclick="window.ProjectsView.moveLandingSlide(-1)" aria-label="Diapositiva anterior">❮</button>
+              <button type="button" class="plp-carousel-arrow next" onclick="window.ProjectsView.moveLandingSlide(1)" aria-label="Siguiente diapositiva">❯</button>
+
+              <div class="plp-carousel-viewport">
+                <div class="plp-carousel-track" id="plp-landing-carousel-track">
+                  <!-- Slide 1 -->
+                  <div class="plp-slide-item">
+                    <div class="plp-slide-preview">
+                      <span class="plp-slide-badge">Diapositiva 01 / 04</span>
+                      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Arquitectura de Gobierno de Datos" loading="lazy" />
+                    </div>
+                    <div class="plp-slide-info">
+                      <h3>1. Arquitectura de Gobierno de Datos</h3>
+                      <p>Estructura centralizada de ingesta, catalogación inteligente y trazabilidad de extremo a extremo con estándares de seguridad corporativa.</p>
+                      <div class="plp-slide-kpis">
+                        <span class="plp-slide-kpi">✔ Catálogo Maestro</span>
+                        <span class="plp-slide-kpi">✔ Linaje Automatizado</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 2 -->
+                  <div class="plp-slide-item">
+                    <div class="plp-slide-preview">
+                      <span class="plp-slide-badge">Diapositiva 02 / 04</span>
+                      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Modelos de IA y Analítica Predictiva" loading="lazy" />
+                    </div>
+                    <div class="plp-slide-info">
+                      <h3>2. Modelos de IA y Analítica Predictiva</h3>
+                      <p>Despliegue de algoritmos auditables que transforman grandes volúmenes de datos en proyecciones accionables en tiempo real.</p>
+                      <div class="plp-slide-kpis">
+                        <span class="plp-slide-kpi">✔ +38% Precisión</span>
+                        <span class="plp-slide-kpi">✔ IA Explicable</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 3 -->
+                  <div class="plp-slide-item">
+                    <div class="plp-slide-preview">
+                      <span class="plp-slide-badge">Diapositiva 03 / 04</span>
+                      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Ética y Privacidad por Diseño" loading="lazy" />
+                    </div>
+                    <div class="plp-slide-info">
+                      <h3>3. Ética, Privacidad y Cumplimiento</h3>
+                      <p>Protocolos de protección de datos personales, anonimización avanzada y comités de validación ética en cada ciclo de vida del modelo.</p>
+                      <div class="plp-slide-kpis">
+                        <span class="plp-slide-kpi">✔ Privacidad Total</span>
+                        <span class="plp-slide-kpi">✔ ISO/IEC 42001</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 4 -->
+                  <div class="plp-slide-item">
+                    <div class="plp-slide-preview">
+                      <span class="plp-slide-badge">Diapositiva 04 / 04</span>
+                      <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80" alt="Escalabilidad e Impacto" loading="lazy" />
+                    </div>
+                    <div class="plp-slide-info">
+                      <h3>4. Escalabilidad e Impacto Regional</h3>
+                      <p>Resultados alcanzados en instituciones aliadas, transferencia tecnológica y próximos hitos de expansión del Proyecto Innovatech.</p>
+                      <div class="plp-slide-kpis">
+                        <span class="plp-slide-kpi">✔ 12 Nodos Activos</span>
+                        <span class="plp-slide-kpi">✔ Red Colaborativa</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dots inferiores -->
+              <div class="plp-carousel-thumbs" role="tablist">
+                <button type="button" class="plp-carousel-dot active" onclick="window.ProjectsView.goToLandingSlide(0)" aria-label="Diapositiva 1"></button>
+                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(1)" aria-label="Diapositiva 2"></button>
+                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(2)" aria-label="Diapositiva 3"></button>
+                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(3)" aria-label="Diapositiva 4"></button>
+              </div>
+            </div>
+
+            <div class="plp-carousel-cta-wrap">
+              <button type="button" class="plp-btn-emerald-lg" onclick="window.ProjectsView.previewLandingDoc('Presentación Completa — Proyecto Innovatech (Pantalla Completa)')">
+                <span>🖥️ Ver Presentación Completa</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- ================================================================
+               5. SECCIÓN DE GALERÍA DE IMÁGENES (GRID DINÁMICO / MASONRY)
+               ================================================================ -->
+          <section class="plp-section-alt" id="plp-sec-galeria" aria-labelledby="plp-gallery-heading">
+            <div class="plp-section-alt-inner">
+              <div class="plp-section-header">
+                <span class="plp-eyebrow">📸 Galería Visual</span>
+                <h2 class="plp-section-title" id="plp-gallery-heading">Imágenes del Proyecto</h2>
+                <p class="plp-section-subtitle">
+                  Cuadrícula fotográfica con sesiones de trabajo, prototipos e indicadores visuales. Haz clic en cualquier imagen para abrir el visor Lightbox.
+                </p>
+              </div>
+
+              <div class="plp-masonry-grid">
+                <figure
+                  class="plp-gallery-item span-7 row-2"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=85', 'Equipo multidisciplinario en sesión de arquitectura de datos')"
+                >
+                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Equipo trabajando" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Equipo & Co-creación</span>
+                    <p class="plp-gallery-caption">Sesión de diseño de arquitectura de Gobierno de Datos</p>
+                  </figcaption>
+                </figure>
+
+                <figure
+                  class="plp-gallery-item span-5"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85', 'Prototipo de Dashboard Analítico en Tiempo Real')"
+                >
+                  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="Prototipo de dashboard" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Prototipo Funcional</span>
+                    <p class="plp-gallery-caption">Panel de monitoreo de modelos e indicadores</p>
+                  </figcaption>
+                </figure>
+
+                <figure
+                  class="plp-gallery-item span-5"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=85', 'Validación experimental de algoritmos de IA')"
+                >
+                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" alt="Laboratorio de IA" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Laboratorio IA</span>
+                    <p class="plp-gallery-caption">Pruebas de rendimiento y calibración de modelos</p>
+                  </figcaption>
+                </figure>
+
+                <figure
+                  class="plp-gallery-item span-4"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1400&q=85', 'Revisión ejecutiva de métricas trimestrales')"
+                >
+                  <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80" alt="Comité directivo" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Estrategia</span>
+                    <p class="plp-gallery-caption">Presentación de hitos ante el comité directivo</p>
+                  </figcaption>
+                </figure>
+
+                <figure
+                  class="plp-gallery-item span-4"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=1400&q=85', 'Gráficos de redes neuronales y visualización de datos')"
+                >
+                  <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80" alt="Gráficos de datos" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Analítica</span>
+                    <p class="plp-gallery-caption">Visualización avanzada de flujos de información</p>
+                  </figcaption>
+                </figure>
+
+                <figure
+                  class="plp-gallery-item span-4"
+                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=85', 'Talleres de transferencia tecnológica con la comunidad')"
+                >
+                  <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80" alt="Comunidad colaborativa" loading="lazy" />
+                  <figcaption class="plp-gallery-overlay">
+                    <span class="plp-gallery-tag">Comunidad</span>
+                    <p class="plp-gallery-caption">Jornadas abiertas de formación y adopción</p>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================================================================
+               6. SECCIÓN DE ENLACES DE INTERÉS (ENLACES RÁPIDOS)
+               ================================================================ -->
+          <section class="plp-section" id="plp-sec-contacto" aria-labelledby="plp-links-heading">
+            <div class="plp-section-header">
+              <span class="plp-eyebrow">🔗 Accesos Directos</span>
+              <h2 class="plp-section-title" id="plp-links-heading">Enlaces de Interés</h2>
+              <p class="plp-section-subtitle">
+                Conecta con nuestras plataformas aliadas, código fuente abierto, métricas de impacto y soporte.
+              </p>
+            </div>
+
+            <div class="plp-links-grid">
+              <!-- Sitio Web Aliado -->
+              <a href="https://mentix.edutic.co" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="sitio web aliado portal">
+                <div class="plp-link-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="plp-link-title">Sitio Web Aliado</h3>
+                  <p class="plp-link-desc">Portal oficial de la red interinstitucional de innovación.</p>
+                </div>
+              </a>
+
+              <!-- Repositorio de Código -->
+              <a href="https://github.com/meli030814abc-sys/Mentix" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="repositorio de codigo github desarrollo">
+                <div class="plp-link-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="plp-link-title">Repositorio de Código</h3>
+                  <p class="plp-link-desc">Código fuente, arquitecturas de referencia y scripts en GitHub.</p>
+                </div>
+              </a>
+
+              <!-- Impactos Frecuentes -->
+              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.previewLandingDoc('Impactos Frecuentes y Métricas Verificadas')" data-plp-search="impactos frecuentes metricas resultados">
+                <div class="plp-link-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="plp-link-title">Impactos Frecuentes</h3>
+                  <p class="plp-link-desc">Tablero de indicadores clave, retorno social y casos de éxito.</p>
+                </div>
+              </div>
+
+              <!-- Preguntas Frecuentes (FAQ) -->
+              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.previewLandingDoc('Preguntas Frecuentes (FAQ) — Centro de Ayuda')" data-plp-search="preguntas frecuentes faq soporte ayuda">
+                <div class="plp-link-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="plp-link-title">Preguntas Frecuentes (FAQ)</h3>
+                  <p class="plp-link-desc">Respuestas rápidas sobre uso, gobernanza y soporte técnico.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Footer -->
+          <footer class="plp-footer">
+            <div>
+              <strong>Gobierno de Datos e IA — Proyecto Innovatech</strong> • © 2026
+            </div>
+            <div>
+              Experiencia UX/UI Corporativa • Accesibilidad & Diseño Responsivo
+            </div>
+          </footer>
+
+          <!-- Lightbox / Modal Universal -->
+          <div class="plp-lightbox" id="plp-inline-lightbox" role="dialog" aria-modal="true" onclick="if(event.target===this) window.ProjectsView.closeLandingLightbox()">
+            <div class="plp-lightbox-content" id="plp-inline-lightbox-body"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  scrollToLandingSection(sectionId) {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
+
+  playLandingVideo() {
+    const box = document.getElementById('plp-hero-video-box');
+    if (!box) return;
+    box.innerHTML = `
+      <iframe
+        width="100%"
+        height="100%"
+        src="https://www.youtube.com/embed/aircAruvnKk?autoplay=1&rel=0"
+        title="Video Explicativo Proyecto Innovatech"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="border:0; width:100%; height:100%; display:block;"
+      ></iframe>
+    `;
+  },
+
+  goToLandingSlide(index) {
+    const total = 4;
+    this.currentSlideIndex = (index + total) % total;
+    const track = document.getElementById('plp-landing-carousel-track');
+    if (track) {
+      track.style.transform = `translateX(-${this.currentSlideIndex * 100}%)`;
+    }
+    document.querySelectorAll('#view-projects .plp-carousel-dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === this.currentSlideIndex);
+    });
+  },
+
+  moveLandingSlide(step) {
+    this.goToLandingSlide((this.currentSlideIndex || 0) + step);
+  },
+
+  triggerLandingBulkDownload() {
+    const wrap = document.getElementById('plp-bulk-progress-wrap');
+    const fill = document.getElementById('plp-bulk-progress-fill');
+    const status = document.getElementById('plp-bulk-progress-status');
+    if (!wrap || !fill || !status) return;
+
+    wrap.classList.add('active');
+    let progress = 0;
+    fill.style.width = '0%';
+    status.textContent = 'Empaquetando documentos PDF y anexos... 0%';
+
+    const timer = setInterval(() => {
+      progress += 25;
+      if (progress >= 100) {
+        clearInterval(timer);
+        fill.style.width = '100%';
+        status.textContent = '✔ ¡Paquete Innovatech_Completo.zip descargado!';
+        this.downloadLandingDoc('Innovatech_Repositorio_Completo.txt');
+      } else {
+        fill.style.width = progress + '%';
+        status.textContent = `Descargando paquete... ${progress}%`;
+      }
+    }, 260);
+  },
+
+  downloadLandingDoc(filename) {
+    const content = `PROYECTO INNOVATECH - GOBIERNO DE DATOS E IA\nDocumento: ${filename}\nFecha: ${new Date().toLocaleDateString()}\n\n1. Definición Estratégica y Gobernanza de Datos.\n2. Arquitectura de Modelos de Inteligencia Artificial.\n3. Indicadores de Impacto y Sostenibilidad.`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  openLandingLightbox(imgUrl, caption) {
+    const modal = document.getElementById('plp-inline-lightbox');
+    const body = document.getElementById('plp-inline-lightbox-body');
+    if (!modal || !body) return;
+    body.innerHTML = `
+      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">✕</button>
+      <img src="${imgUrl}" alt="${this.escapeHtml(caption)}" style="width:100%; max-height:75vh; object-fit:contain; background:#0a192f; display:block;" />
+      <div style="padding:1.25rem 1.75rem; background:#ffffff;">
+        <h3 style="margin:0; font-size:1.15rem; color:#0a192f;">${this.escapeHtml(caption)}</h3>
+      </div>
+    `;
+    modal.classList.add('active');
+  },
+
+  previewLandingDoc(title) {
+    const modal = document.getElementById('plp-inline-lightbox');
+    const body = document.getElementById('plp-inline-lightbox-body');
+    if (!modal || !body) return;
+    body.innerHTML = `
+      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">✕</button>
+      <div style="padding:2.5rem; background:#ffffff;">
+        <span class="plp-eyebrow">Vista Previa Interactiva</span>
+        <h2 style="margin:0.5rem 0 1rem; color:#0a192f;">${this.escapeHtml(title)}</h2>
+        <p style="color:#334155; line-height:1.7;">
+          Recurso oficial del <strong>Proyecto Innovatech — Gobierno de Datos e IA</strong>. Incluye lineamientos estratégicos, protocolos de calidad de datos, arquitectura técnica y métricas de impacto verificadas.
+        </p>
+        <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button class="plp-cta-btn" onclick="window.ProjectsView.downloadLandingDoc('${this.escapeHtml(title.replace(/\s+/g, '_'))}.pdf'); window.ProjectsView.closeLandingLightbox();">
+            ⬇ Descargar Documento
+          </button>
+          <button class="plp-btn-secondary" onclick="window.ProjectsView.closeLandingLightbox()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    `;
+    modal.classList.add('active');
+  },
+
+  closeLandingLightbox() {
+    const modal = document.getElementById('plp-inline-lightbox');
+    if (modal) modal.classList.remove('active');
+  },
+
+  filterLandingSearch(query) {
+    const q = (query || '').toLowerCase().trim();
+    document.querySelectorAll('#view-projects [data-plp-search]').forEach((el) => {
+      const text = (el.getAttribute('data-plp-search') + ' ' + el.innerText).toLowerCase();
+      el.style.opacity = !q || text.includes(q) ? '1' : '0.25';
+    });
   },
 
   renderProjectSelectorView(container) {
@@ -745,18 +1409,22 @@ window.ProjectsView = {
   },
 
   renderProjectModeCard(mode, isSelected) {
+    const accent = mode.accent || mode.themeColor || '#7c3aed';
+    const bgGrad = mode.bgGradient || mode.gradient || 'linear-gradient(135deg, #1e1b4b, #312e81)';
+    const artwork = typeof mode.renderIllustration === 'function' ? mode.renderIllustration() : (mode.svg || '');
+    const cta = mode.ctaLabel || mode.actionLabel || '➕ Crear proyecto';
+
     return `
       <div class="experience-card ${isSelected ? 'selected' : ''}" 
            id="project-mode-card-${mode.id}"
-           style="--exp-accent: ${mode.accent}; --exp-bg: ${mode.bgGradient}; --exp-border: ${mode.borderColor};"
+           style="--exp-accent: ${accent}; --exp-bg: ${bgGrad}; --exp-border: ${accent};"
            onclick="ProjectsView.selectProjectType('${mode.id}')">
         
         <!-- Top Badges -->
         <div class="experience-card-badges">
-          <span class="experience-card-badge" style="background: ${mode.accent};">
+          <span class="experience-card-badge" style="background: ${accent};">
             ${mode.badge}
           </span>
-          ${mode.timeLabel ? `<span class="experience-card-time">${mode.timeLabel}</span>` : ''}
         </div>
 
         <!-- Checkmark for selected -->
@@ -764,7 +1432,7 @@ window.ProjectsView = {
 
         <!-- Artwork Illustration -->
         <div class="experience-illustration-box">
-          ${mode.svg}
+          ${artwork}
         </div>
 
         <!-- Card Footer -->
@@ -773,12 +1441,12 @@ window.ProjectsView = {
             <span class="experience-card-emoji">${mode.icon}</span>
             <h3 class="experience-card-name">${mode.name}</h3>
           </div>
-          <p class="experience-card-desc">${mode.tagline}</p>
+          <p class="experience-card-desc">${mode.tagline || mode.description}</p>
           <div style="margin-top: 0.7rem;">
             <button class="btn btn-sm" 
-                    style="width: 100%; background: ${mode.accent}; color: #fff; border: none; font-weight: 800; border-radius: 10px; padding: 0.5rem 0.75rem; box-shadow: 0 6px 16px rgba(0,0,0,0.25);"
+                    style="width: 100%; background: ${accent}; color: #fff; border: none; font-weight: 800; border-radius: 10px; padding: 0.5rem 0.75rem; box-shadow: 0 6px 16px rgba(0,0,0,0.25);"
                     onclick="event.stopPropagation(); ProjectsView.startNewProject('${mode.id}')">
-              ${mode.ctaLabel || '➕ Crear proyecto'}
+              ${cta}
             </button>
           </div>
         </div>
@@ -788,16 +1456,20 @@ window.ProjectsView = {
 
   renderProjectConfigBar(mode) {
     if (!mode) return '';
+    const accent = mode.accent || mode.themeColor || '#7c3aed';
+    const bgGrad = mode.bgGradient || mode.gradient || 'linear-gradient(135deg, #1e1b4b, #312e81)';
+    const cta = mode.ctaLabel || mode.actionLabel || ('➕ Crear ' + mode.name);
+
     return `
-      <div class="experience-config-panel" style="--exp-accent: ${mode.accent};">
+      <div class="experience-config-panel" style="--exp-accent: ${accent};">
         <div class="experience-selected-summary">
-          <div class="experience-selected-icon" style="background: ${mode.bgGradient}; border-color: ${mode.accent};">
+          <div class="experience-selected-icon" style="background: ${bgGrad}; border-color: ${accent};">
             ${mode.icon}
           </div>
           <div class="experience-selected-text">
             <div class="experience-selected-name-row">
               <span class="experience-selected-name">${mode.name}</span>
-              <span class="experience-selected-pill" style="background: ${mode.accent}22; color: ${mode.accent}; border: 1px solid ${mode.accent}55;">
+              <span class="experience-selected-pill" style="background: ${accent}22; color: ${accent}; border: 1px solid ${accent}55;">
                 ${mode.badge}
               </span>
             </div>
@@ -809,8 +1481,8 @@ window.ProjectsView = {
           <button class="btn btn-secondary" onclick="ProjectsView.closeCreateProjectModal()">
             Cancelar
           </button>
-          <button class="experience-launch-btn" style="background: linear-gradient(135deg, ${mode.accent}, #4f46e5);" onclick="ProjectsView.confirmSelectedProject()">
-            <span>${mode.ctaLabel || '➕ Crear ' + mode.name}</span>
+          <button class="experience-launch-btn" style="background: linear-gradient(135deg, ${accent}, #4f46e5);" onclick="ProjectsView.confirmSelectedProject()">
+            <span>${cta}</span>
             <span class="experience-launch-arrow">➔</span>
           </button>
         </div>
@@ -822,7 +1494,7 @@ window.ProjectsView = {
     this.selectedProjectTypeId = modeId;
     if (window.soundEngine) window.soundEngine.playClick();
 
-    document.querySelectorAll('#projects-content .experience-card').forEach((card) => {
+    document.querySelectorAll('#view-projects .experience-card').forEach((card) => {
       card.classList.remove('selected');
     });
     const activeCard = document.getElementById(`project-mode-card-${modeId}`);

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gobierno de Datos e IA | Transformando el Futuro: Proyecto Innovatech</title>
+  <!-- Tipografías Google Fonts: Montserrat / Inter (Títulos) y Open Sans / Roboto (Textos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/project-landing.css?v=20261012t" />
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      background-color: #f8fafc;
+      color: #334155;
+    }
+    .plp-wrapper {
+      border-radius: 0;
+      box-shadow: none;
+    }
+    /* Animación sutil al hacer scroll (Reveal) */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenedor Principal de la Landing Page -->
+  <div class="plp-wrapper">
+
+    <!-- ====================================================================
+         1. BARRA DE NAVEGACIÓN (HEADER) - FIJA (STICKY)
+         ==================================================================== -->
+    <header class="plp-header" role="banner" aria-label="Navegación principal del proyecto">
+      <!-- Izquierda: Logotipo e Isotipo Moderno -->
+      <a href="#inicio" class="plp-brand" aria-label="Gobierno de Datos e IA - Ir al inicio">
+        <div class="plp-brand-isotipo" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="plp-brand-text">
+          <span class="plp-brand-title">Gobierno de Datos e IA</span>
+          <span class="plp-brand-subtitle">Proyecto Innovatech</span>
+        </div>
+      </a>
+
+      <!-- Centro: Enlaces de navegación rápida con efecto hover suave -->
+      <nav class="plp-nav" role="navigation" aria-label="Secciones de la página">
+        <a href="#inicio" class="plp-nav-link">Inicio</a>
+        <a href="#sobre-proyecto" class="plp-nav-link">Sobre el Proyecto</a>
+        <a href="#recursos" class="plp-nav-link">Recursos</a>
+        <a href="#presentaciones" class="plp-nav-link">Presentaciones</a>
+        <a href="#galeria" class="plp-nav-link">Galería</a>
+        <a href="#contacto" class="plp-nav-link">Contacto</a>
+      </nav>
+
+      <!-- Derecha: Buscador funcional discreto + Botón CTA -->
+      <div class="plp-header-right">
+        <div class="plp-search-box" role="search">
+          <span class="plp-search-icon" aria-hidden="true">🔍</span>
+          <input
+            type="search"
+            id="plp-standalone-search"
+            class="plp-search-input"
+            placeholder="Buscar sección o recurso..."
+            aria-label="Buscar contenido en el proyecto"
+          />
+        </div>
+        <button type="button" class="plp-cta-btn" onclick="openCollaborateModal()">
+          Unirse / Colaborar
+        </button>
+      </div>
+    </header>
+
+    <main id="inicio">
+      <!-- ==================================================================
+           2. SECCIÓN PRINCIPAL (HERO) - DEFINICIÓN DEL PROYECTO
+           ================================================================== -->
+      <section class="plp-hero reveal-on-scroll" id="sobre-proyecto" aria-labelledby="hero-title">
+        <div class="plp-hero-heading-wrap">
+          <span class="plp-eyebrow">🚀 Ecosistema Tecnológico & Gobernanza Inteligente</span>
+          <h1 class="plp-hero-main-title" id="hero-title">
+            Transformando el Futuro: <span>Proyecto Innovatech</span>
+          </h1>
+          <p class="plp-section-subtitle">
+            Arquitectura ética, escalable y transparente para la gestión estratégica de datos e Inteligencia Artificial aplicada.
+          </p>
+        </div>
+
+        <div class="plp-hero-grid">
+          <!-- Columna Izquierda: Video Explicativo con Miniatura y Botón Play -->
+          <div class="plp-video-card" id="hero-video-container" aria-label="Reproductor de video explicativo del proyecto">
+            <div
+              class="plp-video-poster"
+              style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80');"
+              onclick="playHeroVideo()"
+              role="button"
+              tabindex="0"
+              aria-label="Reproducir video explicativo de Proyecto Innovatech"
+              onkeydown="if(event.key==='Enter'||event.key===' ') playHeroVideo();"
+            >
+              <div class="plp-play-btn" aria-hidden="true">▶</div>
+              <div class="plp-video-caption">
+                <span>🎬 Video Explicativo: Visión & Arquitectura IA</span>
+                <span>03:45 min • HD</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Definición del Proyecto -->
+          <article class="plp-hero-definition">
+            <h2 class="plp-hero-def-title">Definición del Proyecto</h2>
+            <p class="plp-hero-def-text">
+              <strong>Nuestra Misión:</strong> Democratizar el acceso a modelos de Inteligencia Artificial confiables mediante un marco robusto de Gobierno de Datos que garantice calidad, privacidad y trazabilidad en cada decisión.
+            </p>
+            <p class="plp-hero-def-text">
+              <strong>Visión e Impacto:</strong> Consolidar un ecosistema colaborativo donde organizaciones, docentes e investigadores transformen datos complejos en soluciones sostenibles de alto valor social y productivo.
+            </p>
+
+            <div class="plp-hero-pillars" aria-label="Pilares del proyecto">
+              <div class="plp-pillar-chip">
+                <strong>99.4%</strong>
+                <span>Integridad Datos</span>
+              </div>
+              <div class="plp-pillar-chip">
+                <strong>+45</strong>
+                <span>Modelos IA Activos</span>
+              </div>
+              <div class="plp-pillar-chip">
+                <strong>ISO/IEC</strong>
+                <span>Estándar Ético</span>
+              </div>
+            </div>
+
+            <button type="button" class="plp-btn-secondary" onclick="document.getElementById('recursos').scrollIntoView({behavior:'smooth'})">
+              <span>Saber Más</span>
+              <span class="plp-arrow" aria-hidden="true">→</span>
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           3. SECCIÓN DE DOCUMENTOS Y RECURSOS (CARDS INTERACTIVOS)
+           ================================================================== -->
+      <section class="plp-section-alt reveal-on-scroll" id="recursos" aria-labelledby="docs-title">
+        <div class="plp-section-alt-inner">
+          <div class="plp-section-header">
+            <span class="plp-eyebrow">📄 Repositorio Técnico</span>
+            <h2 class="plp-section-title" id="docs-title">Documentos y Recursos</h2>
+            <p class="plp-section-subtitle">
+              Consulta y descarga la documentación oficial, memorias técnicas y estudios de viabilidad del Proyecto Innovatech.
+            </p>
+          </div>
+
+          <div class="plp-docs-grid">
+            <!-- Card 1: Plan de Negocios -->
+            <article class="plp-doc-card" data-searchable="plan de negocios pdf estrategia">
+              <div>
+                <div class="plp-doc-icon-wrap" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                </div>
+                <span class="plp-doc-meta">PDF OFICIAL • 4.2 MB</span>
+                <h3 class="plp-doc-title">Plan de Negocios</h3>
+                <p class="plp-doc-desc">
+                  Hoja de ruta estratégica, modelo de sostenibilidad financiera, proyecciones de escalabilidad y matriz de gobernanza 2026–2030.
+                </p>
+              </div>
+              <div class="plp-doc-actions">
+                <button type="button" class="plp-doc-btn outline" onclick="previewDoc('Plan de Negocios')">
+                  👁️ Visualizar
+                </button>
+                <button type="button" class="plp-doc-btn" onclick="downloadSingleDoc('Plan_de_Negocios_Innovatech.pdf')">
+                  ⬇ Descargar
+                </button>
+              </div>
+            </article>
+
+            <!-- Card 2: Estudio de Impacto -->
+            <article class="plp-doc-card" data-searchable="estudio de impacto metricas resultados pdf">
+              <div>
+                <div class="plp-doc-icon-wrap" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M8 17v-3"></path>
+                    <path d="M12 17v-6"></path>
+                    <path d="M16 17v-4"></path>
+                  </svg>
+                </div>
+                <span class="plp-doc-meta">PDF TÉCNICO • 6.8 MB</span>
+                <h3 class="plp-doc-title">Estudio de Impacto</h3>
+                <p class="plp-doc-desc">
+                  Evaluación de indicadores socio-tecnológicos, reducción de tiempos operativos mediante IA y auditoría de transparencia algorítmica.
+                </p>
+              </div>
+              <div class="plp-doc-actions">
+                <button type="button" class="plp-doc-btn outline" onclick="previewDoc('Estudio de Impacto')">
+                  👁️ Visualizar
+                </button>
+                <button type="button" class="plp-doc-btn" onclick="downloadSingleDoc('Estudio_de_Impacto_Innovatech.pdf')">
+                  ⬇ Descargar
+                </button>
+              </div>
+            </article>
+
+            <!-- Card 3: Descargar Todo (con animación de progreso) -->
+            <article class="plp-doc-card" data-searchable="descargar todo paquete completo zip">
+              <div>
+                <div class="plp-doc-icon-wrap" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                </div>
+                <span class="plp-doc-meta">PACK COMPLETO (.ZIP) • 18.5 MB</span>
+                <h3 class="plp-doc-title">Descargar todo</h3>
+                <p class="plp-doc-desc">
+                  Obtén en un único paquete comprimido todos los manuales, datasets de prueba, anexos normativos y plantillas ejecutivas.
+                </p>
+              </div>
+              <div>
+                <div class="plp-doc-actions">
+                  <button type="button" class="plp-doc-btn" id="btn-bulk-download" onclick="triggerBulkDownload()">
+                    📦 Descargar Paquete Completo
+                  </button>
+                </div>
+                <div class="plp-progress-wrap" id="bulk-progress-wrap" aria-live="polite">
+                  <div class="plp-progress-track">
+                    <div class="plp-progress-fill" id="bulk-progress-fill"></div>
+                  </div>
+                  <span class="plp-progress-status" id="bulk-progress-status">Preparando archivos... 0%</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           4. SECCIÓN DE PRESENTACIONES (CARRUSEL INTERACTIVO)
+           ================================================================== -->
+      <section class="plp-section reveal-on-scroll" id="presentaciones" aria-labelledby="pres-title">
+        <div class="plp-section-header">
+          <span class="plp-eyebrow">📊 Keynotes & Diapositivas</span>
+          <h2 class="plp-section-title" id="pres-title">Presentaciones del Proyecto</h2>
+          <p class="plp-section-subtitle">
+            Navega por las diapositivas ejecutivas usando las flechas o el teclado (← / →).
+          </p>
+        </div>
+
+        <div class="plp-carousel-container" role="region" aria-roledescription="carrusel" aria-label="Diapositivas de la presentación del proyecto">
+          <button type="button" class="plp-carousel-arrow prev" onclick="moveSlide(-1)" aria-label="Diapositiva anterior">❮</button>
+          <button type="button" class="plp-carousel-arrow next" onclick="moveSlide(1)" aria-label="Siguiente diapositiva">❯</button>
+
+          <div class="plp-carousel-viewport">
+            <div class="plp-carousel-track" id="plp-carousel-track">
+              <!-- Diapositiva 1 -->
+              <div class="plp-slide-item" role="group" aria-roledescription="diapositiva" aria-label="1 de 4">
+                <div class="plp-slide-preview">
+                  <span class="plp-slide-badge">Diapositiva 01 / 04</span>
+                  <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Arquitectura de Gobierno de Datos" loading="lazy" />
+                </div>
+                <div class="plp-slide-info">
+                  <h3>1. Arquitectura de Gobierno de Datos</h3>
+                  <p>
+                    Diseño modular de ingesta, catalogación automática y linaje de datos en tiempo real bajo estándares internacionales de seguridad.
+                  </p>
+                  <div class="plp-slide-kpis">
+                    <span class="plp-slide-kpi">✔ Catálogo Unificado</span>
+                    <span class="plp-slide-kpi">✔ Trazabilidad End-to-End</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Diapositiva 2 -->
+              <div class="plp-slide-item" role="group" aria-roledescription="diapositiva" aria-label="2 de 4">
+                <div class="plp-slide-preview">
+                  <span class="plp-slide-badge">Diapositiva 02 / 04</span>
+                  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Modelos Predictivos de IA" loading="lazy" />
+                </div>
+                <div class="plp-slide-info">
+                  <h3>2. Modelos Predictivos y Analítica Avanzada</h3>
+                  <p>
+                    Implementación de pipelines de Machine Learning auditables que detectan patrones clave y optimizan la toma de decisiones institucionales.
+                  </p>
+                  <div class="plp-slide-kpis">
+                    <span class="plp-slide-kpi">✔ +38% Eficiencia</span>
+                    <span class="plp-slide-kpi">✔ IA Explicable (XAI)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Diapositiva 3 -->
+              <div class="plp-slide-item" role="group" aria-roledescription="diapositiva" aria-label="3 de 4">
+                <div class="plp-slide-preview">
+                  <span class="plp-slide-badge">Diapositiva 03 / 04</span>
+                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Ética y Privacidad por Diseño" loading="lazy" />
+                </div>
+                <div class="plp-slide-info">
+                  <h3>3. Ética, Privacidad y Seguridad por Diseño</h3>
+                  <p>
+                    Protocolos de anonimización diferencial, mitigación de sesgos algorítmicos y cumplimiento normativo continuo.
+                  </p>
+                  <div class="plp-slide-kpis">
+                    <span class="plp-slide-kpi">✔ Cero Fugas de Datos</span>
+                    <span class="plp-slide-kpi">✔ Auditoría Continua</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Diapositiva 4 -->
+              <div class="plp-slide-item" role="group" aria-roledescription="diapositiva" aria-label="4 de 4">
+                <div class="plp-slide-preview">
+                  <span class="plp-slide-badge">Diapositiva 04 / 04</span>
+                  <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80" alt="Hoja de Ruta e Impacto Regional" loading="lazy" />
+                </div>
+                <div class="plp-slide-info">
+                  <h3>4. Hoja de Ruta y Escalabilidad Regional</h3>
+                  <p>
+                    Fases de despliegue progresivo, transferencia de conocimiento y alianzas estratégicas con universidades e industria.
+                  </p>
+                  <div class="plp-slide-kpis">
+                    <span class="plp-slide-kpi">✔ 12 Nodos Regionales</span>
+                    <span class="plp-slide-kpi">✔ Capacitación Abierta</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indicadores de puntos (dots) -->
+          <div class="plp-carousel-thumbs" role="tablist" aria-label="Selector de diapositiva">
+            <button type="button" class="plp-carousel-dot active" onclick="goToSlide(0)" aria-label="Ir a diapositiva 1"></button>
+            <button type="button" class="plp-carousel-dot" onclick="goToSlide(1)" aria-label="Ir a diapositiva 2"></button>
+            <button type="button" class="plp-carousel-dot" onclick="goToSlide(2)" aria-label="Ir a diapositiva 3"></button>
+            <button type="button" class="plp-carousel-dot" onclick="goToSlide(3)" aria-label="Ir a diapositiva 4"></button>
+          </div>
+        </div>
+
+        <div class="plp-carousel-cta-wrap">
+          <button type="button" class="plp-btn-emerald-lg" onclick="openFullscreenPresentation()">
+            <span>🖥️ Ver Presentación Completa</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           5. SECCIÓN DE GALERÍA DE IMÁGENES (GRID DINÁMICO / MASONRY)
+           ================================================================== -->
+      <section class="plp-section-alt reveal-on-scroll" id="galeria" aria-labelledby="gallery-title">
+        <div class="plp-section-alt-inner">
+          <div class="plp-section-header">
+            <span class="plp-eyebrow">📸 Evidencia Visual</span>
+            <h2 class="plp-section-title" id="gallery-title">Imágenes del Proyecto</h2>
+            <p class="plp-section-subtitle">
+              Explora nuestras sesiones de co-creación, prototipos funcionales y tableros de visualización en tiempo real. Haz clic en cualquier imagen para ampliarla.
+            </p>
+          </div>
+
+          <div class="plp-masonry-grid">
+            <figure
+              class="plp-gallery-item span-7 row-2"
+              onclick="openLightbox('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=85', 'Equipo multidisciplinario en sesión de arquitectura de datos')"
+            >
+              <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Equipo trabajando en sesión colaborativa" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Trabajo Colaborativo</span>
+                <p class="plp-gallery-caption">Mesa de co-creación y diseño de gobernanza IA</p>
+              </figcaption>
+            </figure>
+
+            <figure
+              class="plp-gallery-item span-5"
+              onclick="openLightbox('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85', 'Prototipo de Dashboard Analítico Predictivo')"
+            >
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="Dashboard de métricas en tiempo real" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Prototipo UI</span>
+                <p class="plp-gallery-caption">Monitor de calidad y linaje de datos en vivo</p>
+              </figcaption>
+            </figure>
+
+            <figure
+              class="plp-gallery-item span-5"
+              onclick="openLightbox('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=85', 'Laboratorio de pruebas de modelos de lenguaje y visión')"
+            >
+              <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" alt="Ingeniera validando prototipo de IA" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Laboratorio IA</span>
+                <p class="plp-gallery-caption">Validación de precisión y pruebas de estrés</p>
+              </figcaption>
+            </figure>
+
+            <figure
+              class="plp-gallery-item span-4"
+              onclick="openLightbox('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1400&q=85', 'Presentación de resultados ante comité directivo')"
+            >
+              <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80" alt="Comité evaluando métricas estratégicas" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Comité Ejecutivo</span>
+                <p class="plp-gallery-caption">Revisión trimestral de indicadores de impacto</p>
+              </figcaption>
+            </figure>
+
+            <figure
+              class="plp-gallery-item span-4"
+              onclick="openLightbox('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=1400&q=85', 'Visualización de grafos de conocimiento y redes neuronales')"
+            >
+              <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80" alt="Gráficos de analítica avanzada" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Visualización</span>
+                <p class="plp-gallery-caption">Grafos de correlación e inferencia estadística</p>
+              </figcaption>
+            </figure>
+
+            <figure
+              class="plp-gallery-item span-4"
+              onclick="openLightbox('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=85', 'Talleres abiertos con la comunidad académica')"
+            >
+              <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80" alt="Taller de transferencia tecnológica" loading="lazy" />
+              <figcaption class="plp-gallery-overlay">
+                <span class="plp-gallery-tag">Comunidad</span>
+                <p class="plp-gallery-caption">Talleres de adopción tecnológica y datos abiertos</p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           6. SECCIÓN DE ENLACES DE INTERÉS (ENLACES RÁPIDOS)
+           ================================================================== -->
+      <section class="plp-section reveal-on-scroll" id="contacto" aria-labelledby="links-title">
+        <div class="plp-section-header">
+          <span class="plp-eyebrow">🔗 Ecosistema Conectado</span>
+          <h2 class="plp-section-title" id="links-title">Enlaces de Interés</h2>
+          <p class="plp-section-subtitle">
+            Accede rápidamente a las plataformas aliadas, repositorios abiertos y centro de soporte del proyecto.
+          </p>
+        </div>
+
+        <div class="plp-links-grid">
+          <!-- 1. Sitio Web Aliado -->
+          <a href="https://mentix.edutic.co" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-searchable="sitio web aliado portal externo">
+            <div class="plp-link-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="plp-link-title">Sitio Web Aliado</h3>
+              <p class="plp-link-desc">Portal institucional de la red de innovación y datos abiertos.</p>
+            </div>
+          </a>
+
+          <!-- 2. Repositorio de Código -->
+          <a href="https://github.com/meli030814abc-sys/Mentix" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-searchable="repositorio de codigo github desarrollo">
+            <div class="plp-link-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="plp-link-title">Repositorio de Código</h3>
+              <p class="plp-link-desc">Explora el código fuente, pipelines y documentación técnica en GitHub.</p>
+            </div>
+          </a>
+
+          <!-- 3. Impactos Frecuentes -->
+          <div class="plp-link-card" role="button" tabindex="0" onclick="previewDoc('Tablero de Impactos Frecuentes y KPIs')" data-searchable="impactos frecuentes metricas kpis">
+            <div class="plp-link-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="plp-link-title">Impactos Frecuentes</h3>
+              <p class="plp-link-desc">Métricas de adopción, retorno social y casos de éxito verificados.</p>
+            </div>
+          </div>
+
+          <!-- 4. Preguntas Frecuentes (FAQ) -->
+          <div class="plp-link-card" role="button" tabindex="0" onclick="previewDoc('Preguntas Frecuentes (FAQ) y Soporte')" data-searchable="preguntas frecuentes faq soporte ayuda">
+            <div class="plp-link-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="plp-link-title">Preguntas Frecuentes (FAQ)</h3>
+              <p class="plp-link-desc">Resuelve dudas sobre integración, licenciamiento y colaboración.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="plp-footer">
+      <div>
+        <strong>Gobierno de Datos e IA — Proyecto Innovatech</strong> • Todos los derechos reservados © 2026
+      </div>
+      <div>
+        Diseñado bajo estándares de Accesibilidad WCAG AA y Experiencia de Usuario (UX/UI)
+      </div>
+    </footer>
+
+    <!-- Lightbox Modal Universal -->
+    <div class="plp-lightbox" id="plp-lightbox" role="dialog" aria-modal="true" aria-label="Visor multimedia" onclick="if(event.target===this) closeLightbox()">
+      <div class="plp-lightbox-content" id="plp-lightbox-body"></div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       JAVASCRIPT: INTERACTIVIDAD, CARRUSEL, BUSCADOR Y MICROINTERACCIONES
+       ====================================================================== -->
+  <script>
+    let currentSlideIndex = 0;
+    const totalSlides = 4;
+
+    function goToSlide(index) {
+      currentSlideIndex = (index + totalSlides) % totalSlides;
+      const track = document.getElementById('plp-carousel-track');
+      if (track) {
+        track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+      }
+      document.querySelectorAll('.plp-carousel-dot').forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentSlideIndex);
+      });
+    }
+
+    function moveSlide(step) {
+      goToSlide(currentSlideIndex + step);
+    }
+
+    // Navegación por teclado para accesibilidad en el carrusel y cierre de Lightbox
+    document.addEventListener('keydown', (e) => {
+      const lightbox = document.getElementById('plp-lightbox');
+      if (lightbox && lightbox.classList.contains('active') && e.key === 'Escape') {
+        closeLightbox();
+        return;
+      }
+      if (e.key === 'ArrowLeft') moveSlide(-1);
+      if (e.key === 'ArrowRight') moveSlide(1);
+    });
+
+    // Reproductor de video bajo demanda (Lazy Loading)
+    function playHeroVideo() {
+      const container = document.getElementById('hero-video-container');
+      if (!container) return;
+      container.innerHTML = `
+        <iframe
+          width="100%"
+          height="100%"
+          src="https://www.youtube.com/embed/aircAruvnKk?autoplay=1&rel=0"
+          title="Video Explicativo Proyecto Innovatech"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="border:0; width:100%; height:100%; display:block;"
+        ></iframe>
+      `;
+    }
+
+    // Animación de barra de progreso en "Descargar todo"
+    function triggerBulkDownload() {
+      const wrap = document.getElementById('bulk-progress-wrap');
+      const fill = document.getElementById('bulk-progress-fill');
+      const status = document.getElementById('bulk-progress-status');
+      if (!wrap || !fill || !status) return;
+
+      wrap.classList.add('active');
+      let progress = 0;
+      fill.style.width = '0%';
+      status.textContent = 'Empaquetando recursos PDF y anexos... 0%';
+
+      const timer = setInterval(() => {
+        progress += 20;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(timer);
+          fill.style.width = '100%';
+          status.textContent = '✔ ¡Paquete Innovatech_Completo.zip descargado con éxito!';
+          downloadSingleDoc('Innovatech_Repositorio_Completo.txt');
+        } else {
+          fill.style.width = progress + '%';
+          status.textContent = `Descargando paquete... ${progress}%`;
+        }
+      }, 280);
+    }
+
+    // Generador de descarga limpia de demostración
+    function downloadSingleDoc(filename) {
+      const content = `PROYECTO INNOVATECH - GOBIERNO DE DATOS E IA\nArchivo: ${filename}\nFecha: ${new Date().toLocaleDateString()}\n\nResumen Ejecutivo:\n1. Marco de Gobernanza y Calidad de Datos.\n2. Modelos Predictivos con IA Explicable.\n3. Indicadores de Impacto y Sostenibilidad.`;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Lightbox para imágenes y vista previa de documentos/presentación
+    function openLightbox(imgUrl, caption) {
+      const modal = document.getElementById('plp-lightbox');
+      const body = document.getElementById('plp-lightbox-body');
+      body.innerHTML = `
+        <button class="plp-lightbox-close" onclick="closeLightbox()" aria-label="Cerrar visor">✕</button>
+        <img src="${imgUrl}" alt="${caption}" style="width:100%; max-height:75vh; object-fit:contain; background:#0a192f; display:block;" />
+        <div style="padding:1.25rem 1.75rem; background:#ffffff;">
+          <h3 style="margin:0; font-size:1.15rem; color:#0a192f;">${caption}</h3>
+        </div>
+      `;
+      modal.classList.add('active');
+    }
+
+    function previewDoc(title) {
+      const modal = document.getElementById('plp-lightbox');
+      const body = document.getElementById('plp-lightbox-body');
+      body.innerHTML = `
+        <button class="plp-lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
+        <div style="padding:2.5rem; background:#ffffff;">
+          <span class="plp-eyebrow">Vista Previa Interactiva</span>
+          <h2 style="margin:0.5rem 0 1rem; color:#0a192f;">${title}</h2>
+          <p style="color:#334155; line-height:1.7;">
+            Este documento forma parte del repositorio oficial del <strong>Proyecto Innovatech (Gobierno de Datos e IA)</strong>. Incluye matrices de trazabilidad, protocolos de seguridad ISO/IEC y resultados de validación empírica.
+          </p>
+          <div style="margin-top:1.5rem; display:flex; gap:0.75rem;">
+            <button class="plp-cta-btn" onclick="downloadSingleDoc('${title.replace(/\s+/g, '_')}.pdf'); closeLightbox();">⬇ Descargar copia oficial</button>
+            <button class="plp-btn-secondary" onclick="closeLightbox()">Cerrar</button>
+          </div>
+        </div>
+      `;
+      modal.classList.add('active');
+    }
+
+    function openFullscreenPresentation() {
+      previewDoc('Presentación Ejecutiva Completa — Proyecto Innovatech (4 Diapositivas)');
+    }
+
+    function openCollaborateModal() {
+      previewDoc('Unirse / Colaborar en el Proyecto Innovatech');
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('plp-lightbox');
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Buscador en tiempo real
+    document.getElementById('plp-standalone-search')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('[data-searchable]').forEach((el) => {
+        const text = (el.getAttribute('data-searchable') + ' ' + el.innerText).toLowerCase();
+        el.style.opacity = !q || text.includes(q) ? '1' : '0.25';
+      });
+    });
+
+    // IntersectionObserver para animaciones suaves al hacer scroll
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
