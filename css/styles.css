@@ -1358,24 +1358,48 @@ body.light-theme .student-feedback-card.is-wrong {
    🎨 ESTILO KAHOOT - PANTALLA DE PROFESOR Y JUGADORES
    ============================================================ */
 
-/* Banner Superior Kahoot (Blanco, texto oscuro, esquinas redondeadas, sombra pronunciada) */
+/* Banner Superior Gigante de Pregunta (Blanco, texto oscuro, esquinas redondeadas, alto impacto) */
 .kahoot-host-question-banner {
   background: #ffffff;
-  color: #111827;
-  font-weight: 800;
-  font-size: clamp(1.15rem, 2.5vw, 1.95rem);
-  line-height: 1.38;
-  border-radius: 14px;
-  padding: 1.25rem 2rem;
+  color: #0f172a;
+  font-weight: 900;
+  font-size: clamp(1.85rem, 3.4vw, 3.3rem);
+  line-height: 1.32;
+  border-radius: 22px;
+  padding: 1.6rem 3rem;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  margin-bottom: 1.75rem;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65);
+  margin-bottom: 1.5rem;
   width: 100%;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 3.5px solid rgba(255, 255, 255, 0.95);
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
   height: auto;
+  min-height: 110px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pantalla Completa Inmersiva para Preguntas y Opciones (Host, Solo y Presentadas) */
+.game-fullscreen-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.25rem 2.5rem 2.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+  .game-fullscreen-wrapper {
+    padding: 0.75rem 1rem 1.5rem;
+  }
 }
 
 /* Barra superior del anfitrión/profesor */
@@ -1540,32 +1564,39 @@ body.light-theme .student-feedback-card.is-wrong {
   max-width: 520px;
 }
 
-/* Cuadrícula de opciones estilo Kahoot */
+/* Cuadrícula de opciones gigante que ocupa toda la pantalla */
 .kahoot-answers-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.15rem;
+  gap: 1.5rem;
   width: 100%;
+  flex: 1;
+  align-content: stretch;
+}
+
+.kahoot-answers-grid.two-options {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .kahoot-answer-card {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1.15rem;
-  padding: 1.15rem 1.6rem;
-  min-height: 85px;
+  gap: 1.6rem;
+  padding: 1.6rem 2.4rem;
+  min-height: 135px;
   height: auto;
-  border-radius: 16px;
-  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  border: 4px solid rgba(255, 255, 255, 0.28);
   color: #ffffff;
-  font-size: 1.35rem;
+  font-size: clamp(1.45rem, 2.4vw, 2.4rem);
   font-weight: 800;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
   transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   user-select: none;
   overflow: visible;
   word-break: break-word;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -1640,8 +1671,8 @@ body.light-theme .student-feedback-card.is-wrong {
 }
 
 .kahoot-shape, .reto-shape {
-  width: 48px;
-  height: 48px;
+  width: clamp(52px, 5.5vw, 70px);
+  height: clamp(52px, 5.5vw, 70px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1650,19 +1681,19 @@ body.light-theme .student-feedback-card.is-wrong {
 }
 
 .reto-shape-svg {
-  width: 36px;
-  height: 36px;
+  width: clamp(40px, 4.4vw, 56px);
+  height: clamp(40px, 4.4vw, 56px);
   fill: currentColor;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s ease;
 }
 
 .kahoot-card-text {
   flex: 1;
-  line-height: 1.35;
+  line-height: 1.32;
   word-break: break-word;
   overflow-wrap: break-word;
-  font-size: clamp(0.92rem, 1.3vw, 1.35rem);
+  font-size: clamp(1.4rem, 2.3vw, 2.3rem);
   font-weight: 800;
   letter-spacing: -0.01em;
   white-space: normal;
@@ -1703,18 +1734,19 @@ body.light-theme .student-feedback-card.is-wrong {
   white-space: nowrap;
 }
 
-/* Pantalla de Jugadores / Estudiantes (Pads Táctiles Kahoot con SOLO FIGURAS - Imagen 3) */
+/* Pantalla de Jugadores / Estudiantes (Pantalla Completa Inmersiva) */
 .kahoot-player-fullscreen-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 100px);
-  min-height: 450px;
+  min-height: 100vh;
+  height: 100vh;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.5rem 1rem 1.25rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.75rem 1.75rem 1.75rem;
   box-sizing: border-box;
   position: relative;
+  justify-content: space-between;
 }
 
 .kahoot-player-topbar {
@@ -1790,8 +1822,8 @@ body.light-theme .student-feedback-card.is-wrong {
 }
 
 .kahoot-player-pad .pad-shape .reto-shape-svg {
-  width: clamp(26px, 5.5vw, 40px);
-  height: clamp(26px, 5.5vw, 40px);
+  width: clamp(36px, 5.5vw, 54px);
+  height: clamp(36px, 5.5vw, 54px);
   fill: currentColor;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
 }
@@ -1801,7 +1833,9 @@ body.light-theme .student-feedback-card.is-wrong {
   overflow-wrap: break-word;
   white-space: normal;
   text-overflow: clip;
-  line-height: 1.25;
+  line-height: 1.3;
+  font-size: clamp(1.35rem, 3.2vw, 2.2rem) !important;
+  font-weight: 800;
 }
 
 @media (max-width: 768px) {

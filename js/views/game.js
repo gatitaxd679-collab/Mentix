@@ -671,7 +671,7 @@ window.GameView = {
     this.multiSelected = [];
 
     container.innerHTML = `
-      <div style="max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 4rem;">
+      <div class="game-fullscreen-wrapper">
         <!-- Barra Superior de Anfitrión / Profesor -->
         <div class="kahoot-host-topbar">
           <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
@@ -681,13 +681,13 @@ window.GameView = {
             <span class="badge-tag" style="background:${this.room?.roomType === 'normal' ? 'rgba(14, 165, 233, 0.2)' : 'rgba(168, 85, 247, 0.2)'}; border: 1.5px solid ${this.room?.roomType === 'normal' ? '#0ea5e9' : '#a855f7'}; color: ${this.room?.roomType === 'normal' ? '#38bdf8' : '#d8b4fe'}; font-weight: 800; font-size: 0.85rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
               ${this.room?.roomType === 'normal' ? '🎮 SALA NORMAL' : '📽️ PREGUNTAS PRESENTADAS'}
             </span>
-            <span style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary);">
+            <span style="font-weight: 800; font-size: 1.15rem; color: var(--text-primary);">
               Pregunta ${this.currentQuestionIndex + 1} de ${this.challenge.questions.length}
             </span>
           </div>
 
           <div style="display: flex; align-items: center; gap: 1rem;">
-            <span style="color: var(--text-secondary); font-weight: 700; font-size: 0.95rem;">
+            <span style="color: var(--text-secondary); font-weight: 700; font-size: 1rem;">
               👤 <span id="host-players-count">${totalPlayers}</span> Alumnos
             </span>
             <button class="btn-kahoot-skip" id="btn-skip-timer" onclick="window.GameView.skipTimer()" title="Omitir temporizador y ver respuestas">
@@ -716,10 +716,10 @@ window.GameView = {
             ${q.media && q.mediaType === 'image' ? `
               <img src="${q.media}" alt="Pregunta" />
             ` : `
-              <div class="kahoot-host-media-fallback">
-                <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎮</div>
-                <div style="font-size: 1.2rem; font-weight: 900; color: var(--text-primary);">${this.challenge.title}</div>
-                <div style="font-size: 0.85rem; color: var(--neon-cyan); margin-top: 0.35rem; font-weight: 700;">${this.challenge.categoryName || 'Reto en Vivo'}</div>
+              <div class="kahoot-host-media-fallback" style="padding: 0.6rem 1.6rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15); max-width: none;">
+                <span style="font-size: 1.5rem;">🎮</span>
+                <span style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">${this.challenge.title || 'MENTIX'}</span>
+                <span class="badge-tag" style="background: rgba(0,245,212,0.15); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: 800; font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 9999px;">${this.challenge.categoryName || 'Reto en Vivo'}</span>
               </div>
             `}
           </div>
@@ -846,7 +846,7 @@ window.GameView = {
         </div>
 
         <!-- Enunciado de la Pregunta para el Estudiante -->
-        <div class="kahoot-host-question-banner" style="font-size: clamp(1.05rem, 3.2vw, 1.35rem); margin: 0.4rem 0 0.85rem; padding: 0.75rem 1rem; border-radius: 14px; min-height: auto;">
+        <div class="kahoot-host-question-banner" style="font-size: clamp(1.4rem, 3.4vw, 2.2rem); font-weight: 900; margin: 0.5rem 0 1.15rem; padding: 1.1rem 1.6rem; border-radius: 18px; min-height: auto;">
           ${this.escapeHtml(q.text)}
         </div>
 
@@ -985,7 +985,7 @@ window.GameView = {
     }
 
     container.innerHTML = `
-      <div style="max-width: 1050px; margin: 0 auto; padding: 1.5rem 1rem 4rem;">
+      <div class="game-fullscreen-wrapper">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem;">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <span style="font-weight: 800; font-size: 1.1rem; color: var(--neon-cyan);">
@@ -1108,7 +1108,7 @@ window.GameView = {
   },
 
   adjustCardAndBannerTextSizes() {
-    // 1. Ajustar banner si la pregunta es extensa para que se lea completa sin cortes
+    // 1. Ajustar banner si la pregunta es extensa para que se lea completa sin cortes pero con gran presencia
     document.querySelectorAll('.kahoot-host-question-banner').forEach(banner => {
       const qLen = (banner.textContent || '').trim().length;
       banner.style.wordBreak = 'break-word';
@@ -1116,19 +1116,21 @@ window.GameView = {
       banner.style.whiteSpace = 'normal';
       banner.style.height = 'auto';
       if (qLen > 220) {
-        banner.style.fontSize = 'clamp(0.92rem, 2.2vw, 1.15rem)';
-        banner.style.lineHeight = '1.25';
-        banner.style.padding = '0.75rem 1rem';
-      } else if (qLen > 150) {
-        banner.style.fontSize = 'clamp(1.02rem, 2.5vw, 1.28rem)';
+        banner.style.fontSize = 'clamp(1.2rem, 2.4vw, 1.6rem)';
         banner.style.lineHeight = '1.3';
-        banner.style.padding = '0.85rem 1.2rem';
+        banner.style.padding = '1.2rem 1.6rem';
+      } else if (qLen > 150) {
+        banner.style.fontSize = 'clamp(1.4rem, 2.7vw, 1.9rem)';
+        banner.style.lineHeight = '1.32';
+        banner.style.padding = '1.4rem 2rem';
       } else if (qLen > 90) {
-        banner.style.fontSize = 'clamp(1.15rem, 2.8vw, 1.45rem)';
-        banner.style.lineHeight = '1.35';
-        banner.style.padding = '1rem 1.35rem';
-      } else if (qLen > 50) {
-        banner.style.fontSize = 'clamp(1.25rem, 3.2vw, 1.65rem)';
+        banner.style.fontSize = 'clamp(1.65rem, 3.1vw, 2.3rem)';
+        banner.style.lineHeight = '1.34';
+        banner.style.padding = '1.6rem 2.5rem';
+      } else if (qLen > 45) {
+        banner.style.fontSize = 'clamp(1.85rem, 3.4vw, 2.7rem)';
+      } else {
+        banner.style.fontSize = 'clamp(2.1rem, 3.8vw, 3.3rem)';
       }
     });
 
@@ -1139,18 +1141,18 @@ window.GameView = {
       el.style.overflowWrap = 'break-word';
       el.style.whiteSpace = 'normal';
       if (len > 140) {
-        el.style.fontSize = 'clamp(0.75rem, 1.6vw, 0.85rem)';
-        el.style.lineHeight = '1.2';
-      } else if (len > 90) {
-        el.style.fontSize = 'clamp(0.85rem, 1.8vw, 0.96rem)';
+        el.style.fontSize = 'clamp(1.1rem, 1.9vw, 1.45rem)';
         el.style.lineHeight = '1.25';
+      } else if (len > 90) {
+        el.style.fontSize = 'clamp(1.25rem, 2.1vw, 1.7rem)';
+        el.style.lineHeight = '1.28';
       } else if (len > 55) {
-        el.style.fontSize = 'clamp(0.95rem, 2vw, 1.08rem)';
+        el.style.fontSize = 'clamp(1.4rem, 2.3vw, 1.95rem)';
         el.style.lineHeight = '1.3';
       } else if (len > 30) {
-        el.style.fontSize = 'clamp(1.05rem, 2.2vw, 1.2rem)';
+        el.style.fontSize = 'clamp(1.55rem, 2.5vw, 2.2rem)';
       } else {
-        el.style.fontSize = 'clamp(1.15rem, 2.5vw, 1.35rem)';
+        el.style.fontSize = 'clamp(1.7rem, 2.8vw, 2.5rem)';
       }
     });
 
@@ -1161,19 +1163,19 @@ window.GameView = {
       el.style.overflowWrap = 'break-word';
       el.style.whiteSpace = 'normal';
       if (len > 140) {
-        el.style.fontSize = 'clamp(0.72rem, 1.6vw, 0.84rem)';
-        el.style.lineHeight = '1.18';
-      } else if (len > 90) {
-        el.style.fontSize = 'clamp(0.78rem, 1.8vw, 0.92rem)';
+        el.style.fontSize = 'clamp(1.05rem, 2.3vw, 1.35rem)';
         el.style.lineHeight = '1.22';
-      } else if (len > 55) {
-        el.style.fontSize = 'clamp(0.86rem, 2vw, 1.02rem)';
+      } else if (len > 90) {
+        el.style.fontSize = 'clamp(1.18rem, 2.5vw, 1.55rem)';
         el.style.lineHeight = '1.25';
-      } else if (len > 25) {
-        el.style.fontSize = 'clamp(0.95rem, 2.2vw, 1.15rem)';
+      } else if (len > 55) {
+        el.style.fontSize = 'clamp(1.32rem, 2.8vw, 1.75rem)';
         el.style.lineHeight = '1.28';
+      } else if (len > 25) {
+        el.style.fontSize = 'clamp(1.45rem, 3.2vw, 2rem)';
+        el.style.lineHeight = '1.3';
       } else {
-        el.style.fontSize = 'clamp(1.05rem, 2.5vw, 1.3rem)';
+        el.style.fontSize = 'clamp(1.6rem, 3.5vw, 2.3rem)';
       }
     });
   },
