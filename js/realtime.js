@@ -875,10 +875,10 @@ class RealtimeEngine {
               : 'Respuesta aproximada';
           } else if (Array.isArray(question.correctAnswer)) {
             if (isCorrect) {
-              answerIndex = question.correctAnswer[Math.floor(Math.random() * question.correctAnswer.length)];
+              answerIndex = [...question.correctAnswer];
             } else {
               const wrongOptions = (question.options || []).map((_, i) => i).filter(i => !question.correctAnswer.includes(i));
-              answerIndex = wrongOptions[Math.floor(Math.random() * wrongOptions.length)] ?? 0;
+              answerIndex = [question.correctAnswer[0], ...(wrongOptions.length ? [wrongOptions[Math.floor(Math.random() * wrongOptions.length)]] : [])];
             }
           } else {
             if (isCorrect) {
@@ -944,10 +944,10 @@ class RealtimeEngine {
             : 'Respuesta aproximada';
         } else if (Array.isArray(question.correctAnswer)) {
           if (isCorrect) {
-            answerIndex = question.correctAnswer[Math.floor(Math.random() * question.correctAnswer.length)];
+            answerIndex = [...question.correctAnswer];
           } else {
             const wrongOptions = (question.options || []).map((_, i) => i).filter(i => !question.correctAnswer.includes(i));
-            answerIndex = wrongOptions[Math.floor(Math.random() * wrongOptions.length)] ?? 0;
+            answerIndex = [question.correctAnswer[0], ...(wrongOptions.length ? [wrongOptions[Math.floor(Math.random() * wrongOptions.length)]] : [])];
           }
         } else {
           if (isCorrect) {
@@ -1017,7 +1017,11 @@ class RealtimeEngine {
         : [question.correctAnswer];
       isCorrect = accepted.some(a => norm(String(a)) === userText);
     } else if (Array.isArray(question.correctAnswer)) {
-      isCorrect = question.correctAnswer.includes(answerIndex);
+      // ✅ Varias respuestas: hay que marcar TODAS las correctas y ninguna incorrecta
+      const picked = Array.isArray(answerIndex) ? answerIndex : [answerIndex];
+      const pickedSet = new Set(picked);
+      isCorrect = pickedSet.size === question.correctAnswer.length &&
+        question.correctAnswer.every(i => pickedSet.has(i));
     } else {
       isCorrect = answerIndex === question.correctAnswer;
     }

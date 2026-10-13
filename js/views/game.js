@@ -667,6 +667,8 @@ window.GameView = {
     const totalPlayers = this.room?.players?.length || 0;
     const isTwoOptions = (q.options || []).length === 2;
     const isTextOrOpen = q.type === 'text' || q.type === 'open';
+    const isMulti = q.type === 'multi' || (Array.isArray(q.correctAnswer) && !isTextOrOpen);
+    this.multiSelected = [];
 
     container.innerHTML = `
       <div style="max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem 4rem;">
@@ -799,6 +801,8 @@ window.GameView = {
   renderKahootPlayerQuestion(container, q) {
     const isTwoOptions = (q.options || []).length === 2;
     const isTextOrOpen = q.type === 'text' || q.type === 'open';
+    const isMulti = q.type === 'multi' || (Array.isArray(q.correctAnswer) && !isTextOrOpen);
+    this.multiSelected = [];
 
     // 🎲 Variación / Aleatorización de opciones exclusiva para este alumno (anti-copia)
     const rawOptions = q.options || [];
@@ -918,7 +922,7 @@ window.GameView = {
                   class="kahoot-player-pad ${shapeDef.colorClass}" 
                   id="player-pad-${displayIdx}"
                   title="${shapeDef.name}: ${this.escapeAttr(this.getOptionText(opt))}"
-                  onclick="window.GameView.handleSelectAnswer(${displayIdx})"
+                  onclick="${isMulti ? `window.GameView.toggleMultiOption(${displayIdx})` : `window.GameView.handleSelectAnswer(${displayIdx})`}"
                   style="cursor: pointer;"
                 >
                   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; height: 100%; padding: 0.85rem; text-align: center; box-sizing: border-box;">
@@ -931,6 +935,11 @@ window.GameView = {
               `;
             }).join('')}
           </div>
+          ${isMulti ? `
+            <div style="text-align:center; margin-top: 0.9rem;">
+              <div style="font-size:0.85rem; font-weight:800; color:#ffe600; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">☑️ Esta pregunta tiene VARIAS respuestas correctas: marca todas las que creas correctas y presiona Enviar.</div>
+              <button type="button" id="btn-submit-multi" class="btn btn-primary btn-lg" onclick="window.GameView.submitMultiAnswer()" style="width:100%; max-width:420px; padding:0.9rem; font-size:1.1rem; font-weight:900; border-radius:14px; background:linear-gradient(135deg,#00ff88,#00b4d8); color:#041230; border:none; box-shadow:0 6px 20px rgba(0,255,136,0.4); cursor:pointer;">✅ Enviar respuestas (<span id="multi-count">0</span>)</button>
+            </div>` : '}
 
           <!-- Feedback de Espera Flotante -->
           <div id="answer-feedback-panel" style="display: none;"></div>
@@ -954,6 +963,8 @@ window.GameView = {
   renderSoloQuestion(container, q) {
     const isTwoOptions = (q.options || []).length === 2;
     const isTextOrOpen = q.type === 'text' || q.type === 'open';
+    const isMulti = q.type === 'multi' || (Array.isArray(q.correctAnswer) && !isTextOrOpen);
+    this.multiSelected = [];
     const localPlayer = this.room?.players?.[0];
     const currentScore = localPlayer?.score || 0;
     const streak = localPlayer?.streak || 0;
@@ -1065,7 +1076,7 @@ window.GameView = {
                   class="kahoot-answer-card ${shapeDef.colorClass}" 
                   id="opt-btn-${displayIdx}"
                   style="cursor: pointer; width: 100%;"
-                  onclick="window.GameView.handleSelectAnswer(${displayIdx})"
+                  onclick="${isMulti ? `window.GameView.toggleMultiOption(${displayIdx})` : `window.GameView.handleSelectAnswer(${displayIdx})`}"
                 >
                   <span class="kahoot-shape">${shapeDef.svg}</span>
                   <span class="kahoot-card-text">${this.escapeHtml(this.getOptionText(opt))}</span>
@@ -1073,6 +1084,11 @@ window.GameView = {
               `;
             }).join('')}
           </div>
+          ${isMulti ? `
+            <div style="text-align:center; margin-top: 0.9rem;">
+              <div style="font-size:0.85rem; font-weight:800; color:#ffe600; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">☑️ Esta pregunta tiene VARIAS respuestas correctas: marca todas las que creas correctas y presiona Enviar.</div>
+              <button type="button" id="btn-submit-multi" class="btn btn-primary btn-lg" onclick="window.GameView.submitMultiAnswer()" style="width:100%; max-width:420px; padding:0.9rem; font-size:1.1rem; font-weight:900; border-radius:14px; background:linear-gradient(135deg,#00ff88,#00b4d8); color:#041230; border:none; box-shadow:0 6px 20px rgba(0,255,136,0.4); cursor:pointer;">✅ Enviar respuestas (<span id="multi-count">0</span>)</button>
+            </div>` : '}
         `}
 
         <div id="answer-feedback-panel" style="display: none; margin-top: 1.5rem; text-align: center;"></div>
@@ -1287,10 +1303,62 @@ window.GameView = {
     if (hostRespNum) hostRespNum.textContent = count;
   },
 
+  // ☑️ PREGUNTAS DE VARIAS RESPUESTAS: marcar / desmarcar una opción con chulito (no envía todavía)
+  toggleMultiOption(displayIdx) {
+    if (this.hasAnswered || this.timeLeft <= 0 || this.questionFinished) return;
+    if (!Array.isArray(this.multiSelected)) this.multiSelected = [];
+    const pos = this.multiSelected.indexOf(displayIdx);
+    if (pos >= 0) this.multiSelected.splice(pos, 1);
+    else this.multiSelected.push(displayIdx);
+    if (window.soundEngine && window.soundEngine.playClick) window.soundEngine.playClick();
+    this.refreshMultiSelectionUI();
+  },
+
+  refreshMultiSelectionUI() {
+    const selected = new Set(this.multiSelected || []);
+    document.querySelectorAll('.kahoot-player-pad, #solo-answers-grid .kahoot-answer-card').forEach((btn, i) => {
+      const on = selected.has(i);
+      btn.classList.toggle('selected', on);
+      btn.style.outline = on ? '4px solid #ffffff' : '';
+      btn.style.outlineOffset = on ? '-4px' : '';
+      btn.style.transform = on ? 'scale(0.97)' : '';
+      let badge = btn.querySelector('.multi-check-badge');
+      if (on && !badge) {
+        badge = document.createElement('span');
+        badge.className = 'multi-check-badge';
+        badge.textContent = '✓';
+        badge.style.cssText = 'position:absolute; top:8px; right:10px; width:30px; height:30px; border-radius:50%; background:#00ff88; color:#041230; font-weight:900; font-size:1.2rem; display:flex; align-items:center; justify-content:center; box-shadow:0 0 14px rgba(0,255,136,0.9); z-index:5;';
+        btn.style.position = 'relative';
+        btn.appendChild(badge);
+      } else if (!on && badge) {
+        badge.remove();
+      }
+    });
+    const counter = document.getElementById('multi-count');
+    if (counter) counter.textContent = selected.size;
+  },
+
+  submitMultiAnswer() {
+    if (this.hasAnswered || this.questionFinished) return;
+    if (!Array.isArray(this.multiSelected) || this.multiSelected.length === 0) {
+      const btn = document.getElementById('btn-submit-multi');
+      if (btn) {
+        btn.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 250 });
+      }
+      return;
+    }
+    const mapping = this.playerOptionMapping;
+    const originals = this.multiSelected
+      .map(d => (mapping && mapping[d] !== undefined) ? mapping[d] : d)
+      .sort((a, b) => a - b);
+    this.handleSelectAnswer(originals);
+  },
+
   handleSelectAnswer(index) {
     if (this.hasAnswered || this.timeLeft <= 0 || this.questionFinished) return;
     this.hasAnswered = true;
 
+    const isMultiAnswer = Array.isArray(index);
     const displayIndex = index;
     let originalIndex = index;
     if (typeof index === 'number' && this.playerOptionMapping && this.playerOptionMapping[index] !== undefined) {
@@ -1302,20 +1370,28 @@ window.GameView = {
     const q = this.getCurrentQuestion();
     const actualQIndex = this.getActualQuestionIndex();
 
-    // Marcar visualmente botón seleccionado y desactivar los demás
+    // Marcar visualmente botón(es) seleccionado(s) y desactivar los demás
+    const pickedDisplay = new Set(isMultiAnswer ? (this.multiSelected || []) : [displayIndex]);
     document.querySelectorAll('.game-answer-btn, .kahoot-player-pad, .kahoot-answer-card').forEach((b, i) => {
       b.setAttribute('disabled', 'true');
-      if (i === displayIndex) {
+      if (pickedDisplay.has(i)) {
         b.classList.add('selected');
         b.classList.remove('dimmed');
       } else {
         b.classList.add('dimmed');
       }
     });
-    const chosenBtn = document.getElementById(`player-pad-${displayIndex}`) || document.getElementById(`opt-btn-${displayIndex}`);
-    if (chosenBtn) {
-      chosenBtn.classList.remove('dimmed');
-      chosenBtn.classList.add('selected');
+    const submitMultiBtn = document.getElementById('btn-submit-multi');
+    if (submitMultiBtn) {
+      submitMultiBtn.setAttribute('disabled', 'true');
+      submitMultiBtn.style.opacity = '0.6';
+    }
+    if (!isMultiAnswer) {
+      const chosenBtn = document.getElementById(`player-pad-${displayIndex}`) || document.getElementById(`opt-btn-${displayIndex}`);
+      if (chosenBtn) {
+        chosenBtn.classList.remove('dimmed');
+        chosenBtn.classList.add('selected');
+      }
     }
 
     if (this.isSolo || (!this.isHost && this.isSelfPaced())) {
@@ -1339,7 +1415,9 @@ window.GameView = {
         const accepted = (q.acceptedAnswers && q.acceptedAnswers.length > 0) ? q.acceptedAnswers : [q.correctAnswer];
         isCorr = accepted.some(a => norm(String(a)) === userText);
       } else if (Array.isArray(q.correctAnswer)) {
-        isCorr = q.correctAnswer.includes(originalIndex);
+        const pickedArr = Array.isArray(originalIndex) ? originalIndex : [originalIndex];
+        const pickedSet = new Set(pickedArr);
+        isCorr = pickedSet.size === q.correctAnswer.length && q.correctAnswer.every(i => pickedSet.has(i));
       } else {
         isCorr = originalIndex === q.correctAnswer;
       }
@@ -2668,14 +2746,20 @@ window.GameView = {
     const counts = new Array((q.options || []).length).fill(0);
     if (responses) {
       Object.values(responses).forEach(r => {
-        if (r.answerIndex !== undefined && counts[r.answerIndex] !== undefined) {
-          counts[r.answerIndex]++;
-        }
+        const picks = Array.isArray(r.answerIndex) ? r.answerIndex : [r.answerIndex];
+        picks.forEach(pi => {
+          if (pi !== undefined && counts[pi] !== undefined) {
+            counts[pi]++;
+          }
+        });
       });
     }
 
-    if (this.isSolo && this.selectedAnswer !== null && counts[this.selectedAnswer] !== undefined) {
-      counts[this.selectedAnswer] = 1;
+    if (this.isSolo && this.selectedAnswer !== null) {
+      const soloPicks = Array.isArray(this.selectedAnswer) ? this.selectedAnswer : [this.selectedAnswer];
+      soloPicks.forEach(pi => {
+        if (counts[pi] !== undefined) counts[pi] = 1;
+      });
     }
 
     const totalVotes = counts.reduce((a, b) => a + b, 0);
