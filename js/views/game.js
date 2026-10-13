@@ -939,7 +939,7 @@ window.GameView = {
             <div style="text-align:center; margin-top: 0.9rem;">
               <div style="font-size:0.85rem; font-weight:800; color:#ffe600; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">☑️ Esta pregunta tiene VARIAS respuestas correctas: marca todas las que creas correctas y presiona Enviar.</div>
               <button type="button" id="btn-submit-multi" class="btn btn-primary btn-lg" onclick="window.GameView.submitMultiAnswer()" style="width:100%; max-width:420px; padding:0.9rem; font-size:1.1rem; font-weight:900; border-radius:14px; background:linear-gradient(135deg,#00ff88,#00b4d8); color:#041230; border:none; box-shadow:0 6px 20px rgba(0,255,136,0.4); cursor:pointer;">✅ Enviar respuestas (<span id="multi-count">0</span>)</button>
-            </div>` : '}
+            </div>` : ''}
 
           <!-- Feedback de Espera Flotante -->
           <div id="answer-feedback-panel" style="display: none;"></div>
@@ -1088,7 +1088,7 @@ window.GameView = {
             <div style="text-align:center; margin-top: 0.9rem;">
               <div style="font-size:0.85rem; font-weight:800; color:#ffe600; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.8);">☑️ Esta pregunta tiene VARIAS respuestas correctas: marca todas las que creas correctas y presiona Enviar.</div>
               <button type="button" id="btn-submit-multi" class="btn btn-primary btn-lg" onclick="window.GameView.submitMultiAnswer()" style="width:100%; max-width:420px; padding:0.9rem; font-size:1.1rem; font-weight:900; border-radius:14px; background:linear-gradient(135deg,#00ff88,#00b4d8); color:#041230; border:none; box-shadow:0 6px 20px rgba(0,255,136,0.4); cursor:pointer;">✅ Enviar respuestas (<span id="multi-count">0</span>)</button>
-            </div>` : '}
+            </div>` : ''}
         `}
 
         <div id="answer-feedback-panel" style="display: none; margin-top: 1.5rem; text-align: center;"></div>
