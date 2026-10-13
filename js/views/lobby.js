@@ -659,6 +659,46 @@ window.LobbyView = {
     this.render();
   },
 
+  toggleRandomQuestions() {
+    if (!this.currentRoom) return;
+    this.currentRoom.randomizeQuestions = (this.currentRoom.randomizeQuestions === false);
+    if (this.currentRoom.pin) {
+      try {
+        localStorage.setItem(`te_reto_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+        localStorage.setItem(`mentix_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+      } catch (e) {}
+    }
+    window.realtimeEngine.syncRoomState();
+    window.realtimeEngine.broadcast({
+      type: 'ROOM_SETTINGS_UPDATED',
+      pin: this.currentRoom.pin,
+      randomizeQuestions: this.currentRoom.randomizeQuestions,
+      randomizeOptions: this.currentRoom.randomizeOptions
+    });
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+  },
+
+  toggleRandomOptions() {
+    if (!this.currentRoom) return;
+    this.currentRoom.randomizeOptions = (this.currentRoom.randomizeOptions === false);
+    if (this.currentRoom.pin) {
+      try {
+        localStorage.setItem(`te_reto_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+        localStorage.setItem(`mentix_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+      } catch (e) {}
+    }
+    window.realtimeEngine.syncRoomState();
+    window.realtimeEngine.broadcast({
+      type: 'ROOM_SETTINGS_UPDATED',
+      pin: this.currentRoom.pin,
+      randomizeQuestions: this.currentRoom.randomizeQuestions,
+      randomizeOptions: this.currentRoom.randomizeOptions
+    });
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+  },
+
   render() {
     const container = document.getElementById('view-lobby');
     if (!container) return;
@@ -745,6 +785,12 @@ window.LobbyView = {
                   ✍️ NOMBRES LIBRES
                 </span>
               `}
+              <span class="badge-tag" style="background: rgba(168, 85, 247, 0.2); border: 1.5px solid #a855f7; color: #d8b4fe; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 9999px;">
+                ${r.randomizeQuestions !== false ? '🎲 PREGUNTAS ALEATORIAS' : '📋 PREGUNTAS EN ORDEN'}
+              </span>
+              <span class="badge-tag" style="background: rgba(0, 245, 212, 0.2); border: 1.5px solid #00f5d4; color: #00f5d4; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 9999px;">
+                ${r.randomizeOptions !== false ? '🔀 RESPUESTAS REVUELTAS' : '🔤 RESPUESTAS EN ORDEN'}
+              </span>
               <span class="kahoot-pin-pill">👤 ${playersList.length} Conectados</span>
               <span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); border: 1.5px solid #10b981; color: #34d399; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 9999px;">
                 🟢 ${playersList.filter(p => p.isReady).length} Listos
@@ -762,6 +808,12 @@ window.LobbyView = {
           </div>
 
           <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-outline" onclick="window.LobbyView.toggleRandomQuestions()" title="Cada alumno recibe las preguntas en orden aleatorio (anti-copia)">
+              <span>🎲</span> Preguntas: ${r.randomizeQuestions !== false ? 'Aleatorias' : 'En Orden'}
+            </button>
+            <button class="btn btn-outline" onclick="window.LobbyView.toggleRandomOptions()" title="Cada alumno ve las respuestas en orden revuelto (A, B, C, D vs D, B, A, C)">
+              <span>🔀</span> Respuestas: ${r.randomizeOptions !== false ? 'Revueltas' : 'En Orden'}
+            </button>
             <button class="btn btn-outline" onclick="window.LobbyView.toggleHostMinigames()" title="Habilitar o pausar minijuegos durante la espera">
               <span>${r.allowMinigames !== false ? '🎮' : '⏸️'}</span> Minijuegos: ${r.allowMinigames !== false ? 'Activos' : 'Pausados'}
             </button>

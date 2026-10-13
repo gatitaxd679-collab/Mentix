@@ -21,12 +21,57 @@ window.GameView = {
   modeActionDone: false,
   dartThrown: false,
   pendingSoloResults: null,
+  studentQuestionOrder: null,
+  playerOptionMapping: null,
+
+  generateStudentQuestionOrder() {
+    const total = this.challenge?.questions?.length || 0;
+    if (total <= 1) {
+      this.studentQuestionOrder = [0];
+      return;
+    }
+    const pin = this.room?.pin || 'SOLO';
+    const storageKey = `te_reto_student_order_${pin}`;
+    try {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === total) {
+          this.studentQuestionOrder = parsed;
+          return;
+        }
+      }
+    } catch (e) {}
+
+    const arr = Array.from({ length: total }, (_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    this.studentQuestionOrder = arr;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(arr));
+    } catch (e) {}
+  },
+
+  getActualQuestionIndex() {
+    if (this.studentQuestionOrder && this.studentQuestionOrder[this.currentQuestionIndex] !== undefined) {
+      return this.studentQuestionOrder[this.currentQuestionIndex];
+    }
+    return this.currentQuestionIndex;
+  },
+
+  getCurrentQuestion() {
+    const actualIdx = this.getActualQuestionIndex();
+    return this.challenge?.questions?.[actualIdx] || null;
+  },
 
   initSolo(challenge, gameMode) {
     this.isSolo = true;
     this.isHost = true;
     this.challenge = challenge;
     this.currentQuestionIndex = 0;
+    this.generateStudentQuestionOrder();
     this.gameMode = gameMode || 'clasico';
     this.modeConfig = {};
     this.modeActionDone = false;
@@ -134,8 +179,12 @@ window.GameView = {
     }
 
     this.gameMode = detectedMode || 'clasico';
-    this.modeConfig = this.room?.modeConfig || {};
     this.currentQuestionIndex = this.isSelfPaced() ? 0 : (this.room?.currentQuestionIndex || 0);
+    if (this.isSelfPaced() || this.room?.randomizeQuestions) {
+      this.generateStudentQuestionOrder();
+    } else {
+      this.studentQuestionOrder = null;
+    }
 
     // Aplicar diseño y colores configurados para este juego
     const activeDesign = this.room?.design || window.realtimeEngine?.currentRoom?.design || (window.AdminView && window.AdminView.getSavedDesign());
@@ -417,12 +466,20 @@ window.GameView = {
     }
 
     if (this.currentQuestionIndex >= this.challenge.questions.length) {
+      if (this.isSelfPaced() && !this.isHost) {
+        this.finishSelfPacedStudentExam();
+        return;
+      }
       this.finishGame();
       return;
     }
 
-    const q = this.challenge.questions[this.currentQuestionIndex];
+    const q = this.getCurrentQuestion();
     if (!q) {
+      if (this.isSelfPaced() && !this.isHost) {
+        this.finishSelfPacedStudentExam();
+        return;
+      }
       this.finishGame();
       return;
     }
@@ -1200,7 +1257,8 @@ window.GameView = {
     this.selectedAnswer = originalIndex;
 
     const timeTaken = Math.max(0.1, (Date.now() - this.questionStartTime) / 1000);
-    const q = this.challenge.questions[this.currentQuestionIndex];
+    const q = this.getCurrentQuestion();
+    const actualQIndex = this.getActualQuestionIndex();
 
     // Marcar visualmente botón seleccionado y desactivar los demás
     document.querySelectorAll('.game-answer-btn, .kahoot-player-pad, .kahoot-answer-card').forEach((b, i) => {
@@ -1227,7 +1285,7 @@ window.GameView = {
       const p = this.isSolo ? this.room.players[0] : window.realtimeEngine.localPlayer;
       const playerKey = this.isSolo ? 'solo_player' : (p?.id || 'local_player');
       const res = this.isSolo
-        ? window.realtimeEngine.processAnswer('solo_player', originalIndex, timeTaken, q, this.currentQuestionIndex)
+        ? window.realtimeEngine.processAnswer('solo_player', originalIndex, timeTaken, q, actualQIndex)
         : null;
 
       let isCorr = false;
@@ -1273,7 +1331,7 @@ window.GameView = {
           p.completedExam = true;
         }
         if (!p.answers) p.answers = [];
-        p.answers.push({ questionId: q.id, questionIndex: this.currentQuestionIndex, answerIndex: originalIndex, isCorrect: isCorr, pointsEarned: ptsEarned, timeTaken, comboMultiplier: comboMult });
+        p.answers.push({ questionId: q.id, questionIndex: actualQIndex, displayStep: this.currentQuestionIndex, answerIndex: originalIndex, isCorrect: isCorr, pointsEarned: ptsEarned, timeTaken, comboMultiplier: comboMult });
       }
 
       // Si es Sala Normal, enviar progreso de esta pregunta al profesor en tiempo real
@@ -1282,7 +1340,8 @@ window.GameView = {
           type: 'PLAYER_ANSWER',
           pin: this.room.pin,
           playerId: p?.id,
-          questionIndex: this.currentQuestionIndex,
+          questionIndex: actualQIndex,
+          displayStep: this.currentQuestionIndex,
           answerIndex: originalIndex,
           timeTaken: timeTaken,
           completedExam: this.currentQuestionIndex >= this.challenge.questions.length - 1
@@ -2025,13 +2084,15 @@ window.GameView = {
     if (this.timerInterval) clearInterval(this.timerInterval);
     window.realtimeEngine.clearBotTimeouts();
 
-    const q = this.challenge.questions[this.currentQuestionIndex];
+    const q = this.getCurrentQuestion();
+    const actualQIndex = this.getActualQuestionIndex();
     const resultsPayload = {
       type: 'SHOW_QUESTION_RESULTS',
       pin: this.room.pin,
-      questionIndex: this.currentQuestionIndex,
+      questionIndex: actualQIndex,
+      displayStep: this.currentQuestionIndex,
       responses: this.room.responses || {},
-      correctAnswer: q.correctAnswer,
+      correctAnswer: q?.correctAnswer,
       players: this.room.players
     };
 
@@ -2048,7 +2109,8 @@ window.GameView = {
       this.finishQuestionHost();
     } else if (!this.isHost && this.isSelfPaced()) {
       const p = window.realtimeEngine.localPlayer;
-      const q = this.challenge.questions[this.currentQuestionIndex];
+      const q = this.getCurrentQuestion();
+      const actualQIndex = this.getActualQuestionIndex();
       if (p) {
         p.streak = 0;
         p.answersCount = (p.answersCount || 0) + 1;
@@ -2059,7 +2121,8 @@ window.GameView = {
         if (!p.answers) p.answers = [];
         p.answers.push({
           questionId: q?.id,
-          questionIndex: this.currentQuestionIndex,
+          questionIndex: actualQIndex,
+          displayStep: this.currentQuestionIndex,
           answerIndex: -1,
           isCorrect: false,
           pointsEarned: 0,
@@ -2071,7 +2134,8 @@ window.GameView = {
         type: 'PLAYER_ANSWER',
         pin: this.room?.pin,
         playerId: p?.id,
-        questionIndex: this.currentQuestionIndex,
+        questionIndex: actualQIndex,
+        displayStep: this.currentQuestionIndex,
         answerIndex: -1,
         timeTaken: this.totalTime,
         completedExam: this.currentQuestionIndex >= this.challenge.questions.length - 1
@@ -2081,9 +2145,10 @@ window.GameView = {
         correctAnswer: q?.correctAnswer
       });
     } else {
+      const q = this.getCurrentQuestion();
       this.revealQuestionResults({
         responses: this.room?.responses || {},
-        correctAnswer: this.challenge.questions[this.currentQuestionIndex].correctAnswer
+        correctAnswer: q?.correctAnswer
       });
     }
   },
@@ -2092,8 +2157,8 @@ window.GameView = {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.questionFinished = true;
 
-    const q = this.challenge.questions[this.currentQuestionIndex];
-    const correctIdx = (data && data.correctAnswer !== undefined) ? data.correctAnswer : q.correctAnswer;
+    const q = this.getCurrentQuestion();
+    const correctIdx = (data && data.correctAnswer !== undefined) ? data.correctAnswer : q?.correctAnswer;
     const responses = (data && data.responses) ? data.responses : (this.room?.responses || {});
     const isLastQuestion = this.currentQuestionIndex >= this.challenge.questions.length - 1;
 
@@ -2111,17 +2176,19 @@ window.GameView = {
 
     // 📱 2. PANTALLA DEL ALUMNO O MODO SOLITARIO:
     // 1. Resaltar visualmente las respuestas en los botones
-    if (q.type === 'poll') {
+    if (q?.type === 'poll') {
       (q.options || []).forEach((opt, idx) => {
-        const btn = document.getElementById(`opt-btn-${idx}`);
+        const displayIdx = this.playerOptionMapping ? this.playerOptionMapping.indexOf(idx) : idx;
+        const btn = document.getElementById(`opt-btn-${displayIdx}`) || document.getElementById(`player-pad-${displayIdx}`);
         if (btn) {
           btn.setAttribute('disabled', 'true');
           btn.classList.add('correct-highlight');
         }
       });
     } else if (Array.isArray(correctIdx)) {
-      (q.options || []).forEach((opt, idx) => {
-        const btn = document.getElementById(`opt-btn-${idx}`);
+      (q?.options || []).forEach((opt, idx) => {
+        const displayIdx = this.playerOptionMapping ? this.playerOptionMapping.indexOf(idx) : idx;
+        const btn = document.getElementById(`opt-btn-${displayIdx}`) || document.getElementById(`player-pad-${displayIdx}`);
         if (btn) {
           btn.setAttribute('disabled', 'true');
           if (correctIdx.includes(idx)) {
@@ -2133,12 +2200,13 @@ window.GameView = {
           }
         }
       });
-    } else if (q.type === 'text') {
+    } else if (q?.type === 'text') {
       const textInput = document.getElementById('game-text-answer-input');
       if (textInput) textInput.setAttribute('disabled', 'true');
     } else {
-      (q.options || []).forEach((opt, idx) => {
-        const btn = document.getElementById(`opt-btn-${idx}`);
+      (q?.options || []).forEach((opt, idx) => {
+        const displayIdx = this.playerOptionMapping ? this.playerOptionMapping.indexOf(idx) : idx;
+        const btn = document.getElementById(`opt-btn-${displayIdx}`) || document.getElementById(`player-pad-${displayIdx}`);
         if (btn) {
           btn.setAttribute('disabled', 'true');
           if (idx === correctIdx) {

@@ -619,7 +619,8 @@ class RealtimeEngine {
       players: [], // Solo contendrá los alumnos o bots que se unan (el profesor no se incluye)
       currentQuestionIndex: 0,
       questionStartTime: 0,
-      questionTimeLimit: safeChallenge.timePerQuestion || 20,
+      randomizeQuestions: true,
+      randomizeOptions: true,
       responses: {}
     };
 
@@ -842,7 +843,16 @@ class RealtimeEngine {
     const bots = this.currentRoom.players.filter(p => p.isBot);
     bots.forEach((bot, botIdx) => {
       let cumulativeDelay = 1500 + (botIdx * 650);
-      questions.forEach((question, qIdx) => {
+
+      // Generar orden aleatorio de preguntas exclusivo para cada bot
+      const botOrder = Array.from({ length: questions.length }, (_, i) => i);
+      for (let i = botOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [botOrder[i], botOrder[j]] = [botOrder[j], botOrder[i]];
+      }
+
+      botOrder.forEach((qIdx, step) => {
+        const question = questions[qIdx];
         const stepDelay = 2400 + Math.random() * 3800;
         cumulativeDelay += stepDelay;
         const timeout = setTimeout(() => {
@@ -880,16 +890,18 @@ class RealtimeEngine {
           }
           const timeTaken = Number((stepDelay / 1000).toFixed(1));
           this.processAnswer(bot.id, answerIndex, timeTaken, question, qIdx);
-          if (qIdx >= questions.length - 1) {
+          const isFinalStep = step >= botOrder.length - 1;
+          if (isFinalStep) {
             bot.completedExam = true;
           }
           this.emit('PLAYER_ANSWER', {
             pin: this.currentRoom.pin,
             playerId: bot.id,
             questionIndex: qIdx,
+            displayStep: step,
             answerIndex: answerIndex,
             timeTaken: timeTaken,
-            completedExam: qIdx >= questions.length - 1,
+            completedExam: isFinalStep,
             isBot: true
           });
         }, cumulativeDelay);
