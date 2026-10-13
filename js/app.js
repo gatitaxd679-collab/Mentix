@@ -258,7 +258,10 @@ class AppRouter {
 
       case 'projects':
         document.getElementById('view-projects')?.classList.add('active');
-        if (window.ProjectsView) window.ProjectsView.render();
+        if (window.ProjectsView) {
+          window.ProjectsView.viewMode = 'list';
+          window.ProjectsView.render();
+        }
         break;
 
       case 'presentation':

@@ -7,7 +7,8 @@ window.ProjectsView = {
   currentCategory: 'all',
   currentTypeFilter: 'all', // 'all' | 'presentation' | 'video' | 'document' | 'url'
   searchQuery: '',
-  viewMode: 'landing', // 'landing' | 'selector' | 'list'
+  viewMode: 'list', // 'list' | 'selector' | 'landing'
+  selectedProjectId: null,
   selectedProjectTypeId: 'presentation',
   currentSlideIndex: 0,
 
@@ -346,9 +347,7 @@ window.ProjectsView = {
           </div>
 
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-            <button class="btn btn-outline" onclick="window.ProjectsView.switchViewMode('landing')" style="padding: 0.8rem 1.2rem; font-weight: 800; border-color: #10b981; color: #34d399;">
-              <span>🌐</span> Landing Page Proyecto
-            </button>
+            
             <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
               <span>➕</span> <span>Crear Proyecto</span>
             </button>
@@ -557,7 +556,7 @@ window.ProjectsView = {
     }
 
     return `
-      <div class="challenge-card" onclick="${cardAction}" style="display: flex; flex-direction: column; height: 100%; cursor: pointer;">
+      <div class="challenge-card" onclick="window.ProjectsView.openProjectLanding('${c.id}')" style="display: flex; flex-direction: column; height: 100%; cursor: pointer;">
         <div class="challenge-banner" style="background-image: url('${c.banner || defaultBanner}'); position: relative; height: 160px;">
           <div style="position: absolute; top: 0.6rem; left: 0.6rem; display: flex; gap: 0.35rem;">
             ${typeBadge}
@@ -722,34 +721,56 @@ window.ProjectsView = {
   },
 
   closeCreateProjectModal() {
-    this.viewMode = 'landing';
+    this.viewMode = 'list';
     const modal = document.getElementById('create-project-type-modal');
     if (modal) modal.classList.remove('active');
     if (window.soundEngine) window.soundEngine.playClick();
     this.render();
   },
 
+  // Al hacer clic en un proyecto se muestra su landing page
+  openProjectLanding(projectId) {
+    this.selectedProjectId = projectId;
+    this.viewMode = 'landing';
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  // Abre el editor/visor real del proyecto seleccionado
+  openSelectedProject() {
+    const c = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    if (!c) return;
+    const t = c.projectType;
+    if (t === 'video') window.appRouter.openVideo(c.id);
+    else if (t === 'document') window.appRouter.openDocument(c.id);
+    else if (t === 'url') window.appRouter.openUrl(c.id);
+    else window.appRouter.openPresentation(c.id);
+  },
+
   renderLandingPageView(container, allProjects = []) {
     this.currentSlideIndex = 0;
-    const totalProjects = allProjects.length;
+    const selected = allProjects.find(x => x.id === this.selectedProjectId);
+    const selectedTitle = selected ? this.escapeHtml(selected.title || 'Proyecto') : '';
 
     container.innerHTML = `
       <div style="max-width: 1340px; margin: 0 auto; padding: 1.25rem 1rem 4rem;">
         <div class="plp-wrapper animate-fade-in">
           
-          <!-- Barra superior de control Mentix (Alternar entre Landing Page, Crear Proyecto y Mis Proyectos) -->
+          <!-- Barra superior de control Mentix (Volver a la lista de proyectos / abrir el proyecto) -->
           <div class="plp-mentix-bar">
             <div class="plp-mentix-bar-left">
-              <span class="plp-mentix-badge">✨ Vista Landing Page de Proyecto</span>
-              <span>Presentación ejecutiva interactiva UX/UI</span>
+              <span class="plp-mentix-badge">✨ Landing Page del Proyecto</span>
+              <span>${selectedTitle}</span>
             </div>
             <div class="plp-mentix-actions">
-              <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectsView.openCreateProjectModal()">
-                <span>➕</span> Crear Proyecto
-              </button>
               <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.switchViewMode('list')">
-                <span>🗂️</span> Mis Proyectos Guardados (${totalProjects})
+                <span>←</span> Volver a Mis Proyectos
               </button>
+              ${selected ? `
+              <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectsView.openSelectedProject()">
+                <span>📂</span> Abrir Proyecto
+              </button>` : ''}
               <a href="proyecto-landing.html" target="_blank" class="plp-mentix-btn" style="text-decoration:none;">
                 <span>↗</span> Abrir en Pantalla Completa
               </a>
