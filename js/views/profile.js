@@ -198,7 +198,7 @@ window.ProfileView = {
                       <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${c.id}')">
                         🚀 Sala
                       </button>
-                      <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.CreatorView.render(window.appState.challenges.find(item => item.id === '${c.id}')); window.appRouter.navigate('creator');">
+                      <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.navigate('creator', { editId: '${c.id}' })">
                         ✏️ Editar
                       </button>
                       <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.deleteChallenge('${c.id}')">

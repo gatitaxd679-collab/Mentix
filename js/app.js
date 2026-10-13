@@ -197,8 +197,19 @@ class AppRouter {
             return;
           }
           window.CreatorView.render(challengeToEdit || null);
+        } else if (params.challenge) {
+          window.CreatorView.render(params.challenge);
         } else {
-          window.CreatorView.render(params.challenge || null);
+          // Crear un nuevo reto desde cero:
+          // Si no hay reto actual o si el que está en el creador ya está publicado/guardado, reiniciar el formulario
+          if (window.CreatorView) {
+            const currentC = window.CreatorView.currentChallenge;
+            const isAlreadyPublished = currentC && (window.appState.challenges || []).some(item => item.id === currentC.id);
+            if (!currentC || isAlreadyPublished) {
+              window.CreatorView.resetForm(null);
+            }
+          }
+          window.CreatorView.render();
         }
         break;
 
@@ -638,6 +649,10 @@ class AppRouter {
       u.challengesCreated--;
     }
     saveGlobalState(window.appState);
+
+    if (window.CreatorView && window.CreatorView.currentChallenge && window.CreatorView.currentChallenge.id === challengeId) {
+      window.CreatorView.resetForm();
+    }
 
     // Eliminar de la nube persistente
     this.deleteChallengeFromCloud(challengeId);

@@ -1004,8 +1004,15 @@ window.CreatorView = {
       }).then(() => console.log('✅ Reto respaldado en Supabase'));
     }
 
-    if (confirm(`🎉 ¡Cuestionario "${c.title}" publicado con ${c.questions.length} preguntas!\n\n¿Quieres jugarlo ahora mismo?`)) {
-      window.appRouter.startSinglePlayer(c.id);
+    const savedChallengeId = c.id;
+    const savedChallengeTitle = c.title;
+    const savedQuestionsCount = c.questions.length;
+
+    // Resetear el formulario para que el creador quede completamente en blanco para el próximo reto
+    this.resetForm();
+
+    if (confirm(`🎉 ¡Cuestionario "${savedChallengeTitle}" publicado con ${savedQuestionsCount} preguntas!\n\n¿Quieres jugarlo ahora mismo?`)) {
+      window.appRouter.startSinglePlayer(savedChallengeId);
     } else {
       window.appRouter.navigate('home');
     }
@@ -1030,7 +1037,9 @@ window.CreatorView = {
         return;
       }
       if (confirm(`🗑️ ¿Estás seguro de que deseas eliminar permanentemente el examen "${c.title || 'este examen'}"? Esta acción borrará el reto de la plataforma.`)) {
-        window.appRouter.deleteChallenge(c.id);
+        const toDeleteId = c.id;
+        this.resetForm();
+        window.appRouter.deleteChallenge(toDeleteId);
       }
       return;
     }
