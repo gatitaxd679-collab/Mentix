@@ -1,14 +1,5 @@
 [
   {
-    "questions": [],
-    "title": "Raw Test 2",
-    "id": "check_raw_test_2",
-    "isPublic": true,
-    "projectType": "quiz",
-    "updatedAt": "2026-10-13T20:27:44.355Z",
-    "createdAt": "2026-10-13T20:27:44.357Z"
-  },
-  {
     "id": "reto_sample_cloud",
     "title": "Reto Prueba Cloud Actualizado",
     "description": "Desafío interactivo con preguntas de ciencia, cultura y tecnología.",
