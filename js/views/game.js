@@ -30,28 +30,55 @@ window.GameView = {
       this.studentQuestionOrder = [0];
       return;
     }
-    const pin = this.room?.pin || 'SOLO';
-    const storageKey = `te_reto_student_order_${pin}`;
-    try {
-      const saved = sessionStorage.getItem(storageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === total) {
-          this.studentQuestionOrder = parsed;
-          return;
-        }
-      }
-    } catch (e) {}
-
     const arr = Array.from({ length: total }, (_, i) => i);
+    const pin = this.room?.pin;
+
+    // 📽️ SALA CON PREGUNTAS PRESENTADAS: todos ven la misma pregunta a la vez (la proyecta el profesor),
+    // así que el orden aleatorio debe ser el MISMO para profesor y alumnos. Se calcula con una semilla
+    // derivada del PIN, de modo que cada sala tiene su propio orden revuelto sin necesidad de sincronizar.
+    if (!this.isSolo && pin && this.room?.roomType !== 'normal') {
+      let seed = 0;
+      String(pin).split('').forEach(ch => { seed = (seed * 31 + ch.charCodeAt(0)) >>> 0; });
+      seed = (seed + total * 7919) >>> 0;
+      const rand = () => {
+        seed = (seed + 0x6D2B79F5) >>> 0;
+        let t = seed;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      this.studentQuestionOrder = arr;
+      return;
+    }
+
+    // 🎮 SALA NORMAL / SOLITARIO: orden aleatorio distinto para cada estudiante
+    const storageKey = `te_reto_student_order_${pin || 'SOLO'}`;
+    if (!this.isSolo && pin) {
+      try {
+        const saved = sessionStorage.getItem(storageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length === total) {
+            this.studentQuestionOrder = parsed;
+            return;
+          }
+        }
+      } catch (e) {}
+    }
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     this.studentQuestionOrder = arr;
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(arr));
-    } catch (e) {}
+    if (!this.isSolo && pin) {
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(arr));
+      } catch (e) {}
+    }
   },
 
   getActualQuestionIndex() {
@@ -122,6 +149,12 @@ window.GameView = {
     this.gameMode = room.gameMode || 'clasico';
     this.modeConfig = room.modeConfig || {};
     this.currentQuestionIndex = 0;
+    // 🎲 Preguntas aleatorias también en "Preguntas Presentadas" (mismo orden para profesor y alumnos)
+    if (!this.isSelfPaced() && this.room?.randomizeQuestions !== false) {
+      this.generateStudentQuestionOrder();
+    } else {
+      this.studentQuestionOrder = null;
+    }
     this.setupHostListeners();
 
     if (this.isSelfPaced()) {
@@ -180,7 +213,7 @@ window.GameView = {
 
     this.gameMode = detectedMode || 'clasico';
     this.currentQuestionIndex = this.isSelfPaced() ? 0 : (this.room?.currentQuestionIndex || 0);
-    if (this.isSelfPaced() || this.room?.randomizeQuestions) {
+    if (this.room?.randomizeQuestions !== false) {
       this.generateStudentQuestionOrder();
     } else {
       this.studentQuestionOrder = null;
@@ -226,7 +259,7 @@ window.GameView = {
           return;
         }
         if (!data.isBot) {
-          window.realtimeEngine.processAnswer(data.playerId, data.answerIndex, data.timeTaken, this.challenge.questions[this.currentQuestionIndex]);
+          window.realtimeEngine.processAnswer(data.playerId, data.answerIndex, data.timeTaken, this.getCurrentQuestion());
         }
         this.onAnswerReceived(data);
       }
@@ -463,6 +496,15 @@ window.GameView = {
         window.appRouter.navigate('home');
         return;
       }
+    }
+
+    // 🎲 Asegurar el orden aleatorio de preguntas (salas presentadas y normales)
+    if (this.room?.randomizeQuestions !== false && !this.isSolo) {
+      if (!Array.isArray(this.studentQuestionOrder) || this.studentQuestionOrder.length !== this.challenge.questions.length) {
+        this.generateStudentQuestionOrder();
+      }
+    } else if (this.room?.randomizeQuestions === false) {
+      this.studentQuestionOrder = null;
     }
 
     if (this.currentQuestionIndex >= this.challenge.questions.length) {
@@ -1971,7 +2013,7 @@ window.GameView = {
     const totalPlayers = this.room?.players?.length || 1;
 
     // Actualizar muro en vivo si es pregunta de texto o respuesta abierta
-    const q = this.challenge.questions[this.currentQuestionIndex];
+    const q = this.getCurrentQuestion();
     if (data && (q?.type === 'text' || q?.type === 'open')) {
       this.renderLiveTextAnswerOnHost(data.playerId, data.answerIndex);
     }
