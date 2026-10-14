@@ -92,9 +92,34 @@ window.HomeView = {
     if (!container) return;
 
     // En MENTIX, los Retos son exclusivamente Quizzes con modos de juego
-    const quizChallenges = (window.appState.challenges || []).filter(c => !c.projectType || c.projectType === 'quiz');
+    let quizChallenges = (window.appState.challenges || []).filter(c => !c.projectType || c.projectType === 'quiz');
     const categories = window.appState.categories;
     const currentUser = window.appState.currentUser;
+    const currentUserId = currentUser?.id || '';
+    const currentUserEmail = currentUser?.email || '';
+
+    // Filtrar cuestionarios según el modo de acceso configurado
+    quizChallenges = quizChallenges.filter(c => {
+      const mode = c.accessMode || (c.isPublic === false ? 'private' : 'public');
+      const isCreator = (currentUserId && c.authorId === currentUserId) || 
+                        (currentUserEmail && c.authorEmail === currentUserEmail) ||
+                        (currentUser?.name && c.author === currentUser.name);
+
+      // El creador siempre puede ver sus propios cuestionarios
+      if (isCreator) return true;
+
+      // Si es temporal y ya expiró, no mostrarlo
+      if (mode === 'temporary' && c.expiresAt && Date.now() > new Date(c.expiresAt).getTime()) {
+        return false;
+      }
+
+      // Modo 1 (Público) y Modo 6 (Temporal vigente): visibles públicamente en Home
+      if (mode === 'public' || mode === 'temporary') return true;
+
+      // Modo 2 (Privado), Modo 3 (Acceso por código de sala), Modo 4 (Acceso por enlace), Modo 5 (Privado con código o enlace):
+      // No aparecen en la cartelera pública de Home para usuarios que no son el autor
+      return false;
+    });
 
     // Reconciliar categorías: si un reto tiene categoryName pero category id no coincide,
     // intentar encontrar el id correcto por nombre automáticamente

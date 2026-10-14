@@ -86,6 +86,10 @@ window.CreatorView = {
         timePerQuestion: 20,
         pointsStandard: 1000,
         isPublic: true,
+        accessMode: 'public',
+        accessCode: '',
+        expiresAt: null,
+        temporalDuration: '24h',
         questions: [
           this.createBlankQuestion(1)
         ]
@@ -367,6 +371,233 @@ window.CreatorView = {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- 🛡️ Visibilidad y Modo de Acceso del Cuestionario -->
+        <div class="glass-panel" style="padding: 1.75rem 2rem; margin-bottom: 2.5rem; border: 1.5px solid rgba(0, 245, 212, 0.25); background: linear-gradient(180deg, rgba(16, 24, 45, 0.8) 0%, rgba(10, 16, 32, 0.95) 100%); border-radius: var(--border-radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 style="font-size: 1.35rem; margin: 0; display: flex; align-items: center; gap: 0.65rem; color: #ffffff;">
+              <span style="font-size: 1.45rem;">🔐</span> Visibilidad y Modo de Acceso
+            </h2>
+            <span class="badge-tag" style="background: rgba(0, 245, 212, 0.15); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: 800; font-size: 0.82rem; padding: 0.3rem 0.8rem; border-radius: 9999px;">
+              Configuración de Acceso
+            </span>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.94rem; margin: 0 0 1.35rem 0; line-height: 1.5;">
+            Configura cómo los estudiantes y la comunidad podrán ver y acceder a este cuestionario:
+          </p>
+
+          <!-- Cuadrícula con las 6 Opciones -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;" id="creator-access-modes-grid">
+            
+            <!-- 1. Público -->
+            <div 
+              class="creator-access-card ${(c.accessMode || 'public') === 'public' ? 'selected' : ''}" 
+              id="opt-access-public"
+              onclick="window.CreatorView.selectAccessMode('public')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${(c.accessMode || 'public') === 'public' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${(c.accessMode || 'public') === 'public' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${(c.accessMode || 'public') === 'public' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">🌍</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    1. 🌍 Público
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    Cualquier persona puede ver y acceder al cuestionario.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Privado -->
+            <div 
+              class="creator-access-card ${c.accessMode === 'private' ? 'selected' : ''}" 
+              id="opt-access-private"
+              onclick="window.CreatorView.selectAccessMode('private')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${c.accessMode === 'private' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${c.accessMode === 'private' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${c.accessMode === 'private' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">🔒</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    2. 🔒 Privado
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    Solo el creador puede ver el cuestionario.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Acceso por código de sala -->
+            <div 
+              class="creator-access-card ${c.accessMode === 'room_only' ? 'selected' : ''}" 
+              id="opt-access-room_only"
+              onclick="window.CreatorView.selectAccessMode('room_only')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${c.accessMode === 'room_only' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${c.accessMode === 'room_only' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${c.accessMode === 'room_only' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">🔑</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    3. 🔑 Acceso por código de sala
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    Los usuarios que tengan el código pueden entrar a la sala, pero no pueden ver el cuestionario.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Acceso por enlace -->
+            <div 
+              class="creator-access-card ${c.accessMode === 'link_only' ? 'selected' : ''}" 
+              id="opt-access-link_only"
+              onclick="window.CreatorView.selectAccessMode('link_only')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${c.accessMode === 'link_only' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${c.accessMode === 'link_only' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${c.accessMode === 'link_only' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">🔗</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    4. 🔗 Acceso por enlace
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    Solo se puede acceder al cuestionario mediante su enlace directo.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Privado con código o enlace -->
+            <div 
+              class="creator-access-card ${c.accessMode === 'private_code' ? 'selected' : ''}" 
+              id="opt-access-private_code"
+              onclick="window.CreatorView.selectAccessMode('private_code')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${c.accessMode === 'private_code' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${c.accessMode === 'private_code' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${c.accessMode === 'private_code' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">🛡️</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    5. 🛡️ Privado con código o enlace
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    El cuestionario es privado y no aparece públicamente; solo pueden verlo quienes tengan el código de acceso o el enlace autorizado.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Temporal -->
+            <div 
+              class="creator-access-card ${c.accessMode === 'temporary' ? 'selected' : ''}" 
+              id="opt-access-temporary"
+              onclick="window.CreatorView.selectAccessMode('temporary')"
+              style="padding: 1.1rem 1.25rem; border-radius: 14px; border: 2px solid ${c.accessMode === 'temporary' ? 'var(--neon-cyan)' : 'var(--border-color)'}; background: ${c.accessMode === 'temporary' ? 'rgba(0, 245, 212, 0.12)' : 'var(--bg-card)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${c.accessMode === 'temporary' ? '0 0 15px rgba(0, 245, 212, 0.25)' : 'none'};"
+            >
+              <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <span style="font-size: 1.6rem; line-height: 1;">⌛</span>
+                <div>
+                  <div style="font-weight: 900; font-size: 1rem; color: #ffffff; margin-bottom: 0.25rem;">
+                    6. ⌛ Temporal
+                  </div>
+                  <div style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.4;">
+                    El cuestionario está disponible durante un tiempo determinado y después deja de estar accesible.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Alerta Importante requerida: Modo 5 -->
+          <div 
+            id="access-mode-5-note" 
+            style="margin-top: 1rem; padding: 1rem 1.35rem; border-radius: 12px; background: rgba(255, 209, 102, 0.12); border: 1.5px solid #ffd166; color: #ffe6a7; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 0.75rem;"
+          >
+            <span style="font-size: 1.4rem;">🔐</span>
+            <span><strong>Importante:</strong> en el modo 5, sin el código o el enlace no se puede entrar ni ver el cuestionario. 🔐</span>
+          </div>
+
+          <!-- Campo de Código de Acceso (para Modo 5) -->
+          <div id="access-code-config-box" style="display: ${c.accessMode === 'private_code' ? 'block' : 'none'}; margin-top: 1.25rem; padding: 1.1rem 1.35rem; border-radius: 12px; background: rgba(0, 245, 212, 0.06); border: 1.5px solid rgba(0, 245, 212, 0.35);">
+            <label style="display: block; font-weight: 800; margin-bottom: 0.45rem; font-size: 0.92rem; color: var(--neon-cyan);">
+              🔑 Código de Acceso Privado (requerido para ingresar):
+            </label>
+            <div style="display: flex; gap: 0.65rem; align-items: center; max-width: 480px;">
+              <input 
+                type="text" 
+                id="challenge-access-code"
+                value="${c.accessCode || ''}"
+                placeholder="Ej: MTX-9482"
+                style="flex: 1; padding: 0.7rem 0.95rem; border-radius: 8px; background: var(--bg-card); border: 1.5px solid var(--neon-cyan); color: #ffffff; font-weight: 800; font-size: 1.05rem; letter-spacing: 0.05em; outline: none;"
+                oninput="window.CreatorView.currentChallenge.accessCode = this.value.trim()"
+              />
+              <button 
+                type="button" 
+                class="btn btn-outline" 
+                style="padding: 0.7rem 1.1rem; font-size: 0.88rem; font-weight: 800; white-space: nowrap;"
+                onclick="window.CreatorView.generateRandomAccessCode()"
+              >
+                🎲 Generar Código
+              </button>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.45rem; display: block;">
+              Los alumnos que intenten abrir este cuestionario deberán ingresar este código exacto para desbloquearlo.
+            </span>
+          </div>
+
+          <!-- Selector de Tiempo para Modo 6 (Temporal) -->
+          <div id="access-temporal-config-box" style="display: ${c.accessMode === 'temporary' ? 'block' : 'none'}; margin-top: 1.25rem; padding: 1.1rem 1.35rem; border-radius: 12px; background: rgba(255, 107, 0, 0.08); border: 1.5px solid rgba(255, 107, 0, 0.35);">
+            <label style="display: block; font-weight: 800; margin-bottom: 0.45rem; font-size: 0.92rem; color: #ff9e00;">
+              ⌛ Duración disponible del cuestionario antes de que deje de estar accesible:
+            </label>
+            <select 
+              id="challenge-temporal-duration"
+              style="padding: 0.7rem 1rem; border-radius: 8px; background: var(--bg-card); border: 1.5px solid #ff9e00; color: #ffffff; font-weight: 700; outline: none; min-width: 280px;"
+              onchange="window.CreatorView.setTemporalDuration(this.value)"
+            >
+              <option value="1h" ${c.temporalDuration === '1h' ? 'selected' : ''}>1 Hora</option>
+              <option value="6h" ${c.temporalDuration === '6h' ? 'selected' : ''}>6 Horas</option>
+              <option value="24h" ${!c.temporalDuration || c.temporalDuration === '24h' ? 'selected' : ''}>24 Horas (1 Día)</option>
+              <option value="48h" ${c.temporalDuration === '48h' ? 'selected' : ''}>48 Horas (2 Días)</option>
+              <option value="7d" ${c.temporalDuration === '7d' ? 'selected' : ''}>7 Días (1 Semana)</option>
+              <option value="30d" ${c.temporalDuration === '30d' ? 'selected' : ''}>30 Días (1 Mes)</option>
+            </select>
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.45rem; display: block;">
+              Al cumplirse el plazo, el cuestionario dejará de estar accesible automáticamente.
+            </span>
+          </div>
+
+          <!-- Enlace Directo para Modo 4 (Enlace) -->
+          <div id="access-link-config-box" style="display: ${c.accessMode === 'link_only' ? 'block' : 'none'}; margin-top: 1.25rem; padding: 1.1rem 1.35rem; border-radius: 12px; background: rgba(0, 180, 216, 0.08); border: 1.5px solid rgba(0, 180, 216, 0.35);">
+            <label style="display: block; font-weight: 800; margin-bottom: 0.45rem; font-size: 0.92rem; color: #38bdf8;">
+              🔗 Enlace Directo de Acceso Autorizado:
+            </label>
+            <div style="display: flex; gap: 0.65rem; align-items: center; max-width: 600px;">
+              <input 
+                type="text" 
+                readonly
+                id="challenge-direct-link"
+                value="https://mentixs.vercel.app/#preview?id=${c.id}"
+                style="flex: 1; padding: 0.7rem 0.95rem; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); color: #38bdf8; font-size: 0.88rem; outline: none;"
+              />
+              <button 
+                type="button" 
+                class="btn btn-outline" 
+                style="padding: 0.7rem 1.1rem; font-size: 0.88rem; font-weight: 800; white-space: nowrap;"
+                onclick="navigator.clipboard.writeText(document.getElementById('challenge-direct-link').value); alert('✅ ¡Enlace directo copiado al portapapeles!');"
+              >
+                📋 Copiar Enlace
+              </button>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.45rem; display: block;">
+              Solo los usuarios que tengan este enlace directo podrán acceder al cuestionario.
+            </span>
+          </div>
+
         </div>
 
         <!-- Lista de Preguntas -->
@@ -928,6 +1159,74 @@ window.CreatorView = {
     });
   },
 
+  selectAccessMode(mode) {
+    if (!this.currentChallenge) return;
+    this.currentChallenge.accessMode = mode;
+    this.currentChallenge.isPublic = (mode === 'public');
+
+    const modes = ['public', 'private', 'room_only', 'link_only', 'private_code', 'temporary'];
+    modes.forEach(m => {
+      const el = document.getElementById(`opt-access-${m}`);
+      if (el) {
+        if (m === mode) {
+          el.classList.add('selected');
+          el.style.borderColor = 'var(--neon-cyan)';
+          el.style.background = 'rgba(0, 245, 212, 0.12)';
+          el.style.boxShadow = '0 0 15px rgba(0, 245, 212, 0.25)';
+        } else {
+          el.classList.remove('selected');
+          el.style.borderColor = 'var(--border-color)';
+          el.style.background = 'var(--bg-card)';
+          el.style.boxShadow = 'none';
+        }
+      }
+    });
+
+    const codeBox = document.getElementById('access-code-config-box');
+    if (codeBox) codeBox.style.display = (mode === 'private_code') ? 'block' : 'none';
+
+    const tempBox = document.getElementById('access-temporal-config-box');
+    if (tempBox) tempBox.style.display = (mode === 'temporary') ? 'block' : 'none';
+
+    const linkBox = document.getElementById('access-link-config-box');
+    if (linkBox) linkBox.style.display = (mode === 'link_only') ? 'block' : 'none';
+
+    if (mode === 'private_code' && !this.currentChallenge.accessCode) {
+      this.generateRandomAccessCode();
+    }
+
+    if (mode === 'temporary' && !this.currentChallenge.expiresAt) {
+      this.setTemporalDuration('24h');
+    }
+  },
+
+  generateRandomAccessCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'MTX-';
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    if (this.currentChallenge) this.currentChallenge.accessCode = code;
+    const inp = document.getElementById('challenge-access-code');
+    if (inp) inp.value = code;
+  },
+
+  setTemporalDuration(durationStr) {
+    let hours = 24;
+    if (durationStr === '1h') hours = 1;
+    else if (durationStr === '6h') hours = 6;
+    else if (durationStr === '24h') hours = 24;
+    else if (durationStr === '48h') hours = 48;
+    else if (durationStr === '7d') hours = 24 * 7;
+    else if (durationStr === '30d') hours = 24 * 30;
+
+    const expiresAt = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+    if (this.currentChallenge) {
+      this.currentChallenge.expiresAt = expiresAt;
+      this.currentChallenge.temporalDuration = durationStr;
+    }
+  },
+
   async saveChallenge() {
     const titleEl = document.getElementById('challenge-title');
     const descEl = document.getElementById('challenge-desc');
@@ -937,6 +1236,7 @@ window.CreatorView = {
     const bannerEl = document.getElementById('challenge-banner');
     const entityNameEl = document.getElementById('challenge-entity-name');
     const entityLogoEl = document.getElementById('challenge-entity-logo');
+    const accessCodeEl = document.getElementById('challenge-access-code');
 
     if (titleEl && titleEl.value.trim()) this.currentChallenge.title = titleEl.value.trim();
     if (descEl) this.currentChallenge.description = descEl.value.trim();
@@ -945,6 +1245,9 @@ window.CreatorView = {
     if (timeEl) this.currentChallenge.timePerQuestion = parseInt(timeEl.value) || 20;
     if (bannerEl) this.currentChallenge.banner = bannerEl.value.trim();
     if (entityNameEl) this.currentChallenge.entityName = entityNameEl.value.trim();
+    if (accessCodeEl && accessCodeEl.value.trim()) {
+      this.currentChallenge.accessCode = accessCodeEl.value.trim();
+    }
     if (entityLogoEl && entityLogoEl.value.trim()) {
       let logoVal = entityLogoEl.value.trim();
       try {
@@ -966,7 +1269,19 @@ window.CreatorView = {
     c.authorEmail = c.authorEmail || u?.email || '';
     c.authorRole = u?.role || 'teacher';
     if (c.plays === undefined) c.plays = 0;
-    c.isPublic = true;
+
+    // Configuración de Privacidad y Modo de Acceso
+    const accessMode = c.accessMode || 'public';
+    c.accessMode = accessMode;
+    c.isPublic = (accessMode === 'public');
+    c.accessCode = c.accessCode || '';
+    c.expiresAt = c.expiresAt || null;
+
+    if (accessMode === 'private_code' && !c.accessCode) {
+      this.generateRandomAccessCode();
+      c.accessCode = this.currentChallenge.accessCode;
+    }
+
     c.projectType = c.projectType || 'quiz';
     c.updatedAt = new Date().toISOString();
     if (!c.createdAt) c.createdAt = new Date().toISOString();

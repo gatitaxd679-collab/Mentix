@@ -447,6 +447,32 @@ class AppRouter {
       alert('⚠️ No se encontró la información del cuestionario para iniciar la prueba.');
       return;
     }
+
+    const isOwner = this.isChallengeOwner(c);
+    const mode = c.accessMode || (c.isPublic === false ? 'private' : 'public');
+
+    if (!isOwner) {
+      if (mode === 'private') {
+        alert('🔒 Este cuestionario es privado: solo el creador puede ver el cuestionario.');
+        return;
+      }
+      if (mode === 'room_only') {
+        alert('🔑 Acceso por código de sala: los usuarios que tengan el código pueden entrar a la sala, pero no pueden ver el cuestionario.');
+        return;
+      }
+      if (mode === 'temporary' && c.expiresAt && Date.now() > new Date(c.expiresAt).getTime()) {
+        alert('⌛ Este cuestionario era temporal y ya no se encuentra disponible.');
+        return;
+      }
+      if (mode === 'private_code') {
+        const entered = prompt('🛡️ Este cuestionario es Privado con código o enlace.\n\n⚠️ Importante: en el modo 5, sin el código o el enlace no se puede entrar ni ver el cuestionario.\n\nIngresa el código de acceso autorizado:');
+        if (!entered || entered.trim() !== String(c.accessCode || '').trim()) {
+          alert('❌ Código de acceso incorrecto. Sin el código o el enlace no se puede entrar ni ver el cuestionario. 🔐');
+          return;
+        }
+      }
+    }
+
     this.navigate('game');
     window.GameView.initSolo(c);
   }
@@ -536,6 +562,29 @@ class AppRouter {
     if (!modal || !content) return;
 
     const isOwner = this.isChallengeOwner(c);
+    const mode = c.accessMode || (c.isPublic === false ? 'private' : 'public');
+
+    if (!isOwner) {
+      if (mode === 'private') {
+        alert('🔒 Este cuestionario es privado: solo el creador puede ver el cuestionario.');
+        return;
+      }
+      if (mode === 'room_only') {
+        alert('🔑 Acceso por código de sala: los usuarios que tengan el código pueden entrar a la sala, pero no pueden ver el cuestionario directamente.');
+        return;
+      }
+      if (mode === 'temporary' && c.expiresAt && Date.now() > new Date(c.expiresAt).getTime()) {
+        alert('⌛ Este cuestionario era temporal y su período de disponibilidad ha finalizado.');
+        return;
+      }
+      if (mode === 'private_code') {
+        const entered = prompt('🛡️ Este cuestionario es Privado con código o enlace.\n\n⚠️ Importante: en el modo 5, sin el código o el enlace no se puede entrar ni ver el cuestionario.\n\nIngresa el código de acceso autorizado:');
+        if (!entered || entered.trim() !== String(c.accessCode || '').trim()) {
+          alert('❌ Código de acceso incorrecto. Sin el código o el enlace no se puede entrar ni ver el cuestionario. 🔐');
+          return;
+        }
+      }
+    }
 
     const diffTag = c.difficulty === 'Fácil' ? 'tag-easy' : c.difficulty === 'Difícil' ? 'tag-hard' : 'tag-medium';
     const numQuestions = c.questions ? c.questions.length : 0;
