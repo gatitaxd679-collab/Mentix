@@ -191,12 +191,15 @@ window.ProfileView = {
                       </div>
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                       <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.startSinglePlayer('${c.id}')">
                         ▶️ Jugar
                       </button>
-                      <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${c.id}')">
+                      <button class="btn btn-primary" title="Crear Sala con Preguntas Presentadas (Proyector)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${c.id}', 'presented')">
                         🚀 Sala
+                      </button>
+                      <button class="btn btn-sala-normal" title="Crear Sala Normal: Preguntas y respuestas en la pantalla de cada jugador" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${c.id}', 'normal')">
+                        🎮 Sala Normal
                       </button>
                       <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.navigate('creator', { editId: '${c.id}' })">
                         ✏️ Editar

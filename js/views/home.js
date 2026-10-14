@@ -392,9 +392,17 @@ window.HomeView = {
                 </button>
                 <button 
                   class="btn btn-primary" 
+                  title="Crear Sala con Preguntas Presentadas (Proyector / Estilo Kahoot)"
                   style="padding: 0.45rem 0.95rem; font-size: 0.88rem; font-weight: 800;"
-                  onclick="event.stopPropagation(); window.appRouter.hostRoom('${challenge.id}')">
+                  onclick="event.stopPropagation(); window.appRouter.hostRoom('${challenge.id}', 'presented')">
                   🚀 Sala
+                </button>
+                <button 
+                  class="btn btn-sala-normal" 
+                  title="Crear Sala Normal: Preguntas y respuestas en la pantalla de cada jugador"
+                  style="padding: 0.45rem 0.95rem; font-size: 0.88rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem;"
+                  onclick="event.stopPropagation(); window.appRouter.hostRoom('${challenge.id}', 'normal')">
+                  <span>🎮</span> <span>Sala Normal</span>
                 </button>
               `)}
             </div>
