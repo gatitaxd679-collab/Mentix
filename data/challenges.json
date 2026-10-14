@@ -960,7 +960,7 @@
   },
   {
     "id": "reto_1791652078225",
-    "title": "Reto de Musica",
+    "title": "Reto de Musicafdgdf",
     "description": "Cuestionario interactivo de evaluación y destreza sobre musica",
     "category": "cultura",
     "difficulty": "Medio",
@@ -1138,8 +1138,12 @@
     "authorEmail": "gatitaxd679@gmail.com",
     "plays": 0,
     "projectType": "quiz",
-    "updatedAt": "2026-10-13T20:29:11.835Z",
-    "createdAt": "2026-10-13T20:29:11.835Z"
+    "updatedAt": "2026-10-14T23:48:59.024Z",
+    "createdAt": "2026-10-13T20:29:11.835Z",
+    "authorRole": "student",
+    "accessMode": "public",
+    "accessCode": "",
+    "expiresAt": null
   },
   {
     "id": "reto_1791497604353",
