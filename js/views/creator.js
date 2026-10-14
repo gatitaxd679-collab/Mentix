@@ -2294,7 +2294,7 @@ d) Insulina`;
               primero: 'último',
               directamente: 'inversamente',
               positivo: 'negativo',
-              máximo: 'mínimo'
+              'máximo': 'mínimo'
             };
             return map[m.toLowerCase()] || 'no';
           });

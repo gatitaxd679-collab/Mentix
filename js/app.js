@@ -434,7 +434,7 @@ class AppRouter {
       found = DEFAULT_CHALLENGES.find(item => item && String(item.id).trim() === idStr);
     }
     return found || null;
-  },
+  }
 
   startSinglePlayer(challengeId) {
     let c = this.resolveChallenge(challengeId);
@@ -449,7 +449,7 @@ class AppRouter {
     }
     this.navigate('game');
     window.GameView.initSolo(c);
-  },
+  }
 
   hostRoom(challengeId, roomType = 'presented') {
     if (this.isGuest()) { this.guestBlocked(); return; }
@@ -463,14 +463,14 @@ class AppRouter {
     }
     const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
     this.selectExperience(c, 'clasico', cleanRoomType);
-  },
+  }
 
   selectExperience(challengeId, defaultMode = 'clasico', roomType = 'presented') {
     let c = this.resolveChallenge(challengeId);
     if (!c) return;
     const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
     this.navigate('select-experience', { challenge: c, gameMode: defaultMode, roomType: cleanRoomType });
-  },
+  }
 
   launchHostWithMode(challengeOrId, modeId = 'clasico', config = {}, rosterConfig = null, roomType = 'presented') {
     let c = this.resolveChallenge(challengeOrId);
@@ -493,7 +493,7 @@ class AppRouter {
 
     const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
     this.navigate('lobby-host', { challenge: c, gameMode: modeId, modeConfig: config, rosterConfig: rosterConfig, roomType: cleanRoomType });
-  },
+  }
 
   startLiveHostGame(room) {
     this.navigate('game');

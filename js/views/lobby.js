@@ -1220,6 +1220,7 @@ window.LobbyView = {
       submitBtn.innerHTML = `<span>⏳</span> Conectando...`;
     }
 
+    try {
       let room = await (window.realtimeEngine ? window.realtimeEngine.findRoom(cleanPin) : null);
 
       if (room) {
