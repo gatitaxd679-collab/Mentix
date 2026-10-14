@@ -1159,29 +1159,56 @@ window.GameView = {
   },
 
   adjustCardAndBannerTextSizes() {
-    // 1. Ajustar banner si la pregunta es extensa para que se lea completa sin cortes pero con gran presencia
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+    // 1. Ajustar banner si la pregunta es extensa para que se lea completa sin cortes ni desorden
     document.querySelectorAll('.kahoot-host-question-banner').forEach(banner => {
       const qLen = (banner.textContent || '').trim().length;
       banner.style.wordBreak = 'break-word';
       banner.style.overflowWrap = 'break-word';
       banner.style.whiteSpace = 'normal';
       banner.style.height = 'auto';
-      if (qLen > 220) {
-        banner.style.fontSize = 'clamp(1.2rem, 2.4vw, 1.6rem)';
-        banner.style.lineHeight = '1.3';
-        banner.style.padding = '1.2rem 1.6rem';
-      } else if (qLen > 150) {
-        banner.style.fontSize = 'clamp(1.4rem, 2.7vw, 1.9rem)';
-        banner.style.lineHeight = '1.32';
-        banner.style.padding = '1.4rem 2rem';
-      } else if (qLen > 90) {
-        banner.style.fontSize = 'clamp(1.65rem, 3.1vw, 2.3rem)';
-        banner.style.lineHeight = '1.34';
-        banner.style.padding = '1.6rem 2.5rem';
-      } else if (qLen > 45) {
-        banner.style.fontSize = 'clamp(1.85rem, 3.4vw, 2.7rem)';
+
+      if (isMobile) {
+        if (qLen > 180) {
+          banner.style.fontSize = 'clamp(0.8rem, 3.2vw, 0.96rem)';
+          banner.style.lineHeight = '1.2';
+          banner.style.padding = '0.45rem 0.65rem';
+        } else if (qLen > 110) {
+          banner.style.fontSize = 'clamp(0.88rem, 3.5vw, 1.05rem)';
+          banner.style.lineHeight = '1.24';
+          banner.style.padding = '0.55rem 0.8rem';
+        } else if (qLen > 60) {
+          banner.style.fontSize = 'clamp(0.96rem, 3.9vw, 1.18rem)';
+          banner.style.lineHeight = '1.26';
+          banner.style.padding = '0.65rem 0.9rem';
+        } else {
+          banner.style.fontSize = 'clamp(1.08rem, 4.3vw, 1.32rem)';
+          banner.style.lineHeight = '1.3';
+          banner.style.padding = '0.75rem 1rem';
+        }
       } else {
-        banner.style.fontSize = 'clamp(2.1rem, 3.8vw, 3.3rem)';
+        if (qLen > 220) {
+          banner.style.fontSize = 'clamp(1.2rem, 2.4vw, 1.6rem)';
+          banner.style.lineHeight = '1.3';
+          banner.style.padding = '1.2rem 1.6rem';
+        } else if (qLen > 150) {
+          banner.style.fontSize = 'clamp(1.4rem, 2.7vw, 1.9rem)';
+          banner.style.lineHeight = '1.32';
+          banner.style.padding = '1.4rem 2rem';
+        } else if (qLen > 90) {
+          banner.style.fontSize = 'clamp(1.65rem, 3.1vw, 2.3rem)';
+          banner.style.lineHeight = '1.34';
+          banner.style.padding = '1.6rem 2.5rem';
+        } else if (qLen > 45) {
+          banner.style.fontSize = 'clamp(1.85rem, 3.4vw, 2.7rem)';
+          banner.style.lineHeight = '1.32';
+          banner.style.padding = '1.8rem 2.8rem';
+        } else {
+          banner.style.fontSize = 'clamp(2.1rem, 3.8vw, 3.3rem)';
+          banner.style.lineHeight = '1.32';
+          banner.style.padding = '2rem 3rem';
+        }
       }
     });
 
@@ -1191,19 +1218,38 @@ window.GameView = {
       el.style.wordBreak = 'break-word';
       el.style.overflowWrap = 'break-word';
       el.style.whiteSpace = 'normal';
-      if (len > 140) {
-        el.style.fontSize = 'clamp(1.1rem, 1.9vw, 1.45rem)';
-        el.style.lineHeight = '1.25';
-      } else if (len > 90) {
-        el.style.fontSize = 'clamp(1.25rem, 2.1vw, 1.7rem)';
-        el.style.lineHeight = '1.28';
-      } else if (len > 55) {
-        el.style.fontSize = 'clamp(1.4rem, 2.3vw, 1.95rem)';
-        el.style.lineHeight = '1.3';
-      } else if (len > 30) {
-        el.style.fontSize = 'clamp(1.55rem, 2.5vw, 2.2rem)';
+
+      if (isMobile) {
+        if (len > 120) {
+          el.style.fontSize = 'clamp(0.72rem, 2.8vw, 0.88rem)';
+          el.style.lineHeight = '1.18';
+        } else if (len > 70) {
+          el.style.fontSize = 'clamp(0.8rem, 3vw, 0.95rem)';
+          el.style.lineHeight = '1.2';
+        } else if (len > 35) {
+          el.style.fontSize = 'clamp(0.88rem, 3.4vw, 1.05rem)';
+          el.style.lineHeight = '1.24';
+        } else {
+          el.style.fontSize = 'clamp(0.96rem, 3.8vw, 1.18rem)';
+          el.style.lineHeight = '1.28';
+        }
       } else {
-        el.style.fontSize = 'clamp(1.7rem, 2.8vw, 2.5rem)';
+        if (len > 140) {
+          el.style.fontSize = 'clamp(1.1rem, 1.9vw, 1.45rem)';
+          el.style.lineHeight = '1.25';
+        } else if (len > 90) {
+          el.style.fontSize = 'clamp(1.25rem, 2.1vw, 1.7rem)';
+          el.style.lineHeight = '1.28';
+        } else if (len > 55) {
+          el.style.fontSize = 'clamp(1.4rem, 2.3vw, 1.95rem)';
+          el.style.lineHeight = '1.3';
+        } else if (len > 30) {
+          el.style.fontSize = 'clamp(1.55rem, 2.5vw, 2.2rem)';
+          el.style.lineHeight = '1.3';
+        } else {
+          el.style.fontSize = 'clamp(1.7rem, 2.8vw, 2.5rem)';
+          el.style.lineHeight = '1.3';
+        }
       }
     });
 
@@ -1213,20 +1259,38 @@ window.GameView = {
       el.style.wordBreak = 'break-word';
       el.style.overflowWrap = 'break-word';
       el.style.whiteSpace = 'normal';
-      if (len > 140) {
-        el.style.fontSize = 'clamp(1.05rem, 2.3vw, 1.35rem)';
-        el.style.lineHeight = '1.22';
-      } else if (len > 90) {
-        el.style.fontSize = 'clamp(1.18rem, 2.5vw, 1.55rem)';
-        el.style.lineHeight = '1.25';
-      } else if (len > 55) {
-        el.style.fontSize = 'clamp(1.32rem, 2.8vw, 1.75rem)';
-        el.style.lineHeight = '1.28';
-      } else if (len > 25) {
-        el.style.fontSize = 'clamp(1.45rem, 3.2vw, 2rem)';
-        el.style.lineHeight = '1.3';
+
+      if (isMobile) {
+        if (len > 110) {
+          el.style.fontSize = 'clamp(0.68rem, 2.7vw, 0.84rem)';
+          el.style.lineHeight = '1.15';
+        } else if (len > 65) {
+          el.style.fontSize = 'clamp(0.76rem, 2.9vw, 0.92rem)';
+          el.style.lineHeight = '1.18';
+        } else if (len > 30) {
+          el.style.fontSize = 'clamp(0.85rem, 3.2vw, 1.02rem)';
+          el.style.lineHeight = '1.22';
+        } else {
+          el.style.fontSize = 'clamp(0.95rem, 3.6vw, 1.15rem)';
+          el.style.lineHeight = '1.25';
+        }
       } else {
-        el.style.fontSize = 'clamp(1.6rem, 3.5vw, 2.3rem)';
+        if (len > 140) {
+          el.style.fontSize = 'clamp(1.05rem, 2.3vw, 1.35rem)';
+          el.style.lineHeight = '1.22';
+        } else if (len > 90) {
+          el.style.fontSize = 'clamp(1.18rem, 2.5vw, 1.55rem)';
+          el.style.lineHeight = '1.25';
+        } else if (len > 55) {
+          el.style.fontSize = 'clamp(1.32rem, 2.8vw, 1.75rem)';
+          el.style.lineHeight = '1.28';
+        } else if (len > 25) {
+          el.style.fontSize = 'clamp(1.45rem, 3.2vw, 2rem)';
+          el.style.lineHeight = '1.3';
+        } else {
+          el.style.fontSize = 'clamp(1.6rem, 3.5vw, 2.3rem)';
+          el.style.lineHeight = '1.3';
+        }
       }
     });
   },
@@ -3112,4 +3176,10 @@ window.GameView = {
     this.renderQuestionScreen();
   }
 };
+
+window.addEventListener('resize', () => {
+  if (window.GameView && typeof window.GameView.adjustCardAndBannerTextSizes === 'function') {
+    window.GameView.adjustCardAndBannerTextSizes();
+  }
+});
 

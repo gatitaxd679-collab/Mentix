@@ -1863,9 +1863,10 @@ body.light-theme .student-feedback-card.is-wrong {
   overflow-wrap: break-word;
   white-space: normal;
   text-overflow: clip;
-  line-height: 1.3;
-  font-size: clamp(1.35rem, 3.2vw, 2.2rem) !important;
+  line-height: 1.25;
+  font-size: clamp(1.05rem, 2.6vw, 1.85rem);
   font-weight: 800;
+  max-width: 96%;
 }
 
 /* Modo Preguntas Presentadas para el estudiante: Solo figuras geométricas centradas gigantes (cositos) */
@@ -1902,40 +1903,102 @@ body.light-theme .student-feedback-card.is-wrong {
 
 @media (max-width: 768px) {
   .kahoot-player-pad.presented-mode .pad-shape .reto-shape-svg {
-    width: clamp(55px, 16vw, 95px);
-    height: clamp(55px, 16vw, 95px);
+    width: clamp(55px, 16vw, 95px) !important;
+    height: clamp(55px, 16vw, 95px) !important;
   }
 }
 
 @media (max-width: 768px) {
   .kahoot-player-fullscreen-container {
-    height: calc(100vh - 75px);
-    padding: 0.25rem 0.5rem 1rem;
+    min-height: calc(100vh - 75px);
+    height: auto !important;
+    max-height: 100vh;
+    padding: 0.25rem 0.5rem 0.85rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+  .game-fullscreen-wrapper {
+    min-height: 100vh;
+    height: auto !important;
+    padding: 0.5rem 0.65rem 1.25rem !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ajuste de Banner en Móvil para preguntas largas sin desordenar */
+  .kahoot-host-question-banner {
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.75rem !important;
+    border-radius: 14px !important;
+    border-width: 2px !important;
+    font-size: clamp(0.9rem, 3.8vw, 1.25rem);
+    line-height: 1.25;
+    min-height: 54px !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45) !important;
+  }
+
   .kahoot-player-grid {
-    gap: 0.75rem;
+    gap: 0.65rem;
   }
+
+  .kahoot-player-pad {
+    padding: 0.45rem 0.6rem !important;
+    border-radius: 16px !important;
+    border-width: 2.5px !important;
+  }
+
   .kahoot-player-pad .pad-shape .reto-shape-svg {
-    width: clamp(22px, 6vw, 34px);
-    height: clamp(22px, 6vw, 34px);
+    width: clamp(18px, 4.5vw, 24px) !important;
+    height: clamp(18px, 4.5vw, 24px) !important;
   }
+
+  .pad-option-text {
+    font-size: clamp(0.76rem, 3.2vw, 1.05rem);
+    line-height: 1.2;
+    max-width: 98% !important;
+  }
+
   .kahoot-answers-grid {
     grid-template-columns: 1fr;
+    gap: 0.65rem;
   }
+
   .kahoot-host-stage {
     gap: 0.75rem;
   }
+
   .kahoot-host-circle-badge {
-    width: 68px;
-    height: 68px;
-    min-width: 68px;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
   }
+
   .kahoot-host-circle-badge.timer-badge {
-    font-size: 2rem;
+    font-size: 1.85rem;
   }
+
   .kahoot-answer-card {
-    font-size: 1.15rem;
-    padding: 1rem 1.25rem;
+    min-height: 52px !important;
+    padding: 0.65rem 0.95rem !important;
+    gap: 0.75rem !important;
+    border-radius: 14px !important;
+    border-width: 2.5px !important;
+  }
+
+  .kahoot-card-text {
+    font-size: clamp(0.82rem, 3.4vw, 1.05rem);
+    line-height: 1.22;
+  }
+
+  .reto-shape, .kahoot-shape {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .reto-shape-svg {
+    width: 24px !important;
+    height: 24px !important;
   }
 }
 
