@@ -181,11 +181,16 @@ window.AdminView = {
           </div>
         </div>
 
-        <!-- Tabla: Moderación de Retos -->
+        <!-- Tabla: Moderación y Lanzamiento de Retos -->
         <div class="glass-panel" style="padding: 1.75rem;">
-          <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>🎮</span> Moderación de Retos Publicados
-          </h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+            <h2 style="font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              <span>🎮</span> Moderación y Lanzamiento de Retos (${challenges.length})
+            </h2>
+            <button class="btn btn-primary" onclick="window.appRouter.navigate('creator')">
+              <span>🚀</span> Crear Nuevo Reto / Examen
+            </button>
+          </div>
 
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
@@ -204,11 +209,25 @@ window.AdminView = {
                     <td style="padding: 0.75rem; font-weight: 700;">${c.title}</td>
                     <td style="padding: 0.75rem; color: var(--neon-cyan);">${c.categoryName || c.category}</td>
                     <td style="padding: 0.75rem;">${c.questions?.length || 0}</td>
-                    <td style="padding: 0.75rem; color: var(--text-secondary);">${c.author}</td>
+                    <td style="padding: 0.75rem; color: var(--text-secondary);">${c.author || 'Anónimo'}</td>
                     <td style="padding: 0.75rem; text-align: right;">
-                      <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="window.AdminView.deleteChallenge('${c.id}')">
-                        🗑️ Eliminar
-                      </button>
+                      <div style="display: inline-flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-end;">
+                        <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; font-weight: 800;" title="Jugar como estudiante en solitario" onclick="window.appRouter.startSinglePlayer('${c.id}')">
+                          ▶️ Jugar
+                        </button>
+                        <button class="btn btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; font-weight: 800;" title="Presentar sala con preguntas proyectadas" onclick="window.appRouter.hostRoom('${c.id}', 'presented')">
+                          📽️ Presentar
+                        </button>
+                        <button class="btn btn-cyan" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; font-weight: 800;" title="Crear sala normal con preguntas en los dispositivos" onclick="window.appRouter.hostRoom('${c.id}', 'normal')">
+                          🎮 Normal
+                        </button>
+                        <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.78rem;" title="Editar reto" onclick="window.appRouter.navigate('creator', { editId: '${c.id}' })">
+                          ✏️
+                        </button>
+                        <button class="btn btn-danger" style="padding: 0.3rem 0.5rem; font-size: 0.78rem;" title="Eliminar reto" onclick="window.AdminView.deleteChallenge('${c.id}')">
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 `).join('')}

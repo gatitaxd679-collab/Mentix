@@ -121,19 +121,19 @@ class RealtimeEngine {
               this.mqttQueue = [];
               pending.forEach(item => {
                 if (Date.now() - item.time < 20000) {
-                  this.publishMqtt(item.topic, item.payload);
+                  this.publishMqtt(item.topic, item.payload, item.options);
                 }
               });
             }
 
-            // 2. Si es host, anunciar estado
+            // 2. Si es host, anunciar estado con retained para entrega inmediata a cualquier cliente
             if (isHost && this.currentRoom) {
               this.publishMqtt(`mentix/rooms/${cleanPin}/host_state`, {
                 type: 'HOST_ROOM_STATE',
                 pin: cleanPin,
                 room: this.currentRoom,
                 timestamp: Date.now()
-              });
+              }, { retain: true });
             }
 
             // 3. Si es jugador y ya tiene perfil, anunciar PLAYER_JOIN de inmediato
@@ -155,7 +155,7 @@ class RealtimeEngine {
           const data = JSON.parse(msgStr);
           const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
           if (data && (!dataPin || dataPin === cleanPin)) {
-            // Si el host recibe solicitud de información de sala, responde de inmediato con su estado completo
+            // Si el host recibe solicitud de información de sala, responde de inmediato con su estado completo retenido
             if (isHost && data.type === 'REQ_ROOM_INFO') {
               if (this.currentRoom) {
                 this.publishMqtt(`mentix/rooms/${cleanPin}/host_state`, {
@@ -163,7 +163,7 @@ class RealtimeEngine {
                   pin: cleanPin,
                   room: this.currentRoom,
                   timestamp: Date.now()
-                });
+                }, { retain: true });
               }
               return;
             }
@@ -182,17 +182,17 @@ class RealtimeEngine {
     }
   }
 
-  publishMqtt(topic, payload) {
+  publishMqtt(topic, payload, options = {}) {
     if (this.mqttClient && this.mqttClient.connected) {
       try {
         const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
-        this.mqttClient.publish(topic, payloadStr, { qos: 0 });
+        this.mqttClient.publish(topic, payloadStr, { qos: 0, retain: !!options.retain });
       } catch (e) {
         console.warn('Error publicando MQTT:', e);
       }
     } else {
       if (!this.mqttQueue) this.mqttQueue = [];
-      this.mqttQueue.push({ topic, payload, time: Date.now() });
+      this.mqttQueue.push({ topic, payload, options, time: Date.now() });
       if (this.mqttQueue.length > 50) this.mqttQueue.shift();
     }
   }
@@ -258,9 +258,20 @@ class RealtimeEngine {
     if (!pin) return null;
     const clean = pin.toString().replace(/\D/g, '').trim();
 
+    const hydrateChallenge = (roomObj) => {
+      if (!roomObj) return null;
+      if (!roomObj.challenge || !Array.isArray(roomObj.challenge.questions) || roomObj.challenge.questions.length === 0) {
+        const chId = roomObj.challenge?.id || roomObj.challenge;
+        const fullCh = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(chId).trim())
+          || (window.appState?.projects || []).find(c => c && String(c.id).trim() === String(chId).trim());
+        if (fullCh) roomObj.challenge = fullCh;
+      }
+      return roomObj;
+    };
+
     // 1. Probar en memoria activa local
     if (this.currentRoom && String(this.currentRoom.pin).replace(/\D/g, '') === clean && this.currentRoom.challenge) {
-      return this.currentRoom;
+      return hydrateChallenge(this.currentRoom);
     }
 
     // 2. Probar en almacenamiento local de este navegador
@@ -269,7 +280,7 @@ class RealtimeEngine {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && parsed.challenge) {
-          return parsed;
+          return hydrateChallenge(parsed);
         }
       }
     } catch(e) {}
@@ -285,7 +296,7 @@ class RealtimeEngine {
         if (tempClient) {
           try { tempClient.end(true); } catch(e) {}
         }
-        resolve(result);
+        resolve(hydrateChallenge(result));
       };
 
       // Tiempo límite de respuesta: 3.5 segundos
@@ -323,7 +334,7 @@ class RealtimeEngine {
             const data = JSON.parse(payload.toString());
             if (data && (data.type === 'HOST_ROOM_STATE' || data.type === 'ROOM_CREATED') && data.room) {
               const resPin = String(data.pin || data.room.pin || '').replace(/\D/g, '');
-              if (resPin === clean && data.room.challenge) {
+              if (resPin === clean && (data.room.challenge || data.room.title)) {
                 clearTimeout(timer);
                 finish(data.room);
               }
@@ -594,7 +605,15 @@ class RealtimeEngine {
     this.isHost = true;
     this.localPlayer = null; // El anfitrión es el profesor/presentador, no un jugador competidor
 
-    const safeChallenge = challenge || { title: 'Reto MENTIX', questions: [], timePerQuestion: 20 };
+    let safeChallenge = challenge;
+    if (!safeChallenge && window.appState?.challenges?.length > 0) {
+      safeChallenge = window.appState.challenges[0];
+    }
+    if (!safeChallenge || !safeChallenge.title) {
+      safeChallenge = { title: 'Reto MENTIX', questions: [], timePerQuestion: 20 };
+    }
+
+    const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
     const rosterMode = rosterConfig?.mode || 'open'; // 'open' | 'roster'
     const rosterList = (rosterConfig?.students || []).map((st, idx) => ({
       id: st.id || ('st_' + idx + '_' + Math.random().toString(36).substr(2, 6)),
@@ -610,7 +629,7 @@ class RealtimeEngine {
       hostName: window.appState?.currentUser?.name || 'Profesor',
       status: 'lobby',
       gameMode: gameMode || 'clasico',
-      roomType: roomType || 'presented', // 'presented' | 'normal'
+      roomType: cleanRoomType,
       modeConfig: modeConfig || {},
       design: window.AdminView ? window.AdminView.getSavedDesign() : null,
       rosterMode: rosterMode,
@@ -637,10 +656,12 @@ class RealtimeEngine {
         pin: pin,
         title: safeChallenge.title,
         gameMode: gameMode,
-        roomType: roomType || 'presented',
+        roomType: cleanRoomType,
         modeConfig: modeConfig,
         rosterMode: rosterMode,
-        rosterCount: rosterList.length
+        rosterCount: rosterList.length,
+        challenge: safeChallenge,
+        room: this.currentRoom
       });
     } catch(e) {}
 
@@ -648,6 +669,16 @@ class RealtimeEngine {
     try {
       this.initMqtt(pin, true);
       this.initHostPeer(pin);
+    } catch(e) {}
+
+    // Publicar de inmediato el estado retenido de la sala en MQTT para cualquier estudiante que busque por PIN
+    try {
+      this.publishMqtt(`mentix/rooms/${pin}/host_state`, {
+        type: 'HOST_ROOM_STATE',
+        pin: pin,
+        room: this.currentRoom,
+        timestamp: Date.now()
+      }, { retain: true });
     } catch(e) {}
 
     return this.currentRoom;
@@ -672,11 +703,14 @@ class RealtimeEngine {
     const mappedAnimal = (window.AvatarEngine && window.AvatarEngine.emojiToAnimalMap && window.AvatarEngine.emojiToAnimalMap[avatar]) || baseAv?.animal || 'fox';
     const savedAv = baseAv ? { ...baseAv, animal: mappedAnimal, alias: nickname.trim() } : null;
 
+    const safeStudentId = (rosterStudentId === '__manual__' || !rosterStudentId) ? null : rosterStudentId;
+    const safeEmail = (email && email.trim()) ? email.trim() : `${(nickname || 'alumno').toLowerCase().replace(/[^a-z0-9]/g, '') || 'alumno'}@mentix.player`;
+
     this.localPlayer = {
-      id: rosterStudentId || tabPlayerId,
-      rosterStudentId: rosterStudentId,
+      id: safeStudentId || tabPlayerId,
+      rosterStudentId: safeStudentId,
       nickname: nickname.trim(),
-      email: (email || '').trim(),
+      email: safeEmail,
       avatar: avatar,
       avatarConfig: savedAv,
       isReady: false,
@@ -828,6 +862,15 @@ class RealtimeEngine {
     }
 
     localStorage.setItem(`te_reto_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+    localStorage.setItem(`mentix_room_${this.currentRoom.pin}`, JSON.stringify(this.currentRoom));
+    try {
+      this.publishMqtt(`mentix/rooms/${this.currentRoom.pin}/host_state`, {
+        type: 'HOST_ROOM_STATE',
+        pin: this.currentRoom.pin,
+        room: this.currentRoom,
+        timestamp: Date.now()
+      }, { retain: true });
+    } catch(e) {}
     this.broadcast({
       type: 'HOST_ROOM_STATE',
       pin: this.currentRoom.pin,

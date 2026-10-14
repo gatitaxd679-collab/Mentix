@@ -354,10 +354,16 @@ window.LobbyView = {
   // 🎓 MODAL DE ACCESO: LISTADO VS NICKNAMES
   // ==========================================
   openCreateRoomRosterModal(challenge, gameMode = 'clasico', modeConfig = {}, roomType = 'presented', preselectedGroupId = null) {
+    if (roomType && roomType !== 'presented' && roomType !== 'normal') {
+      if (typeof roomType === 'string' && roomType.startsWith('group_')) {
+        preselectedGroupId = roomType;
+      }
+      roomType = 'presented';
+    }
     this.pendingChallenge = challenge;
-    this.pendingModeId = gameMode;
-    this.pendingModeConfig = modeConfig;
-    this.pendingRoomType = roomType || 'presented';
+    this.pendingModeId = gameMode || 'clasico';
+    this.pendingModeConfig = modeConfig || {};
+    this.pendingRoomType = (roomType === 'normal') ? 'normal' : 'presented';
 
     const modal = document.getElementById('roster-config-modal');
     if (!modal) {
@@ -1214,8 +1220,16 @@ window.LobbyView = {
       submitBtn.innerHTML = `<span>⏳</span> Conectando...`;
     }
 
-    try {
-      const room = await (window.realtimeEngine ? window.realtimeEngine.findRoom(cleanPin) : null);
+      let room = await (window.realtimeEngine ? window.realtimeEngine.findRoom(cleanPin) : null);
+
+      if (room) {
+        if (!room.challenge || !Array.isArray(room.challenge.questions) || room.challenge.questions.length === 0) {
+          const chId = room.challenge?.id || room.challenge;
+          const fullCh = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(chId).trim())
+            || (window.appState?.projects || []).find(c => c && String(c.id).trim() === String(chId).trim());
+          if (fullCh) room.challenge = fullCh;
+        }
+      }
 
       if (!room || !room.challenge) {
         if (err) {
@@ -2669,12 +2683,9 @@ window.LobbyView = {
 
     let finalEmail = email;
     if (!finalEmail) {
-      if (room && room.rosterMode === 'roster') {
-        alert('Por favor selecciona tu nombre y correo oficial de la lista.');
-        return;
-      }
       finalEmail = `${nickname.toLowerCase().replace(/[^a-z0-9]/g, '') || 'alumno'}@mentix.player`;
     }
+    const finalStudentId = (studentId === '__manual__' || !studentId) ? null : studentId;
     const emojiToAnimal = {
       '🦊': 'fox',
       '🐼': 'panda',
@@ -2702,7 +2713,7 @@ window.LobbyView = {
       window.AvatarEngine.saveAvatar(saved);
     }
 
-    window.realtimeEngine.joinRoom(pin, nickname, avatar, finalEmail, studentId, room);
+    window.realtimeEngine.joinRoom(pin, nickname, avatar, finalEmail, finalStudentId, room);
     if (room && window.realtimeEngine.currentRoom) {
       if (room.gameMode) window.realtimeEngine.currentRoom.gameMode = room.gameMode;
       if (room.roomType) window.realtimeEngine.currentRoom.roomType = room.roomType;
@@ -2810,8 +2821,9 @@ window.LobbyView = {
     }
 
     const cleanPin = String(this.currentRoom.pin).replace(/\D/g, '');
-    this.currentRoom.status = 'intro';
+    this.currentRoom.status = (this.currentRoom.roomType === 'normal') ? 'self_paced' : 'intro';
     localStorage.setItem(`te_reto_room_${cleanPin}`, JSON.stringify(this.currentRoom));
+    localStorage.setItem(`mentix_room_${cleanPin}`, JSON.stringify(this.currentRoom));
     window.realtimeEngine.broadcast({
       type: 'START_GAME',
       pin: cleanPin,

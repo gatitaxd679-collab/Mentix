@@ -964,6 +964,7 @@ window.CreatorView = {
     c.authorAvatar = c.authorAvatar || u?.avatar || '👤';
     c.authorId = c.authorId || u?.id || ('user_' + (u?.email || u?.name || 'anon'));
     c.authorEmail = c.authorEmail || u?.email || '';
+    c.authorRole = u?.role || 'teacher';
     if (c.plays === undefined) c.plays = 0;
     c.isPublic = true;
     c.projectType = c.projectType || 'quiz';
@@ -1017,10 +1018,16 @@ window.CreatorView = {
     // Resetear el formulario para que el creador quede completamente en blanco para el próximo reto
     this.resetForm();
 
-    if (confirm(`🎉 ¡Cuestionario "${savedChallengeTitle}" publicado con ${savedQuestionsCount} preguntas!\n\n¿Quieres jugarlo ahora mismo?`)) {
+    if (confirm(`🎉 ¡Evaluación "${savedChallengeTitle}" publicada exitosamente con ${savedQuestionsCount} preguntas!\n\n¿Quieres realizar la prueba ahora mismo como estudiante?`)) {
       window.appRouter.startSinglePlayer(savedChallengeId);
     } else {
-      window.appRouter.navigate('home');
+      if (u && u.role === 'teacher') {
+        window.appRouter.navigate('teacher');
+      } else if (u && u.role === 'admin') {
+        window.appRouter.navigate('admin');
+      } else {
+        window.appRouter.navigate('home');
+      }
     }
   },
 

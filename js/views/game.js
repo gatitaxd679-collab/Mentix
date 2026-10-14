@@ -96,7 +96,19 @@ window.GameView = {
   initSolo(challenge, gameMode) {
     this.isSolo = true;
     this.isHost = true;
-    this.challenge = challenge;
+    let resolved = challenge;
+    if (challenge && typeof challenge === 'string') {
+      resolved = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(challenge).trim())
+        || (window.appState?.projects || []).find(c => c && String(c.id).trim() === String(challenge).trim());
+    }
+    if ((!resolved || !Array.isArray(resolved.questions) || resolved.questions.length === 0) && challenge?.id) {
+      resolved = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(challenge.id).trim()) || resolved;
+    }
+    if (!resolved && window.ExperienceView?.currentChallenge) resolved = window.ExperienceView.currentChallenge;
+    if (!resolved && window.LobbyView?.pendingChallenge) resolved = window.LobbyView.pendingChallenge;
+    if (!resolved && window.appState?.challenges?.length > 0) resolved = window.appState.challenges[0];
+
+    this.challenge = resolved;
     this.currentQuestionIndex = 0;
     this.generateStudentQuestionOrder();
     this.gameMode = gameMode || 'clasico';
@@ -120,7 +132,7 @@ window.GameView = {
 
     this.room = {
       pin: 'SOLO',
-      challenge: challenge,
+      challenge: resolved,
       gameMode: this.gameMode,
       players: [soloPlayer],
       responses: {}
@@ -146,6 +158,13 @@ window.GameView = {
       this.room.questionResponses = {};
     }
     this.challenge = room.challenge;
+    if (this.room?.challenge?.id && (!this.challenge?.questions || this.challenge.questions.length === 0)) {
+      const matched = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(this.room.challenge.id).trim());
+      if (matched && Array.isArray(matched.questions) && matched.questions.length > 0) {
+        this.challenge = matched;
+        this.room.challenge = matched;
+      }
+    }
     this.gameMode = room.gameMode || 'clasico';
     this.modeConfig = room.modeConfig || {};
     this.currentQuestionIndex = 0;
@@ -180,6 +199,13 @@ window.GameView = {
     this.isHost = false;
     this.room = room || window.realtimeEngine.currentRoom;
     this.challenge = this.room?.challenge;
+    if (this.room?.challenge?.id && (!this.challenge?.questions || this.challenge.questions.length === 0)) {
+      const matched = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(this.room.challenge.id).trim());
+      if (matched && Array.isArray(matched.questions) && matched.questions.length > 0) {
+        this.challenge = matched;
+        if (this.room) this.room.challenge = matched;
+      }
+    }
     if (!this.challenge && window.LobbyView?.joinRoomData?.challenge) {
       this.challenge = window.LobbyView.joinRoomData.challenge;
       if (this.room) this.room.challenge = this.challenge;

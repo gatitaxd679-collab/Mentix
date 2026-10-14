@@ -239,7 +239,8 @@ class AppRouter {
         document.getElementById('view-lobby')?.classList.add('active');
         const hostChallenge = params.challenge || window.LobbyView?.pendingChallenge || window.ExperienceView?.currentChallenge || window.realtimeEngine?.currentRoom?.challenge || window.appState?.challenges?.[0];
         if (hostChallenge) {
-          window.LobbyView.initHost(hostChallenge, params.gameMode || 'clasico', params.modeConfig || {}, params.rosterConfig || null, params.roomType || 'presented');
+          const cleanRoomType = (params.roomType === 'normal') ? 'normal' : 'presented';
+          window.LobbyView.initHost(hostChallenge, params.gameMode || 'clasico', params.modeConfig || {}, params.rosterConfig || null, cleanRoomType);
         } else {
           this.navigate('home');
         }
@@ -422,35 +423,57 @@ class AppRouter {
   }
 
   // Modos de Juego
+  resolveChallenge(challengeOrId) {
+    if (!challengeOrId) return null;
+    if (typeof challengeOrId === 'object' && challengeOrId.title) return challengeOrId;
+    const idStr = String(typeof challengeOrId === 'object' ? (challengeOrId.id || '') : challengeOrId).trim();
+    if (!idStr) return null;
+    let found = (window.appState?.challenges || []).find(item => item && String(item.id).trim() === idStr)
+      || (window.appState?.projects || []).find(item => item && String(item.id).trim() === idStr);
+    if (!found && typeof DEFAULT_CHALLENGES !== 'undefined') {
+      found = DEFAULT_CHALLENGES.find(item => item && String(item.id).trim() === idStr);
+    }
+    return found || null;
+  },
+
   startSinglePlayer(challengeId) {
-    const c = window.appState.challenges.find(item => item.id === challengeId);
-    if (!c) return;
+    let c = this.resolveChallenge(challengeId);
+    if (!c && window.ExperienceView?.currentChallenge) c = window.ExperienceView.currentChallenge;
+    if (!c && window.LobbyView?.pendingChallenge) c = window.LobbyView.pendingChallenge;
+    if (!c && Array.isArray(window.appState?.challenges) && window.appState.challenges.length > 0) {
+      c = window.appState.challenges[0];
+    }
+    if (!c) {
+      alert('⚠️ No se encontró la información del cuestionario para iniciar la prueba.');
+      return;
+    }
     this.navigate('game');
     window.GameView.initSolo(c);
-  }
+  },
 
   hostRoom(challengeId, roomType = 'presented') {
     if (this.isGuest()) { this.guestBlocked(); return; }
-    const c = window.appState.challenges.find(item => item.id === challengeId);
-    if (!c) return;
-    this.selectExperience(challengeId, 'clasico', roomType);
-  }
+    let c = this.resolveChallenge(challengeId);
+    if (!c && Array.isArray(window.appState?.challenges) && window.appState.challenges.length > 0) {
+      c = window.appState.challenges[0];
+    }
+    if (!c) {
+      alert('⚠️ No se encontró el cuestionario seleccionado.');
+      return;
+    }
+    const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
+    this.selectExperience(c, 'clasico', cleanRoomType);
+  },
 
   selectExperience(challengeId, defaultMode = 'clasico', roomType = 'presented') {
-    const c = window.appState.challenges.find(item => item.id === challengeId);
+    let c = this.resolveChallenge(challengeId);
     if (!c) return;
-    this.navigate('select-experience', { challenge: c, gameMode: defaultMode, roomType: roomType });
-  }
+    const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
+    this.navigate('select-experience', { challenge: c, gameMode: defaultMode, roomType: cleanRoomType });
+  },
 
   launchHostWithMode(challengeOrId, modeId = 'clasico', config = {}, rosterConfig = null, roomType = 'presented') {
-    let c = null;
-    if (challengeOrId && typeof challengeOrId === 'object') {
-      c = challengeOrId;
-    } else if (challengeOrId) {
-      const idStr = String(challengeOrId).trim();
-      c = (window.appState?.challenges || []).find(item => item && String(item.id).trim() === idStr)
-        || (window.appState?.projects || []).find(item => item && String(item.id).trim() === idStr);
-    }
+    let c = this.resolveChallenge(challengeOrId);
 
     if (!c && window.LobbyView?.pendingChallenge) {
       c = window.LobbyView.pendingChallenge;
@@ -468,8 +491,9 @@ class AppRouter {
       return;
     }
 
-    this.navigate('lobby-host', { challenge: c, gameMode: modeId, modeConfig: config, rosterConfig: rosterConfig, roomType: roomType });
-  }
+    const cleanRoomType = (roomType === 'normal') ? 'normal' : 'presented';
+    this.navigate('lobby-host', { challenge: c, gameMode: modeId, modeConfig: config, rosterConfig: rosterConfig, roomType: cleanRoomType });
+  },
 
   startLiveHostGame(room) {
     this.navigate('game');
