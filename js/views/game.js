@@ -237,6 +237,16 @@ window.GameView = {
       } catch (e) {}
     }
 
+    if (!this.room.roomType && window.LobbyView?.joinRoomData?.roomType) {
+      this.room.roomType = window.LobbyView.joinRoomData.roomType;
+    }
+    if (!this.room.roomType && window.realtimeEngine?.currentRoom?.roomType) {
+      this.room.roomType = window.realtimeEngine.currentRoom.roomType;
+    }
+    if (!this.room.roomType) {
+      this.room.roomType = 'presented';
+    }
+
     this.gameMode = detectedMode || 'clasico';
     this.currentQuestionIndex = this.isSelfPaced() ? 0 : (this.room?.currentQuestionIndex || 0);
     if (this.room?.randomizeQuestions !== false) {
@@ -407,7 +417,9 @@ window.GameView = {
         }
         this.currentQuestionIndex = data.questionIndex;
         if (data.room) {
+          const prevRoomType = this.room?.roomType;
           this.room = data.room;
+          if (!this.room.roomType && prevRoomType) this.room.roomType = prevRoomType;
           window.realtimeEngine.currentRoom = data.room;
         } else if (this.room) {
           this.room.currentQuestionIndex = data.questionIndex;
@@ -830,12 +842,17 @@ window.GameView = {
     const isMulti = q.type === 'multi' || (Array.isArray(q.correctAnswer) && !isTextOrOpen);
     this.multiSelected = [];
 
-    // 🎲 Variación / Aleatorización de opciones exclusiva para este alumno (anti-copia)
+    // Determinar si es Sala Normal (examen individual en cada dispositivo) o Preguntas Presentadas
+    const isNormalRoom = this.room?.roomType === 'normal';
+
+    // 🎲 En Sala Normal los alumnos leen la pregunta y opciones en su propia pantalla (se pueden aleatorizar opciones)
+    // 📽️ En Sala con Preguntas Presentadas: el alumno mira la pantalla del profesor/anfitrión,
+    // por lo que los colores y formas deben coincidir 1 a 1 con el anfitrión (SIN aleatorizar)
     const rawOptions = q.options || [];
     let displayOptions = rawOptions;
     this.playerOptionMapping = null;
 
-    if (rawOptions.length > 1 && !isTextOrOpen) {
+    if (isNormalRoom && rawOptions.length > 1 && !isTextOrOpen) {
       const indices = rawOptions.map((_, i) => i);
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -846,7 +863,7 @@ window.GameView = {
     }
 
     container.innerHTML = `
-      <div class="kahoot-player-fullscreen-container">
+      <div class="kahoot-player-fullscreen-container ${!isNormalRoom ? 'presented-player-screen' : ''}">
         <!-- Barra Superior Compacta del Alumno -->
         <div class="kahoot-player-topbar">
           <div style="display: flex; align-items: center; gap: 0.65rem;">
@@ -871,16 +888,18 @@ window.GameView = {
           </div>
         </div>
 
-        <!-- Enunciado de la Pregunta para el Estudiante -->
-        <div class="kahoot-host-question-banner" style="font-size: clamp(1.4rem, 3.4vw, 2.2rem); font-weight: 900; margin: 0.5rem 0 1.15rem; padding: 1.1rem 1.6rem; border-radius: 18px; min-height: auto;">
-          ${this.escapeHtml(q.text)}
-        </div>
-
-        <!-- Media / Imagen si la pregunta tiene imagen -->
-        ${q.media && q.mediaType === 'image' ? `
-          <div style="text-align: center; margin: 0 0 0.85rem; max-height: 160px; overflow: hidden; border-radius: 12px; display: flex; justify-content: center; align-items: center;">
-            <img src="${q.media}" alt="Pregunta" style="max-height: 160px; max-width: 100%; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); object-fit: contain;" />
+        ${isNormalRoom ? `
+          <!-- Enunciado de la Pregunta para el Estudiante (Solo en Sala Normal) -->
+          <div class="kahoot-host-question-banner" style="font-size: clamp(1.4rem, 3.4vw, 2.2rem); font-weight: 900; margin: 0.5rem 0 1.15rem; padding: 1.1rem 1.6rem; border-radius: 18px; min-height: auto;">
+            ${this.escapeHtml(q.text)}
           </div>
+
+          <!-- Media / Imagen si la pregunta tiene imagen -->
+          ${q.media && q.mediaType === 'image' ? `
+            <div style="text-align: center; margin: 0 0 0.85rem; max-height: 160px; overflow: hidden; border-radius: 12px; display: flex; justify-content: center; align-items: center;">
+              <img src="${q.media}" alt="Pregunta" style="max-height: 160px; max-width: 100%; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); object-fit: contain;" />
+            </div>
+          ` : ''}
         ` : ''}
 
         ${isTextOrOpen ? `
@@ -938,25 +957,31 @@ window.GameView = {
             <div id="answer-feedback-panel" style="display: none; width: 100%; margin-top: 1rem;"></div>
           </div>
         ` : `
-          <!-- Pads Táctiles Gigantes con Respuestas Aleatorizadas por Estudiante y Figuras TE RETO -->
-          <div class="kahoot-player-grid ${isTwoOptions ? 'two-options' : ''}" id="player-pads-grid">
+          <!-- Pads Táctiles Gigantes -->
+          <div class="kahoot-player-grid ${isTwoOptions ? 'two-options' : ''} ${!isNormalRoom ? 'presented-grid' : ''}" id="player-pads-grid">
             ${displayOptions.map((opt, displayIdx) => {
               const shapeDef = this.getShapeDef(displayIdx);
               return `
                 <button 
                   type="button" 
-                  class="kahoot-player-pad ${shapeDef.colorClass}" 
+                  class="kahoot-player-pad ${shapeDef.colorClass} ${!isNormalRoom ? 'presented-mode' : ''}" 
                   id="player-pad-${displayIdx}"
-                  title="${shapeDef.name}: ${this.escapeAttr(this.getOptionText(opt))}"
+                  title="${shapeDef.name}${isNormalRoom ? ': ' + this.escapeAttr(this.getOptionText(opt)) : ''}"
                   onclick="${isMulti ? `window.GameView.toggleMultiOption(${displayIdx})` : `window.GameView.handleSelectAnswer(${displayIdx})`}"
                   style="cursor: pointer;"
                 >
-                  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; height: 100%; padding: 0.85rem; text-align: center; box-sizing: border-box;">
-                    <div class="pad-shape" style="height: auto; width: auto;">${shapeDef.svg}</div>
-                    <div class="pad-option-text" style="color: #ffffff; font-weight: 800; font-size: clamp(0.95rem, 2.5vw, 1.3rem); line-height: 1.25; text-shadow: 0 2px 10px rgba(0,0,0,0.85); max-width: 95%; word-break: break-word;">
-                      ${this.escapeHtml(this.getOptionText(opt))}
+                  ${isNormalRoom ? `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.45rem; width: 100%; height: 100%; padding: 0.85rem; text-align: center; box-sizing: border-box;">
+                      <div class="pad-shape" style="height: auto; width: auto;">${shapeDef.svg}</div>
+                      <div class="pad-option-text" style="color: #ffffff; font-weight: 800; font-size: clamp(0.95rem, 2.5vw, 1.3rem); line-height: 1.25; text-shadow: 0 2px 10px rgba(0,0,0,0.85); max-width: 95%; word-break: break-word;">
+                        ${this.escapeHtml(this.getOptionText(opt))}
+                      </div>
                     </div>
-                  </div>
+                  ` : `
+                    <div class="pad-shape">
+                      ${shapeDef.svg}
+                    </div>
+                  `}
                 </button>
               `;
             }).join('')}
