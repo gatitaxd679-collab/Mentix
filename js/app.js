@@ -436,7 +436,7 @@ class AppRouter {
     return found || null;
   }
 
-  startSinglePlayer(challengeId) {
+  startSinglePlayer(challengeId, options = {}) {
     let c = this.resolveChallenge(challengeId);
     if (!c && window.ExperienceView?.currentChallenge) c = window.ExperienceView.currentChallenge;
     if (!c && window.LobbyView?.pendingChallenge) c = window.LobbyView.pendingChallenge;
@@ -474,7 +474,7 @@ class AppRouter {
     }
 
     this.navigate('game');
-    window.GameView.initSolo(c);
+    window.GameView.initSolo(c, options.gameMode || 'clasico', options);
   }
 
   hostRoom(challengeId, roomType = 'presented') {

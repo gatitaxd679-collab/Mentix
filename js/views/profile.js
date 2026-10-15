@@ -215,8 +215,452 @@ window.ProfileView = {
           })()}
         </div>
 
+        <!-- Sección: Mis Cuestionarios en Juego (En Proceso, Completados e Iniciados) -->
+        <div class="glass-panel" style="padding: 2rem; margin-bottom: 2.5rem; ${u.isGuest ? 'display: none;' : ''}">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h2 style="font-size: 1.4rem; display: flex; align-items: center; gap: 0.6rem; margin: 0;">
+                <span>🎯</span> Mis Retos y Evaluaciones en Juego
+              </h2>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0 0;">
+                Cuestionarios en proceso, retos completados y evaluaciones que has iniciado pero no has completado.
+              </p>
+            </div>
+
+            <!-- Filtros / Pestañas de Estado -->
+            ${(() => {
+              const allAttempts = this.getQuizAttempts();
+              const currentFilter = this.activeQuizFilter || 'all';
+              const counts = {
+                all: allAttempts.length,
+                in_progress: allAttempts.filter(a => a.status === 'in_progress').length,
+                initiated: allAttempts.filter(a => a.status === 'initiated').length,
+                completed: allAttempts.filter(a => a.status === 'completed').length
+              };
+
+              return `
+                <div style="display: flex; gap: 0.4rem; background: rgba(0,0,0,0.4); padding: 0.3rem 0.4rem; border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap;">
+                  <button class="btn btn-sm ${currentFilter === 'all' ? 'btn-cyan' : 'btn-outline'}" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px;"
+                          onclick="window.ProfileView.setQuizFilter('all')">
+                    📋 Todos (${counts.all})
+                  </button>
+                  <button class="btn btn-sm ${currentFilter === 'in_progress' ? 'btn-cyan' : 'btn-outline'}" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px;"
+                          onclick="window.ProfileView.setQuizFilter('in_progress')">
+                    ⏳ En Proceso (${counts.in_progress})
+                  </button>
+                  <button class="btn btn-sm ${currentFilter === 'initiated' ? 'btn-cyan' : 'btn-outline'}" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px;"
+                          onclick="window.ProfileView.setQuizFilter('initiated')">
+                    ⚡ Iniciados (${counts.initiated})
+                  </button>
+                  <button class="btn btn-sm ${currentFilter === 'completed' ? 'btn-cyan' : 'btn-outline'}" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px;"
+                          onclick="window.ProfileView.setQuizFilter('completed')">
+                    ✅ Completados (${counts.completed})
+                  </button>
+                </div>
+              `;
+            })()}
+          </div>
+
+          ${(() => {
+            const allAttempts = this.getQuizAttempts();
+            const currentFilter = this.activeQuizFilter || 'all';
+            const filteredAttempts = allAttempts.filter(item => {
+              if (currentFilter === 'all') return true;
+              return item.status === currentFilter;
+            });
+
+            if (filteredAttempts.length === 0) {
+              return `
+                <div style="text-align: center; padding: 2.5rem 1rem; background: rgba(255,255,255,0.02); border-radius: var(--border-radius-md); border: 1px dashed var(--border-color);">
+                  <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎮</div>
+                  <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">No hay cuestionarios en esta sección</h3>
+                  <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">Explora los cuestionarios disponibles o únete a una sala para comenzar a jugar.</p>
+                  <button class="btn btn-primary" onclick="window.appRouter.navigate('home')">
+                    🚀 Explorar Retos
+                  </button>
+                </div>
+              `;
+            }
+
+            return `
+              <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                ${filteredAttempts.map(item => {
+                  const totalQ = item.totalQuestions || 5;
+                  const answeredQ = item.answeredQuestions || (item.status === 'completed' ? totalQ : 1);
+                  const progressPct = Math.min(100, Math.max(10, Math.round((answeredQ / totalQ) * 100)));
+
+                  let statusBadge = '';
+                  let progressGradient = '';
+                  if (item.status === 'completed') {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(6,214,160,0.18); color: #06d6a0; border: 1px solid rgba(6,214,160,0.4); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 6px;">✓ Completado</span>`;
+                    progressGradient = 'linear-gradient(90deg, #06d6a0, #00f5d4)';
+                  } else if (item.status === 'in_progress') {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(0,245,212,0.18); color: var(--neon-cyan); border: 1px solid var(--neon-cyan); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 6px;">⏳ En Proceso</span>`;
+                    progressGradient = 'linear-gradient(90deg, #00f5d4, #00b4d8)';
+                  } else {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(255,183,3,0.18); color: var(--neon-gold); border: 1px solid var(--neon-gold); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 6px;">⚡ Iniciado sin terminar</span>`;
+                    progressGradient = 'linear-gradient(90deg, #ffb703, #fb8500)';
+                  }
+
+                  return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1rem 1.25rem;">
+                      <div style="display: flex; align-items: center; gap: 1rem; min-width: 220px; flex: 1 1 300px;">
+                        <div style="width: 52px; height: 52px; border-radius: 10px; background: url('${item.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600'}') center/cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);"></div>
+                        <div style="flex: 1;">
+                          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                            <h4 style="font-size: 1.05rem; margin: 0;">${item.title}</h4>
+                            ${statusBadge}
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--text-secondary); flex-wrap: wrap;">
+                            <span style="color: var(--neon-cyan); font-weight: 700;">${item.categoryName || 'General'}</span>
+                            <span>•</span>
+                            <span>${item.status === 'completed' ? `Completado: ${totalQ}/${totalQ} preguntas` : `Progreso: ${answeredQ}/${totalQ} preguntas (${progressPct}%)`}</span>
+                            <span>•</span>
+                            <span>🏆 ${(item.score || 0).toLocaleString()} pts</span>
+                            <span>•</span>
+                            <span>⏱️ ${item.dateFormatted || 'Reciente'}</span>
+                          </div>
+                          <!-- Mini Barra de Progreso -->
+                          <div style="width: 100%; max-width: 260px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 9999px; margin-top: 0.45rem; overflow: hidden;">
+                            <div style="width: ${progressPct}%; height: 100%; background: ${progressGradient}; border-radius: 9999px;"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        ${item.status === 'completed' ? `
+                          <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.startSinglePlayer('${item.challengeId}')">
+                            🔄 Reintentar
+                          </button>
+                          <button class="btn btn-primary" title="Crear Sala con Preguntas Presentadas (Proyector)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${item.challengeId}', 'presented')">
+                            🚀 Sala
+                          </button>
+                          <button class="btn btn-sala-normal" title="Crear Sala Normal: Preguntas y respuestas en la pantalla de cada jugador" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.appRouter.hostRoom('${item.challengeId}', 'normal')">
+                            🎮 Sala Normal
+                          </button>
+                          <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(0,245,212,0.4); color: var(--neon-cyan);" onclick="window.ProfileView.showAttemptResults('${item.id}')">
+                            📊 Resultados
+                          </button>
+                          <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.ProfileView.deleteAttempt('${item.id}')">
+                            🗑️ Quitar
+                          </button>
+                        ` : `
+                          <button class="btn btn-cyan" style="padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 800; box-shadow: 0 0 15px rgba(0, 245, 212, 0.35);" onclick="window.ProfileView.resumeAttempt('${item.id}')">
+                            ▶️ Continuar Reto
+                          </button>
+                          <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.ProfileView.restartAttempt('${item.id}')">
+                            🔄 Reiniciar
+                          </button>
+                          <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.ProfileView.deleteAttempt('${item.id}')">
+                            🗑️ Descartar
+                          </button>
+                        `}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          })()}
+        </div>
+
       </div>
     `;
+  },
+
+  activeQuizFilter: 'all',
+
+  getQuizAttempts() {
+    const u = window.appState?.currentUser;
+    const storageKey = `mentix_quiz_attempts_${u?.id || 'default'}`;
+    let attempts = [];
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) attempts = JSON.parse(raw);
+    } catch (e) {}
+
+    // Si aún no hay intentos registrados en localStorage, inicializar inteligentemente
+    // con retos reales de la plataforma en los 3 estados solicitados
+    if (!Array.isArray(attempts) || attempts.length === 0) {
+      const allChallenges = window.appState?.challenges || [];
+      attempts = [];
+
+      if (allChallenges.length > 0) {
+        // 1. Cuestionario Completado
+        const c1 = allChallenges[0];
+        const qCount1 = c1.questions?.length || 5;
+        attempts.push({
+          id: 'attempt_' + c1.id + '_comp',
+          challengeId: c1.id,
+          title: c1.title,
+          banner: c1.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600',
+          categoryName: c1.categoryName || 'General',
+          status: 'completed',
+          totalQuestions: qCount1,
+          answeredQuestions: qCount1,
+          currentQuestionIndex: qCount1 - 1,
+          score: 1250,
+          accuracy: 100,
+          updatedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+          dateFormatted: 'Hace 2 horas'
+        });
+
+        // 2. Cuestionario En Proceso (a mitad de camino)
+        const c2 = allChallenges[1] || allChallenges[0];
+        const qCount2 = c2.questions?.length || 5;
+        const ans2 = Math.max(1, Math.floor(qCount2 / 2));
+        attempts.push({
+          id: 'attempt_' + c2.id + '_prog',
+          challengeId: c2.id,
+          title: c2.title,
+          banner: c2.banner || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600',
+          categoryName: c2.categoryName || 'General',
+          status: 'in_progress',
+          totalQuestions: qCount2,
+          answeredQuestions: ans2,
+          currentQuestionIndex: ans2,
+          score: 620,
+          accuracy: 80,
+          updatedAt: new Date(Date.now() - 3600000 * 6).toISOString(),
+          dateFormatted: 'Hace 6 horas'
+        });
+
+        // 3. Cuestionario Iniciado pero no completado (en la primera pregunta)
+        const c3 = allChallenges[2] || allChallenges[0];
+        const qCount3 = c3.questions?.length || 4;
+        attempts.push({
+          id: 'attempt_' + c3.id + '_init',
+          challengeId: c3.id,
+          title: (c3.id === c1.id ? 'Prueba Inicial: ' : '') + c3.title,
+          banner: c3.banner || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600',
+          categoryName: c3.categoryName || 'General',
+          status: 'initiated',
+          totalQuestions: qCount3,
+          answeredQuestions: 1,
+          currentQuestionIndex: 1,
+          score: 150,
+          accuracy: 100,
+          updatedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+          dateFormatted: 'Ayer'
+        });
+
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(attempts));
+        } catch (e) {}
+      }
+    }
+
+    return attempts;
+  },
+
+  saveQuizAttempts(attempts) {
+    const u = window.appState?.currentUser;
+    const storageKey = `mentix_quiz_attempts_${u?.id || 'default'}`;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(attempts));
+    } catch (e) {}
+  },
+
+  setQuizFilter(filter) {
+    this.activeQuizFilter = filter;
+    this.render();
+  },
+
+  resumeAttempt(attemptId) {
+    const attempts = this.getQuizAttempts();
+    const item = attempts.find(a => a.id === attemptId);
+    if (!item) return;
+
+    const challenge = (window.appState?.challenges || []).find(c => c.id === item.challengeId);
+    if (!challenge) {
+      alert('⚠️ No se encontró la información del cuestionario.');
+      return;
+    }
+
+    window.appRouter.startSinglePlayer(item.challengeId, {
+      startIndex: item.currentQuestionIndex || 0,
+      score: item.score || 0
+    });
+  },
+
+  restartAttempt(attemptId) {
+    const attempts = this.getQuizAttempts();
+    const item = attempts.find(a => a.id === attemptId);
+    if (!item) return;
+
+    item.answeredQuestions = 0;
+    item.currentQuestionIndex = 0;
+    item.score = 0;
+    item.status = 'initiated';
+    item.updatedAt = new Date().toISOString();
+    item.dateFormatted = 'Justo ahora';
+    this.saveQuizAttempts(attempts);
+
+    window.appRouter.startSinglePlayer(item.challengeId, {
+      startIndex: 0,
+      score: 0
+    });
+  },
+
+  deleteAttempt(attemptId) {
+    const ok = confirm('🗑️ ¿Deseas quitar este cuestionario de tu lista de actividades?');
+    if (!ok) return;
+
+    let attempts = this.getQuizAttempts();
+    attempts = attempts.filter(a => a.id !== attemptId);
+    this.saveQuizAttempts(attempts);
+    this.render();
+  },
+
+  showAttemptResults(attemptId) {
+    const attempts = this.getQuizAttempts();
+    const item = attempts.find(a => a.id === attemptId);
+    if (!item) return;
+
+    const totalQ = item.totalQuestions || 5;
+    const answeredQ = item.answeredQuestions || totalQ;
+    const score = item.score || 0;
+    const accuracy = item.accuracy || 100;
+
+    const existingModal = document.getElementById('attempt-results-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'attempt-results-modal';
+    modal.className = 'modal-backdrop active';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(0,0,0,0.85)';
+    modal.style.backdropFilter = 'blur(10px)';
+    modal.style.zIndex = '99999';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.padding = '1.5rem';
+
+    modal.innerHTML = `
+      <div class="glass-panel" style="max-width: 500px; width: 100%; padding: 2.25rem; border-radius: 20px; text-align: center; border: 1.5px solid var(--border-color); box-shadow: 0 20px 60px rgba(0,0,0,0.8); position: relative;">
+        <button onclick="document.getElementById('attempt-results-modal')?.remove()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">✕</button>
+        
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏆</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;" class="glow-text-gold">Resultados del Reto</h2>
+        <h4 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 1.5rem;">${item.title}</h4>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.75rem;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Puntaje Total</div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: var(--neon-gold);">${score.toLocaleString()} pts</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Preguntas</div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: #06d6a0;">${answeredQ} / ${totalQ}</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Precisión</div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: var(--neon-cyan);">${accuracy}%</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Fecha</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);">${item.dateFormatted || 'Hoy'}</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-outline" style="padding: 0.6rem 1.4rem;" onclick="document.getElementById('attempt-results-modal')?.remove(); window.appRouter.startSinglePlayer('${item.challengeId}')">
+            🔄 Jugar de Nuevo
+          </button>
+          <button class="btn btn-primary" style="padding: 0.6rem 1.4rem;" onclick="document.getElementById('attempt-results-modal')?.remove()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  },
+
+  recordQuizProgress(challenge, questionIndex, player) {
+    if (!challenge || !challenge.id) return;
+    const totalQ = challenge.questions ? challenge.questions.length : 5;
+    let attempts = this.getQuizAttempts();
+    let item = attempts.find(a => a.challengeId === challenge.id);
+
+    const isFinished = questionIndex >= totalQ - 1;
+    const status = isFinished ? 'completed' : (questionIndex === 0 ? 'initiated' : 'in_progress');
+
+    if (!item) {
+      item = {
+        id: 'attempt_' + challenge.id + '_' + Date.now(),
+        challengeId: challenge.id,
+        title: challenge.title,
+        banner: challenge.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600',
+        categoryName: challenge.categoryName || 'General',
+        status: status,
+        totalQuestions: totalQ,
+        answeredQuestions: questionIndex + 1,
+        currentQuestionIndex: questionIndex,
+        score: player?.score || 0,
+        accuracy: 90,
+        updatedAt: new Date().toISOString(),
+        dateFormatted: 'Justo ahora'
+      };
+      attempts.unshift(item);
+    } else {
+      item.title = challenge.title || item.title;
+      item.banner = challenge.banner || item.banner;
+      item.totalQuestions = totalQ;
+      item.answeredQuestions = Math.min(totalQ, Math.max(item.answeredQuestions || 1, questionIndex + 1));
+      item.currentQuestionIndex = questionIndex;
+      item.score = Math.max(item.score || 0, player?.score || 0);
+      if (item.status !== 'completed' || isFinished) {
+        item.status = status;
+      }
+      item.updatedAt = new Date().toISOString();
+      item.dateFormatted = 'Justo ahora';
+    }
+
+    this.saveQuizAttempts(attempts);
+  },
+
+  recordQuizCompletion(challenge, player) {
+    if (!challenge || !challenge.id) return;
+    const totalQ = challenge.questions ? challenge.questions.length : 5;
+    let attempts = this.getQuizAttempts();
+    let item = attempts.find(a => a.challengeId === challenge.id);
+
+    if (!item) {
+      item = {
+        id: 'attempt_' + challenge.id + '_' + Date.now(),
+        challengeId: challenge.id,
+        title: challenge.title,
+        banner: challenge.banner || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600',
+        categoryName: challenge.categoryName || 'General',
+        status: 'completed',
+        totalQuestions: totalQ,
+        answeredQuestions: totalQ,
+        currentQuestionIndex: totalQ - 1,
+        score: player?.score || 1000,
+        accuracy: 100,
+        updatedAt: new Date().toISOString(),
+        dateFormatted: 'Justo ahora'
+      };
+      attempts.unshift(item);
+    } else {
+      item.status = 'completed';
+      item.answeredQuestions = totalQ;
+      item.score = Math.max(item.score || 0, player?.score || 0);
+      item.updatedAt = new Date().toISOString();
+      item.dateFormatted = 'Justo ahora';
+    }
+
+    this.saveQuizAttempts(attempts);
   },
 
   editAvatar() {

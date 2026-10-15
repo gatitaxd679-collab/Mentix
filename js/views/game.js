@@ -93,7 +93,7 @@ window.GameView = {
     return this.challenge?.questions?.[actualIdx] || null;
   },
 
-  initSolo(challenge, gameMode) {
+  initSolo(challenge, gameMode, options = {}) {
     this.isSolo = true;
     this.isHost = true;
     let resolved = challenge;
@@ -109,7 +109,7 @@ window.GameView = {
     if (!resolved && window.appState?.challenges?.length > 0) resolved = window.appState.challenges[0];
 
     this.challenge = resolved;
-    this.currentQuestionIndex = 0;
+    this.currentQuestionIndex = (options && typeof options.startIndex === 'number') ? options.startIndex : 0;
     this.generateStudentQuestionOrder();
     this.gameMode = gameMode || 'clasico';
     this.modeConfig = {};
@@ -122,12 +122,12 @@ window.GameView = {
       id: 'solo_player',
       nickname: window.appState.currentUser?.name || 'Retador Solitario',
       avatar: window.appState.currentUser?.avatar || '⚡',
-      score: 0,
-      streak: 0,
-      maxStreak: 0,
-      answersCount: 0,
-      correctCount: 0,
-      answers: []
+      score: (options && options.score) || 0,
+      streak: (options && options.streak) || 0,
+      maxStreak: (options && options.maxStreak) || 0,
+      answersCount: (options && options.answersCount) || this.currentQuestionIndex,
+      correctCount: (options && options.correctCount) || 0,
+      answers: (options && options.answers) || []
     };
 
     this.room = {
@@ -142,6 +142,10 @@ window.GameView = {
     window.realtimeEngine.currentRoom = this.room;
     window.realtimeEngine.localPlayer = soloPlayer;
     window.realtimeEngine.isHost = true;
+
+    if (window.ProfileView && typeof window.ProfileView.recordQuizProgress === 'function') {
+      window.ProfileView.recordQuizProgress(resolved, this.currentQuestionIndex, soloPlayer);
+    }
 
     this.startCountdownIntro();
   },
@@ -3168,11 +3172,17 @@ window.GameView = {
         });
       }
     }
+    if (this.isSolo && window.ProfileView && typeof window.ProfileView.recordQuizCompletion === 'function') {
+      window.ProfileView.recordQuizCompletion(this.challenge || this.room?.challenge, this.room?.players?.[0]);
+    }
     window.appRouter.showPodium(this.room);
   },
 
   nextQuestion() {
     this.currentQuestionIndex++;
+    if (this.isSolo && window.ProfileView && typeof window.ProfileView.recordQuizProgress === 'function') {
+      window.ProfileView.recordQuizProgress(this.challenge, this.currentQuestionIndex, this.room?.players?.[0]);
+    }
     this.renderQuestionScreen();
   }
 };

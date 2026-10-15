@@ -169,6 +169,10 @@ window.PodiumView = {
     window.appState.currentUser.challengesPlayed = (window.appState.currentUser.challengesPlayed || 0) + 1;
     saveGlobalState(window.appState);
 
+    if (window.ProfileView && typeof window.ProfileView.recordQuizCompletion === 'function') {
+      window.ProfileView.recordQuizCompletion(room?.challenge, sorted.find(p => p.id === (window.realtimeEngine?.localPlayer?.id || 'solo_player')));
+    }
+
     container.innerHTML = `
       <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 5rem; text-align: center;">
         
