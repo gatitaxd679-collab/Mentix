@@ -368,6 +368,150 @@ window.ProfileView = {
           })()}
         </div>
 
+        <!-- Sección: Mis Proyectos Didácticos (En Proceso, Vistos/Leídos e Iniciados) - Lila Neón Brillante -->
+        <div class="glass-panel" style="padding: 2rem; margin-bottom: 2.5rem; border: 2.5px solid rgba(192, 132, 252, 0.65); box-shadow: 0 10px 45px rgba(168, 85, 247, 0.32), inset 0 0 30px rgba(192, 132, 252, 0.12); background: rgba(22, 13, 44, 0.78); ${u.isGuest ? 'display: none;' : ''}">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h2 style="font-size: 1.4rem; display: flex; align-items: center; gap: 0.6rem; margin: 0; color: #f5edff; text-shadow: 0 0 16px rgba(192, 132, 252, 0.85), 0 0 32px rgba(168, 85, 247, 0.6); font-weight: 900;">
+                <span>📁</span> Mis Proyectos en Curso
+              </h2>
+              <p style="font-size: 0.85rem; color: #d8b4fe; margin: 0.25rem 0 0; opacity: 0.95;">
+                Proyectos en proceso, proyectos iniciados y proyectos que has visto o leído.
+              </p>
+            </div>
+
+            <!-- Filtros / Pestañas de Estado (Lila Neón) -->
+            ${(() => {
+              const allProjAttempts = this.getProjectAttempts();
+              const currentProjFilter = this.activeProjectFilter || 'all';
+              const counts = {
+                all: allProjAttempts.length,
+                in_progress: allProjAttempts.filter(a => a.status === 'in_progress').length,
+                initiated: allProjAttempts.filter(a => a.status === 'initiated').length,
+                viewed: allProjAttempts.filter(a => a.status === 'viewed').length
+              };
+
+              return `
+                <div style="display: flex; gap: 0.4rem; background: rgba(30, 15, 60, 0.75); padding: 0.35rem 0.45rem; border-radius: 12px; border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 18px rgba(192, 132, 252, 0.3); flex-wrap: wrap;">
+                  <button class="btn btn-sm" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; transition: all 0.2s; ${currentProjFilter === 'all' ? 'background: linear-gradient(135deg, #7c3aed, #c084fc); color: #ffffff; border: none; box-shadow: 0 0 16px rgba(192, 132, 252, 0.7);' : 'background: transparent; color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.25);'}"
+                          onclick="window.ProfileView.setProjectFilter('all')">
+                    📋 Todos (${counts.all})
+                  </button>
+                  <button class="btn btn-sm" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; transition: all 0.2s; ${currentProjFilter === 'in_progress' ? 'background: linear-gradient(135deg, #7c3aed, #c084fc); color: #ffffff; border: none; box-shadow: 0 0 16px rgba(192, 132, 252, 0.7);' : 'background: transparent; color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.25);'}"
+                          onclick="window.ProfileView.setProjectFilter('in_progress')">
+                    ⏳ En Proceso (${counts.in_progress})
+                  </button>
+                  <button class="btn btn-sm" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; transition: all 0.2s; ${currentProjFilter === 'initiated' ? 'background: linear-gradient(135deg, #7c3aed, #c084fc); color: #ffffff; border: none; box-shadow: 0 0 16px rgba(192, 132, 252, 0.7);' : 'background: transparent; color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.25);'}"
+                          onclick="window.ProfileView.setProjectFilter('initiated')">
+                    ⚡ Iniciados (${counts.initiated})
+                  </button>
+                  <button class="btn btn-sm" 
+                          style="padding: 0.35rem 0.75rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; transition: all 0.2s; ${currentProjFilter === 'viewed' ? 'background: linear-gradient(135deg, #7c3aed, #c084fc); color: #ffffff; border: none; box-shadow: 0 0 16px rgba(192, 132, 252, 0.7);' : 'background: transparent; color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.25);'}"
+                          onclick="window.ProfileView.setProjectFilter('viewed')">
+                    👁️ Proyectos Vistos / Leídos (${counts.viewed})
+                  </button>
+                </div>
+              `;
+            })()}
+          </div>
+
+          ${(() => {
+            const allProjAttempts = this.getProjectAttempts();
+            const currentProjFilter = this.activeProjectFilter || 'all';
+            const filteredProj = allProjAttempts.filter(item => {
+              if (currentProjFilter === 'all') return true;
+              return item.status === currentProjFilter;
+            });
+
+            if (filteredProj.length === 0) {
+              return `
+                <div style="text-align: center; padding: 2.5rem 1rem; background: rgba(192, 132, 252, 0.05); border-radius: var(--border-radius-md); border: 1px dashed rgba(192, 132, 252, 0.35);">
+                  <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📂</div>
+                  <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem; color: #f5edff;">No hay proyectos en esta categoría</h3>
+                  <p style="color: #d8b4fe; font-size: 0.85rem; margin-bottom: 1.25rem;">Explora los proyectos educativos de diapositivas, videos o documentos.</p>
+                  <button class="btn" style="background: linear-gradient(135deg, #7c3aed, #c084fc); color: white; padding: 0.6rem 1.4rem; font-weight: 800; border: none; box-shadow: 0 0 18px rgba(192, 132, 252, 0.5);" onclick="window.appRouter.navigate('projects')">
+                    🚀 Explorar Proyectos
+                  </button>
+                </div>
+              `;
+            }
+
+            return `
+              <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                ${filteredProj.map(item => {
+                  const totalP = item.totalParts || 6;
+                  const viewedP = item.viewedParts || (item.status === 'viewed' ? totalP : 1);
+                  const progressPct = Math.min(100, Math.max(12, Math.round((viewedP / totalP) * 100)));
+
+                  let statusBadge = '';
+                  let progressGradient = 'linear-gradient(90deg, #7c3aed, #c084fc, #e9d5ff)';
+                  if (item.status === 'viewed') {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(192, 132, 252, 0.28); color: #f5edff; border: 1.5px solid #c084fc; font-size: 0.72rem; font-weight: 900; padding: 0.2rem 0.6rem; border-radius: 8px; box-shadow: 0 0 14px rgba(192, 132, 252, 0.55); text-transform: uppercase;">👁️ Visto / Leído</span>`;
+                  } else if (item.status === 'in_progress') {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(168, 85, 247, 0.25); color: #d8b4fe; border: 1.5px solid rgba(168, 85, 247, 0.6); font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 8px; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);">⏳ En Proceso</span>`;
+                  } else {
+                    statusBadge = `<span class="badge-tag" style="background: rgba(216, 180, 254, 0.18); color: #e9d5ff; border: 1.5px solid rgba(216, 180, 254, 0.45); font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 8px;">⚡ Iniciado</span>`;
+                  }
+
+                  return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: rgba(26, 16, 52, 0.6); border: 1.5px solid rgba(192, 132, 252, 0.38); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+                      <div style="display: flex; align-items: center; gap: 1rem; min-width: 220px; flex: 1 1 300px;">
+                        <div style="width: 52px; height: 52px; border-radius: 10px; background: url('${item.banner || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800'}') center/cover; flex-shrink: 0; border: 1.5px solid rgba(192, 132, 252, 0.65); box-shadow: 0 0 14px rgba(192, 132, 252, 0.38);"></div>
+                        <div style="flex: 1;">
+                          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                            <h4 style="font-size: 1.05rem; margin: 0; color: #ffffff; font-weight: 800;">${item.title}</h4>
+                            ${statusBadge}
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: #d8b4fe; flex-wrap: wrap;">
+                            <span style="color: #c084fc; font-weight: 800;">${item.categoryName || 'General'}</span>
+                            <span>•</span>
+                            <span>${item.status === 'viewed' ? `Visto y leído completo (${totalP}/${totalP} partes)` : `Progreso de lectura: ${viewedP}/${totalP} partes (${progressPct}%)`}</span>
+                            <span>•</span>
+                            <span style="color: #f5edff;">${item.typeLabel || '📁 Proyecto'}</span>
+                            <span>•</span>
+                            <span>⏱️ ${item.dateFormatted || 'Reciente'}</span>
+                          </div>
+                          <!-- Mini Barra de Progreso en Lila Neón -->
+                          <div style="width: 100%; max-width: 260px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 9999px; margin-top: 0.45rem; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);">
+                            <div style="width: ${progressPct}%; height: 100%; background: ${progressGradient}; border-radius: 9999px; box-shadow: 0 0 12px rgba(192, 132, 252, 0.8);"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        ${item.status === 'viewed' ? `
+                          <button class="btn btn-outline" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; border-color: rgba(192, 132, 252, 0.5); color: #f5edff;" onclick="window.ProfileView.openProject('${item.projectId}', '${item.projectType}')">
+                            📖 Releer / Ver
+                          </button>
+                          <button class="btn" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; border: none; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);" onclick="window.ProjectsView.openProjectLanding('${item.projectId}')">
+                            🚀 Portada
+                          </button>
+                          <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.ProfileView.deleteProjectAttempt('${item.id}')">
+                            🗑️ Quitar
+                          </button>
+                        ` : `
+                          <button class="btn" style="padding: 0.38rem 0.95rem; font-size: 0.82rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed, #c084fc); color: #ffffff; border: none; box-shadow: 0 0 20px rgba(192, 132, 252, 0.65); border-radius: 8px;" onclick="window.ProfileView.openProject('${item.projectId}', '${item.projectType}')">
+                            ▶️ Continuar Proyecto
+                          </button>
+                          <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-color: rgba(192, 132, 252, 0.4); color: #d8b4fe;" onclick="window.ProfileView.restartProjectAttempt('${item.id}')">
+                            🔄 Reiniciar
+                          </button>
+                          <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="window.ProfileView.deleteProjectAttempt('${item.id}')">
+                            🗑️ Descartar
+                          </button>
+                        `}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          })()}
+        </div>
+
       </div>
     `;
   },
@@ -661,6 +805,210 @@ window.ProfileView = {
     }
 
     this.saveQuizAttempts(attempts);
+  },
+
+  activeProjectFilter: 'all',
+
+  getProjectAttempts() {
+    const u = window.appState?.currentUser;
+    const storageKey = `mentix_project_attempts_${u?.id || 'default'}`;
+    let attempts = [];
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) attempts = JSON.parse(raw);
+    } catch (e) {}
+
+    if (!Array.isArray(attempts) || attempts.length === 0) {
+      const allProjects = (window.appState?.challenges || []).filter(c =>
+        c.projectType === 'presentation' || c.projectType === 'video' || c.projectType === 'document' || c.projectType === 'url'
+      );
+      const pool = allProjects.length > 0 ? allProjects : (window.appState?.challenges || []);
+      attempts = [];
+
+      if (pool.length > 0) {
+        // 1. Proyecto Visto / Leído (Completado)
+        const p1 = pool[0];
+        const totalP1 = p1.slides?.length || (p1.sections?.length) || 6;
+        attempts.push({
+          id: 'proj_att_' + p1.id + '_viewed',
+          projectId: p1.id,
+          title: p1.title,
+          banner: p1.banner || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+          categoryName: p1.categoryName || 'General',
+          projectType: p1.projectType || 'presentation',
+          typeLabel: p1.projectType === 'video' ? '🎬 Video Clase' : (p1.projectType === 'document' ? '📄 Documento' : (p1.projectType === 'url' ? '🌐 Enlace Web' : '📊 Diapositivas')),
+          status: 'viewed',
+          totalParts: totalP1,
+          viewedParts: totalP1,
+          updatedAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+          dateFormatted: 'Hace 3 horas'
+        });
+
+        // 2. Proyecto En Proceso
+        const p2 = pool[1] || pool[0];
+        const totalP2 = p2.slides?.length || (p2.sections?.length) || 8;
+        const viewedP2 = Math.max(1, Math.floor(totalP2 / 2));
+        attempts.push({
+          id: 'proj_att_' + p2.id + '_prog',
+          projectId: p2.id,
+          title: p2.title,
+          banner: p2.banner || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+          categoryName: p2.categoryName || 'General',
+          projectType: p2.projectType || 'video',
+          typeLabel: p2.projectType === 'video' ? '🎬 Video Clase' : (p2.projectType === 'document' ? '📄 Documento' : (p2.projectType === 'url' ? '🌐 Enlace Web' : '📊 Diapositivas')),
+          status: 'in_progress',
+          totalParts: totalP2,
+          viewedParts: viewedP2,
+          updatedAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+          dateFormatted: 'Hace 8 horas'
+        });
+
+        // 3. Proyecto Iniciado sin terminar
+        const p3 = pool[2] || pool[0];
+        const totalP3 = p3.slides?.length || (p3.sections?.length) || 5;
+        attempts.push({
+          id: 'proj_att_' + p3.id + '_init',
+          projectId: p3.id,
+          title: (p3.id === p1.id ? 'Guía Inicial: ' : '') + p3.title,
+          banner: p3.banner || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800',
+          categoryName: p3.categoryName || 'General',
+          projectType: p3.projectType || 'document',
+          typeLabel: p3.projectType === 'video' ? '🎬 Video Clase' : (p3.projectType === 'document' ? '📄 Documento' : (p3.projectType === 'url' ? '🌐 Enlace Web' : '📊 Diapositivas')),
+          status: 'initiated',
+          totalParts: totalP3,
+          viewedParts: 1,
+          updatedAt: new Date(Date.now() - 3600000 * 28).toISOString(),
+          dateFormatted: 'Ayer'
+        });
+
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(attempts));
+        } catch (e) {}
+      }
+    }
+
+    return attempts;
+  },
+
+  saveProjectAttempts(attempts) {
+    const u = window.appState?.currentUser;
+    const storageKey = `mentix_project_attempts_${u?.id || 'default'}`;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(attempts));
+    } catch (e) {}
+  },
+
+  setProjectFilter(filter) {
+    this.activeProjectFilter = filter;
+    this.render();
+  },
+
+  openProject(projectId, projectType) {
+    if (projectType === 'video') {
+      window.appRouter.openVideo(projectId);
+    } else if (projectType === 'document') {
+      window.appRouter.openDocument(projectId);
+    } else if (projectType === 'url') {
+      window.appRouter.openUrl(projectId);
+    } else {
+      window.appRouter.openPresentation(projectId);
+    }
+  },
+
+  restartProjectAttempt(attemptId) {
+    const attempts = this.getProjectAttempts();
+    const item = attempts.find(a => a.id === attemptId);
+    if (!item) return;
+
+    item.viewedParts = 1;
+    item.status = 'initiated';
+    item.updatedAt = new Date().toISOString();
+    item.dateFormatted = 'Justo ahora';
+    this.saveProjectAttempts(attempts);
+
+    this.openProject(item.projectId, item.projectType);
+  },
+
+  deleteProjectAttempt(attemptId) {
+    const ok = confirm('🗑️ ¿Deseas quitar este proyecto de tu lista de actividades?');
+    if (!ok) return;
+
+    let attempts = this.getProjectAttempts();
+    attempts = attempts.filter(a => a.id !== attemptId);
+    this.saveProjectAttempts(attempts);
+    this.render();
+  },
+
+  recordProjectProgress(project, currentPart, totalParts) {
+    if (!project || !project.id) return;
+    const totalP = totalParts || project.slides?.length || (project.sections?.length) || 5;
+    let attempts = this.getProjectAttempts();
+    let item = attempts.find(a => a.projectId === project.id);
+
+    const isFinished = currentPart >= totalP - 1;
+    const status = isFinished ? 'viewed' : (currentPart <= 1 ? 'initiated' : 'in_progress');
+
+    if (!item) {
+      item = {
+        id: 'proj_att_' + project.id + '_' + Date.now(),
+        projectId: project.id,
+        title: project.title,
+        banner: project.banner || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+        categoryName: project.categoryName || 'General',
+        projectType: project.projectType || 'presentation',
+        typeLabel: project.projectType === 'video' ? '🎬 Video Clase' : (project.projectType === 'document' ? '📄 Documento' : (project.projectType === 'url' ? '🌐 Enlace Web' : '📊 Diapositivas')),
+        status: status,
+        totalParts: totalP,
+        viewedParts: currentPart + 1,
+        updatedAt: new Date().toISOString(),
+        dateFormatted: 'Justo ahora'
+      };
+      attempts.unshift(item);
+    } else {
+      item.title = project.title || item.title;
+      item.banner = project.banner || item.banner;
+      item.totalParts = totalP;
+      item.viewedParts = Math.min(totalP, Math.max(item.viewedParts || 1, currentPart + 1));
+      if (item.status !== 'viewed' || isFinished) {
+        item.status = status;
+      }
+      item.updatedAt = new Date().toISOString();
+      item.dateFormatted = 'Justo ahora';
+    }
+
+    this.saveProjectAttempts(attempts);
+  },
+
+  recordProjectViewed(project) {
+    if (!project || !project.id) return;
+    const totalP = project.slides?.length || (project.sections?.length) || 5;
+    let attempts = this.getProjectAttempts();
+    let item = attempts.find(a => a.projectId === project.id);
+
+    if (!item) {
+      item = {
+        id: 'proj_att_' + project.id + '_' + Date.now(),
+        projectId: project.id,
+        title: project.title,
+        banner: project.banner || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+        categoryName: project.categoryName || 'General',
+        projectType: project.projectType || 'presentation',
+        typeLabel: project.projectType === 'video' ? '🎬 Video Clase' : (project.projectType === 'document' ? '📄 Documento' : (project.projectType === 'url' ? '🌐 Enlace Web' : '📊 Diapositivas')),
+        status: 'viewed',
+        totalParts: totalP,
+        viewedParts: totalP,
+        updatedAt: new Date().toISOString(),
+        dateFormatted: 'Justo ahora'
+      };
+      attempts.unshift(item);
+    } else {
+      item.status = 'viewed';
+      item.viewedParts = totalP;
+      item.updatedAt = new Date().toISOString();
+      item.dateFormatted = 'Justo ahora';
+    }
+
+    this.saveProjectAttempts(attempts);
   },
 
   editAvatar() {
