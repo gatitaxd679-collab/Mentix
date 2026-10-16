@@ -9,20 +9,26 @@ class SoundEngine {
     this.isMuted = false;
     this.musicEnabled = false;
     this.musicInterval = null;
-    this.initContext();
+    // No inicializar audio context sincrónicamente para cumplir con políticas móviles de ahorro de batería y permisos
   }
 
   initContext() {
     if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+      } catch (err) {
+        console.warn('AudioContext no permitido o no disponible:', err);
+      }
     }
   }
 
   ensureContext() {
     this.initContext();
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      try {
+        this.ctx.resume().catch(() => {});
+      } catch (e) {}
     }
   }
 

@@ -1383,13 +1383,19 @@ class AppRouter {
           }
         });
 
-        window.appState.challenges = Array.from(map.values());
-        saveGlobalState(window.appState);
+        const merged = Array.from(map.values());
+        const beforeSig = (local || []).map(x => x.id + ':' + (x.updatedAt || '')).join('|');
+        const afterSig = (merged || []).map(x => x.id + ':' + (x.updatedAt || '')).join('|');
 
-        if (this.currentView === 'home' && window.HomeView) {
-          window.HomeView.render();
-        } else if (this.currentView === 'projects' && window.ProjectsView) {
-          window.ProjectsView.render();
+        if (beforeSig !== afterSig) {
+          window.appState.challenges = merged;
+          saveGlobalState(window.appState);
+
+          if (this.currentView === 'home' && window.HomeView) {
+            window.HomeView.render();
+          } else if (this.currentView === 'projects' && window.ProjectsView) {
+            window.ProjectsView.render();
+          }
         }
       }
     } catch (e) {

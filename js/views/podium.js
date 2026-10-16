@@ -340,14 +340,16 @@ window.PodiumView = {
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
 
+    canvas.style.display = 'block';
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     const particles = [];
     const colors = ['#00f5d4', '#f72585', '#7209b7', '#ffb703', '#06d6a0', '#ffffff'];
+    const count = window.innerWidth < 768 ? 50 : 120;
 
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height - canvas.height,
@@ -361,7 +363,7 @@ window.PodiumView = {
     }
 
     let frames = 0;
-    const maxFrames = 180;
+    const maxFrames = window.innerWidth < 768 ? 120 : 180;
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -383,6 +385,7 @@ window.PodiumView = {
         requestAnimationFrame(animate);
       } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.style.display = 'none';
       }
     }
 

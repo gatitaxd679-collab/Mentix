@@ -1117,7 +1117,7 @@ window.LobbyView = {
   // ==========================================
   renderJoinPinStep(container) {
     container.innerHTML = `
-      <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; box-sizing: border-box; background: url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative;">
+      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-y: auto;">
         
         <!-- Overlay sutil para legibilidad perfecta conservando todo el brillo y geometrías -->
         <div style="position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none;"></div>
@@ -1289,7 +1289,7 @@ window.LobbyView = {
     const randomAvatar = '🦊'; // Clásico zorro Kahoot de referencia
 
     container.innerHTML = `
-      <div style="min-height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; box-sizing: border-box; background: url('assets/mentix_join_bg.jpg') center center / cover no-repeat fixed; position: relative;">
+      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-y: auto;">
         <!-- Overlay sutil para legibilidad perfecta conservando todo el brillo y geometrías -->
         <div style="position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none;"></div>
 

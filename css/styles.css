@@ -623,7 +623,7 @@ h1, h2, h3, h4, h5, h6 {
   animation: float-crown 2s ease-in-out infinite;
 }
 
-/* Confeti Canvas */
+/* Confeti Canvas (Oculto por defecto para no agotar VRAM móvil) */
 #confetti-canvas {
   position: fixed;
   inset: 0;
@@ -631,6 +631,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 100vh;
   pointer-events: none;
   z-index: 999;
+  display: none;
 }
 
 /* Animaciones */
@@ -4760,4 +4761,95 @@ body.light-theme .student-feedback-card.is-wrong {
   background: linear-gradient(160deg, rgba(6, 22, 66, 0.85) 0%, rgba(4, 14, 44, 0.92) 100%), url('../assets/mentix_stage_bg.svg') center center / cover no-repeat !important;
   border: 2px solid #00ff88 !important;
   box-shadow: 0 0 38px rgba(0, 255, 136, 0.28), 0 18px 45px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* ==========================================================================
+   📱 OPTIMIZACIÓN EXTREMA PARA DISPOSITIVOS MÓVILES (ANDROID, IOS, TABLETS)
+   Evita pantallas negras, congelamiento, caídas de GPU y retraso táctil
+   ========================================================================== */
+
+/* Botones y elementos táctiles: Cero retraso en toque (tap latency = 0ms) */
+button, input, select, textarea, a, .btn, .challenge-card, .game-answer-btn {
+  touch-action: manipulation;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  /* 1. Eliminar repintados masivos por background-attachment: fixed en móviles */
+  body, 
+  #view-game.active,
+  #view-leaderboard.active,
+  #view-podium.active,
+  .waiting-fullscreen-view,
+  .gamified-lobby-container,
+  [style*="fixed"] {
+    background-attachment: scroll !important;
+  }
+
+  /* 2. Altura dinámica real adaptada a barra de direcciones móvil (evita saltos y bandas negras) */
+  html, body {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #app-viewport {
+    min-height: 100dvh;
+  }
+
+  /* 3. Aliviar carga del compositor GPU para evitar 'Black Screen' por GPU context loss */
+  .glass-panel,
+  .glass-nav,
+  .challenge-card,
+  .modal-content,
+  .waiting-avatar-halo,
+  .entity-badge-box {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    background-color: rgba(15, 23, 42, 0.95) !important; /* Fallback opaco seguro */
+  }
+
+  /* 4. Aceleración limpia por capas 3D sin memory leaks */
+  .challenge-card,
+  .btn,
+  .game-answer-btn {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* 5. Ajustes de espaciado y navegación compacta en pantallas pequeñas */
+  .glass-nav div {
+    padding: 0.6rem 0.85rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .brand-title-text {
+    font-size: 1.35rem !important;
+  }
+
+  nav button.btn {
+    padding: 0.4rem 0.65rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* Grid de respuestas en juego para pantallas móviles */
+  .game-answer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .game-answer-btn {
+    min-height: 65px !important;
+    padding: 0.85rem 1rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Contenedores de sala de espera y PIN: scroll fluido */
+  .gamified-lobby-container,
+  .waiting-fullscreen-view {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem 0.85rem 2rem !important;
+  }
 }

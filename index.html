@@ -2,9 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta name="mentix-version" content="2026.10.16.2" />
+  <meta name="mentix-version" content="2026.10.16.3" />
   <script>
     // Si la app fue abierta como archivo local (file://), verificar si el servidor local está activo y redirigir automáticamente
     if (window.location.protocol === 'file:') {
@@ -16,6 +20,21 @@
         })
         .catch(function() {});
     }
+
+    // 🛡️ Watchdog Móvil Mentix: Evita bloqueos y pantallas negras en cualquier Android o iOS
+    window.addEventListener('error', function(e) {
+      console.warn('[Mentix Mobile Watchdog] Excepción recuperada:', e && e.message);
+      var vp = document.getElementById('app-viewport');
+      var active = vp ? vp.querySelector('.app-view.active') : null;
+      if (active && (!active.innerHTML || active.innerHTML.trim() === '')) {
+        if (window.HomeView && typeof window.HomeView.render === 'function') {
+          try { window.HomeView.render(); } catch(err) {}
+        }
+      }
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      console.warn('[Mentix Mobile Watchdog] Promesa neutralizada:', e && e.reason);
+    });
   </script>
   <title>🧠 MENTIX — Plataforma de Juegos y Cuestionarios en Vivo</title>
   
@@ -26,18 +45,13 @@
   <link href="https://fonts.cdnfonts.com/css/gagalin" rel="stylesheet">
   
   <!-- Estilos propios de MENTIX -->
-  <link rel="stylesheet" href="css/styles.css?v=20261013a" />
-  <link rel="stylesheet" href="css/project-landing.css?v=20261013a" />
+  <link rel="stylesheet" href="css/styles.css?v=20261016_mobile" />
+  <link rel="stylesheet" href="css/project-landing.css?v=20261016_mobile" />
 
-  <!-- Supabase JS Client v2, PeerJS & MQTT.js para conexión Multidispositivo en Tiempo Real -->
+  <!-- Supabase JS Client v2, PeerJS & MQTT.js para conexión Multidispositivo en Tiempo Real (CDN Ultra Rápido) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-  <script>
-    if (!window.mqtt) {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.4/dist/mqtt.min.js"><\/script>');
-    }
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.4/dist/mqtt.min.js"></script>
 </head>
 <body>
 
@@ -62,8 +76,8 @@
     };
   </script>
 
-  <!-- Canvas de Confeti Explosivo -->
-  <canvas id="confetti-canvas"></canvas>
+  <!-- Canvas de Confeti Explosivo (Oculto por defecto para liberar memoria GPU móvil) -->
+  <canvas id="confetti-canvas" style="display: none;"></canvas>
 
   <!-- Barra de Navegación Glassmorphism -->
   <header class="glass-nav" id="main-navbar">
@@ -943,16 +957,18 @@
     </div>
   </div>
 
-  <!-- PDF.js para soporte de extracción de documentos PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PDF.js para soporte de extracción de documentos PDF (Carga diferida para agilizar móviles) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
+    window.addEventListener('load', function() {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    });
   </script>
 
-  <!-- SheetJS para soporte nativo y completo de hojas de cálculo Excel (.xlsx, .xls) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SheetJS para soporte nativo y completo de hojas de cálculo Excel (.xlsx, .xls) (Carga diferida) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Scripts en orden de dependencias -->
   <script src="js/qrcode.min.js?v=20261016_utf8"></script>
