@@ -1037,7 +1037,7 @@ class AppRouter {
       this.renderCategoryModalList();
       modal.classList.add('active');
     }
-  },
+  }
 
   renderCategoryModalList() {
     const listContainer = document.getElementById('cat-existing-list');
