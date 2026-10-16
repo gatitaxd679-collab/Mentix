@@ -40,6 +40,27 @@
 </head>
 <body>
 
+  <script>
+    window.safeNav = function(view, params) {
+      if (window.appRouter && typeof window.appRouter.navigate === 'function') {
+        window.appRouter.navigate(view, params);
+      } else {
+        window.location.hash = '#' + view;
+        window.location.reload();
+      }
+    };
+    window.safeSound = function() {
+      if (window.appRouter && typeof window.appRouter.toggleSound === 'function') {
+        window.appRouter.toggleSound();
+      }
+    };
+    window.safeTheme = function() {
+      if (window.appRouter && typeof window.appRouter.toggleTheme === 'function') {
+        window.appRouter.toggleTheme();
+      }
+    };
+  </script>
+
   <!-- Canvas de Confeti Explosivo -->
   <canvas id="confetti-canvas"></canvas>
 
@@ -48,7 +69,7 @@
     <div style="max-width: 1250px; margin: 0 auto; padding: 0.85rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
       
       <!-- Logotipo de Marca Propia MENTIX -->
-      <a href="javascript:void(0)" onclick="window.appRouter.navigate('home')" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+      <a href="javascript:void(0)" onclick="window.safeNav('home')" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
         <span style="font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(0,245,212,0.7));">🧠</span>
         <span class="brand-title-text" style="font-size: 1.6rem; font-weight: 900; letter-spacing: -0.03em; color: var(--text-primary);">
           MEN<span style="color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0,245,212,0.6);">TIX</span>
@@ -57,31 +78,31 @@
 
       <!-- Enlaces Centrales de Navegación -->
       <nav style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-        <button class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem;" onclick="window.appRouter.navigate('home')">
+        <button class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem;" onclick="window.safeNav('home')">
           <span>🏠</span> Inicio
         </button>
-        <button class="btn btn-primary" style="padding: 0.45rem 0.95rem; font-size: 0.9rem; font-weight: 800;" onclick="window.appRouter.navigate('lobby-join')">
+        <button class="btn btn-primary" style="padding: 0.45rem 0.95rem; font-size: 0.9rem; font-weight: 800;" onclick="window.safeNav('lobby-join')">
           <span>🎮</span> Unirse (PIN)
         </button>
-        <button class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem;" onclick="window.appRouter.navigate('projects')">
+        <button class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem;" onclick="window.safeNav('projects')">
           <span>📁</span> Proyectos
         </button>
 
         <!-- Enlaces Condicionales para Roles Docente y Administrador -->
-        <button id="nav-teacher-link" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem; display: none;" onclick="window.appRouter.navigate('teacher')">
+        <button id="nav-teacher-link" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem; display: none;" onclick="window.safeNav('teacher')">
           <span>👨‍🏫</span> Panel Profe
         </button>
-        <button id="nav-admin-link" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem; display: none; border-color: var(--neon-magenta);" onclick="window.appRouter.navigate('admin')">
+        <button id="nav-admin-link" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.9rem; display: none; border-color: var(--neon-magenta);" onclick="window.safeNav('admin')">
           <span>🛡️</span> Admin
         </button>
       </nav>
 
       <!-- Controles de Audio, Tema y Usuario -->
       <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <button id="sound-toggle-btn" class="btn btn-outline btn-icon" title="Alternar Sonidos de Juego" onclick="window.appRouter.toggleSound()">
+        <button id="sound-toggle-btn" class="btn btn-outline btn-icon" title="Alternar Sonidos de Juego" onclick="window.safeSound()">
           🔊
         </button>
-        <button id="theme-toggle-btn" class="btn btn-outline btn-icon" title="Modo Oscuro / Claro" onclick="window.appRouter.toggleTheme()">
+        <button id="theme-toggle-btn" class="btn btn-outline btn-icon" title="Modo Oscuro / Claro" onclick="window.safeTheme()">
           🌙
         </button>
 
