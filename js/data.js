@@ -272,17 +272,44 @@ function loadInitialState() {
       if (c.id === 'reto_sample_cloud' && (!c.questions || c.questions.length === 0)) {
         return { ...c, questions: DEFAULT_CHALLENGES[0].questions };
       }
+      if (c.category === 'fhjr' || (c.categoryName && c.categoryName.toLowerCase().trim() === 'fhjr')) {
+        return { ...c, category: 'cultura', categoryName: 'Cultura General' };
+      }
       return c;
     });
   }
   localStorage.setItem('te_reto_challenges', JSON.stringify(challenges));
+
+  // Cargar categorías asegurando SIEMPRE las categorías por defecto completas
+  const catMap = new Map();
+  DEFAULT_CATEGORIES.forEach(cat => {
+    if (cat && cat.id) catMap.set(cat.id, cat);
+  });
+
+  if (storedCategories) {
+    try {
+      const parsedCats = JSON.parse(storedCategories);
+      if (Array.isArray(parsedCats)) {
+        parsedCats.forEach(cat => {
+          if (cat && cat.id && cat.id !== 'fhjr' && cat.name?.toLowerCase().trim() !== 'fhjr') {
+            catMap.set(cat.id, { ...catMap.get(cat.id), ...cat });
+          }
+        });
+      }
+    } catch (e) {}
+  }
+
+  // Eliminar definitivamente la categoría corrupta/temporal 'fhjr'
+  catMap.delete('fhjr');
+  const categories = Array.from(catMap.values());
+  localStorage.setItem('te_reto_categories', JSON.stringify(categories));
 
   return {
     challenges: challenges,
     users: storedUsers ? JSON.parse(storedUsers) : DEFAULT_USERS,
     currentUser: storedCurrentUser ? JSON.parse(storedCurrentUser) : DEFAULT_USERS[0],
     groups: groups,
-    categories: storedCategories ? JSON.parse(storedCategories) : DEFAULT_CATEGORIES
+    categories: categories
   };
 }
 

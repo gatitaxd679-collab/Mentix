@@ -1033,8 +1033,77 @@ class AppRouter {
 
   openCategoryModal() {
     const modal = document.getElementById('category-modal');
-    if (modal) modal.classList.add('active');
-  }
+    if (modal) {
+      this.renderCategoryModalList();
+      modal.classList.add('active');
+    }
+  },
+
+  renderCategoryModalList() {
+    const listContainer = document.getElementById('cat-existing-list');
+    if (!listContainer) return;
+    const cats = (window.appState.categories || []).filter(c => c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr');
+    if (cats.length === 0) {
+      listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">No hay categorías registradas.</p>';
+      return;
+    }
+    listContainer.innerHTML = cats.map(c => `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+          <span>${c.icon || '📁'}</span>
+          <span style="font-weight: 700; color: ${c.color || 'white'};">${c.name}</span>
+        </div>
+        <button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-color: rgba(239, 68, 68, 0.5); color: #f87171;" onclick="window.appRouter.deleteCategory('${c.id}')" title="Eliminar categoría">
+          🗑️
+        </button>
+      </div>
+    `).join('');
+  },
+
+  async deleteCategory(categoryId) {
+    if (!categoryId) return;
+    const cat = (window.appState.categories || []).find(c => c.id === categoryId);
+    const catName = cat ? cat.name : categoryId;
+    if (!confirm(`🗑️ ¿Estás seguro de que deseas eliminar la categoría "${catName}"?`)) return;
+
+    // 1. Filtrar categoría localmente asegurando que DEFAULT_CATEGORIES sigan existiendo
+    window.appState.categories = (window.appState.categories || []).filter(c => c.id !== categoryId && c.id !== 'fhjr');
+    if (window.appState.categories.length === 0) {
+      window.appState.categories = [...DEFAULT_CATEGORIES];
+    }
+    saveGlobalState(window.appState);
+
+    // 2. Reasignar cualquier reto que tuviera esta categoría
+    if (Array.isArray(window.appState.challenges)) {
+      window.appState.challenges.forEach(ch => {
+        if (ch.category === categoryId) {
+          ch.category = 'cultura';
+          ch.categoryName = 'Cultura General';
+        }
+      });
+      saveGlobalState(window.appState);
+    }
+
+    // 3. Actualizar la nube pública
+    const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
+    try {
+      await fetch(cloudCatUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'mentix_global_categories_v1',
+          data: { categories: window.appState.categories, updatedAt: new Date().toISOString() }
+        })
+      });
+    } catch (e) {
+      console.warn('Error eliminando categoría en nube:', e);
+    }
+
+    this.renderCategoryModalList();
+    if (window.HomeView && this.currentView === 'home') window.HomeView.render();
+    if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
+    if (window.soundEngine) window.soundEngine.playTrash();
+  },
 
   async handleCreateCategory(e) {
     e.preventDefault();
@@ -1056,22 +1125,29 @@ class AppRouter {
       count: 0
     };
 
-    // 1. Guardar inmediatamente de forma local para respuesta instantánea
-    const existingIndex = window.appState.categories.findIndex(c => c.id === newCat.id);
-    if (existingIndex >= 0) {
-      window.appState.categories[existingIndex] = { ...window.appState.categories[existingIndex], ...newCat };
-    } else {
-      window.appState.categories.push(newCat);
-    }
+    // 1. Conservar SIEMPRE DEFAULT_CATEGORIES y todas las categorías existentes sin borrar ninguna
+    const catMap = new Map();
+    (DEFAULT_CATEGORIES || []).forEach(c => {
+      if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') catMap.set(c.id, c);
+    });
+    (window.appState.categories || []).forEach(c => {
+      if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') catMap.set(c.id, c);
+    });
+    catMap.set(newCat.id, newCat);
+    catMap.delete('fhjr');
+
+    const mergedCategories = Array.from(catMap.values());
+    window.appState.categories = mergedCategories;
     saveGlobalState(window.appState);
+
     this.closeModal('category-modal');
     if (nameInput) nameInput.value = '';
 
-    // Refrescar vistas locales activas
+    // Refrescar vistas locales activas inmediatamente
     if (window.HomeView && this.currentView === 'home') window.HomeView.render();
     if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
 
-    // 2. Guardar en la nube pública para que todos los usuarios en otros dispositivos la vean
+    // 2. Guardar en la nube pública uniendo todas las categorías para nunca perder ninguna
     const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
     try {
       const getRes = await fetch(cloudCatUrl);
@@ -1080,21 +1156,32 @@ class AppRouter {
         const json = await getRes.json();
         cloudCats = json.data?.categories || [];
       }
-      const existingIdx = cloudCats.findIndex(c => c.id === newCat.id);
-      if (existingIdx >= 0) {
-        cloudCats[existingIdx] = { ...cloudCats[existingIdx], ...newCat };
-      } else {
-        cloudCats.push(newCat);
-      }
+
+      const cloudMap = new Map();
+      (DEFAULT_CATEGORIES || []).forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
+      });
+      cloudCats.forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
+      });
+      mergedCategories.forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
+      });
+      cloudMap.set(newCat.id, newCat);
+      cloudMap.delete('fhjr');
+
+      const finalCats = Array.from(cloudMap.values());
+
       await fetch(cloudCatUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'mentix_global_categories_v1',
-          data: { categories: cloudCats, updatedAt: new Date().toISOString() }
+          data: { categories: finalCats, updatedAt: new Date().toISOString() }
         })
       });
-      window.appState.categories = cloudCats;
+
+      window.appState.categories = finalCats;
       saveGlobalState(window.appState);
       if (window.HomeView && this.currentView === 'home') window.HomeView.render();
       if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
@@ -1103,8 +1190,8 @@ class AppRouter {
     }
 
     if (window.soundEngine) window.soundEngine.playCorrect();
-    alert(`✅ Categoría "${name}" guardada y disponible para todos los usuarios.`);
-  }
+    alert(`✅ Categoría "${name}" agregada con éxito conservando todas las demás categorías.`);
+  },
 
   async syncCategoriesWithCloud() {
     const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
@@ -1125,20 +1212,46 @@ class AppRouter {
         } catch(e) {}
       }
 
+      // SIEMPRE garantizar las DEFAULT_CATEGORIES completas como base inmutable
+      const map = new Map();
+      (DEFAULT_CATEGORIES || []).forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+      });
+      (window.appState.categories || []).forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+      });
+
       if (Array.isArray(cloudCategories) && cloudCategories.length > 0) {
-        const local = window.appState.categories || [];
-        const map = new Map();
-        local.forEach(c => { if (c && c.id) map.set(c.id, c); });
-        cloudCategories.forEach(c => { if (c && c.id) map.set(c.id, c); });
+        cloudCategories.forEach(c => {
+          if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+        });
+      }
 
-        window.appState.categories = Array.from(map.values());
-        saveGlobalState(window.appState);
+      // Descartar explícitamente 'fhjr'
+      map.delete('fhjr');
 
-        if (this.currentView === 'home' && window.HomeView) {
-          window.HomeView.render();
-        } else if (this.currentView === 'projects' && window.ProjectsView) {
-          window.ProjectsView.render();
-        }
+      const allMerged = Array.from(map.values());
+      window.appState.categories = allMerged;
+      saveGlobalState(window.appState);
+
+      // Si la nube tenía 'fhjr' o le faltaban las categorías por defecto, sincronizarla con la lista limpia
+      if (Array.isArray(cloudCategories) && (cloudCategories.some(c => c.id === 'fhjr') || cloudCategories.length < DEFAULT_CATEGORIES.length)) {
+        try {
+          await fetch(cloudCatUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'mentix_global_categories_v1',
+              data: { categories: allMerged, updatedAt: new Date().toISOString() }
+            })
+          });
+        } catch(e) {}
+      }
+
+      if (this.currentView === 'home' && window.HomeView) {
+        window.HomeView.render();
+      } else if (this.currentView === 'projects' && window.ProjectsView) {
+        window.ProjectsView.render();
       }
     } catch (e) {
       console.warn('Error sincronizando categorías globales:', e);
