@@ -272,7 +272,9 @@ function loadInitialState() {
       if (c.id === 'reto_sample_cloud' && (!c.questions || c.questions.length === 0)) {
         return { ...c, questions: DEFAULT_CHALLENGES[0].questions };
       }
-      if (c.category === 'fhjr' || (c.categoryName && c.categoryName.toLowerCase().trim() === 'fhjr')) {
+      const catIdLower = (c.category || '').toLowerCase().trim();
+      const catNameLower = (c.categoryName || '').toLowerCase().trim();
+      if (['fhjr', 'kj'].includes(catIdLower) || ['fhjr', 'kj'].includes(catNameLower)) {
         return { ...c, category: 'cultura', categoryName: 'Cultura General' };
       }
       return c;
@@ -280,10 +282,18 @@ function loadInitialState() {
   }
   localStorage.setItem('te_reto_challenges', JSON.stringify(challenges));
 
+  const BLOCKED_CATS = ['fhjr', 'kj'];
+  const isBlockedCat = (cat) => {
+    if (!cat) return true;
+    const cid = String(cat.id || '').toLowerCase().trim();
+    const cname = String(cat.name || '').toLowerCase().trim();
+    return BLOCKED_CATS.includes(cid) || BLOCKED_CATS.includes(cname);
+  };
+
   // Cargar categorías asegurando SIEMPRE las categorías por defecto completas
   const catMap = new Map();
   DEFAULT_CATEGORIES.forEach(cat => {
-    if (cat && cat.id) catMap.set(cat.id, cat);
+    if (cat && cat.id && !isBlockedCat(cat)) catMap.set(cat.id, cat);
   });
 
   if (storedCategories) {
@@ -291,7 +301,7 @@ function loadInitialState() {
       const parsedCats = JSON.parse(storedCategories);
       if (Array.isArray(parsedCats)) {
         parsedCats.forEach(cat => {
-          if (cat && cat.id && cat.id !== 'fhjr' && cat.name?.toLowerCase().trim() !== 'fhjr') {
+          if (cat && cat.id && !isBlockedCat(cat)) {
             catMap.set(cat.id, { ...catMap.get(cat.id), ...cat });
           }
         });
@@ -299,9 +309,9 @@ function loadInitialState() {
     } catch (e) {}
   }
 
-  // Eliminar definitivamente la categoría corrupta/temporal 'fhjr'
-  catMap.delete('fhjr');
-  const categories = Array.from(catMap.values());
+  // Eliminar definitivamente las categorías de prueba 'fhjr' y 'kj'
+  BLOCKED_CATS.forEach(b => catMap.delete(b));
+  const categories = Array.from(catMap.values()).filter(c => !isBlockedCat(c));
   localStorage.setItem('te_reto_categories', JSON.stringify(categories));
 
   return {
@@ -323,7 +333,16 @@ function saveGlobalState(state) {
     if (state.users) localStorage.setItem('te_reto_users', JSON.stringify(state.users));
     if (state.currentUser) localStorage.setItem('te_reto_current_user', JSON.stringify(state.currentUser));
     if (state.groups) localStorage.setItem('te_reto_groups', JSON.stringify(state.groups));
-    if (state.categories) localStorage.setItem('te_reto_categories', JSON.stringify(state.categories));
+    if (state.categories) {
+      const cleanCats = state.categories.filter(c => {
+        if (!c || !c.id) return false;
+        const cid = String(c.id).toLowerCase().trim();
+        const cname = String(c.name || '').toLowerCase().trim();
+        return !['fhjr', 'kj'].includes(cid) && !['fhjr', 'kj'].includes(cname);
+      });
+      state.categories = cleanCats;
+      localStorage.setItem('te_reto_categories', JSON.stringify(cleanCats));
+    }
   } catch (e) {
     console.warn('Error guardando estado secundario:', e);
   }

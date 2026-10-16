@@ -27,21 +27,29 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Helper para garantizar que DEFAULT_CATEGORIES siempre existan y 'fhjr' sea descartado
+  // Helper para garantizar que DEFAULT_CATEGORIES siempre existan y 'fhjr' / 'kj' sean descartadas
+  const BLOCKED_CATS = ['fhjr', 'kj'];
+  const isBlocked = (c) => {
+    if (!c || !c.id) return true;
+    const cid = String(c.id).toLowerCase().trim();
+    const cname = String(c.name || '').toLowerCase().trim();
+    return BLOCKED_CATS.includes(cid) || BLOCKED_CATS.includes(cname);
+  };
+
   const mergeAndSanitize = (cats) => {
     const map = new Map();
     DEFAULT_CATEGORIES.forEach(c => {
-      if (c && c.id) map.set(c.id, c);
+      if (c && c.id && !isBlocked(c)) map.set(c.id, c);
     });
     if (Array.isArray(cats)) {
       cats.forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') {
+        if (c && c.id && !isBlocked(c)) {
           map.set(c.id, { ...map.get(c.id), ...c });
         }
       });
     }
-    map.delete('fhjr');
-    return Array.from(map.values());
+    BLOCKED_CATS.forEach(b => map.delete(b));
+    return Array.from(map.values()).filter(c => !isBlocked(c));
   };
 
   // GET: Obtener todas las categorías públicas compartidas
@@ -109,11 +117,13 @@ export default async function handler(req, res) {
       };
 
       const sanitized = mergeAndSanitize(currentCategories);
-      const existingIndex = sanitized.findIndex(c => c.id === preparedCat.id);
-      if (existingIndex >= 0) {
-        sanitized[existingIndex] = { ...sanitized[existingIndex], ...preparedCat };
-      } else {
-        sanitized.push(preparedCat);
+      if (!isBlocked(preparedCat)) {
+        const existingIndex = sanitized.findIndex(c => c.id === preparedCat.id);
+        if (existingIndex >= 0) {
+          sanitized[existingIndex] = { ...sanitized[existingIndex], ...preparedCat };
+        } else {
+          sanitized.push(preparedCat);
+        }
       }
 
       const updatedBuffer = Buffer.from(JSON.stringify(sanitized, null, 2), 'utf8').toString('base64');
@@ -173,7 +183,7 @@ export default async function handler(req, res) {
         currentCategories = JSON.parse(contentStr);
       }
 
-      const filtered = currentCategories.filter(c => c && c.id !== catId && c.id !== 'fhjr');
+      const filtered = currentCategories.filter(c => c && c.id !== catId && !isBlocked(c));
       const updatedBuffer = Buffer.from(JSON.stringify(filtered, null, 2), 'utf8').toString('base64');
 
       const putPayload = {

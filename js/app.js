@@ -1042,7 +1042,13 @@ class AppRouter {
   renderCategoryModalList() {
     const listContainer = document.getElementById('cat-existing-list');
     if (!listContainer) return;
-    const cats = (window.appState.categories || []).filter(c => c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr');
+    const isBlocked = (c) => {
+      if (!c || !c.id) return true;
+      const cid = String(c.id).toLowerCase().trim();
+      const cname = String(c.name || '').toLowerCase().trim();
+      return ['fhjr', 'kj'].includes(cid) || ['fhjr', 'kj'].includes(cname);
+    };
+    const cats = (window.appState.categories || []).filter(c => !isBlocked(c));
     if (cats.length === 0) {
       listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">No hay categorías registradas.</p>';
       return;
@@ -1058,7 +1064,7 @@ class AppRouter {
         </button>
       </div>
     `).join('');
-  },
+  }
 
   async deleteCategory(categoryId) {
     if (!categoryId) return;
@@ -1066,8 +1072,15 @@ class AppRouter {
     const catName = cat ? cat.name : categoryId;
     if (!confirm(`🗑️ ¿Estás seguro de que deseas eliminar la categoría "${catName}"?`)) return;
 
+    const isBlocked = (c) => {
+      if (!c || !c.id) return true;
+      const cid = String(c.id).toLowerCase().trim();
+      const cname = String(c.name || '').toLowerCase().trim();
+      return cid === String(categoryId).toLowerCase().trim() || ['fhjr', 'kj'].includes(cid) || ['fhjr', 'kj'].includes(cname);
+    };
+
     // 1. Filtrar categoría localmente asegurando que DEFAULT_CATEGORIES sigan existiendo
-    window.appState.categories = (window.appState.categories || []).filter(c => c.id !== categoryId && c.id !== 'fhjr');
+    window.appState.categories = (window.appState.categories || []).filter(c => !isBlocked(c));
     if (window.appState.categories.length === 0) {
       window.appState.categories = [...DEFAULT_CATEGORIES];
     }
@@ -1076,7 +1089,7 @@ class AppRouter {
     // 2. Reasignar cualquier reto que tuviera esta categoría
     if (Array.isArray(window.appState.challenges)) {
       window.appState.challenges.forEach(ch => {
-        if (ch.category === categoryId) {
+        if (ch.category === categoryId || ['fhjr', 'kj'].includes(String(ch.category || '').toLowerCase().trim())) {
           ch.category = 'cultura';
           ch.categoryName = 'Cultura General';
         }
@@ -1097,7 +1110,7 @@ class AppRouter {
     if (window.HomeView && this.currentView === 'home') window.HomeView.render();
     if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
     if (window.soundEngine) window.soundEngine.playTrash();
-  },
+  }
 
   async handleCreateCategory(e) {
     e.preventDefault();
@@ -1119,18 +1132,27 @@ class AppRouter {
       count: 0
     };
 
+    const isBlocked = (c) => {
+      if (!c || !c.id) return true;
+      const cid = String(c.id).toLowerCase().trim();
+      const cname = String(c.name || '').toLowerCase().trim();
+      return ['fhjr', 'kj'].includes(cid) || ['fhjr', 'kj'].includes(cname);
+    };
+
     // 1. Conservar SIEMPRE DEFAULT_CATEGORIES y todas las categorías existentes sin borrar ninguna
     const catMap = new Map();
     (DEFAULT_CATEGORIES || []).forEach(c => {
-      if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') catMap.set(c.id, c);
+      if (!isBlocked(c)) catMap.set(c.id, c);
     });
     (window.appState.categories || []).forEach(c => {
-      if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') catMap.set(c.id, c);
+      if (!isBlocked(c)) catMap.set(c.id, c);
     });
-    catMap.set(newCat.id, newCat);
-    catMap.delete('fhjr');
+    if (!isBlocked(newCat)) {
+      catMap.set(newCat.id, newCat);
+    }
+    ['fhjr', 'kj'].forEach(b => catMap.delete(b));
 
-    const mergedCategories = Array.from(catMap.values());
+    const mergedCategories = Array.from(catMap.values()).filter(c => !isBlocked(c));
     window.appState.categories = mergedCategories;
     saveGlobalState(window.appState);
 
@@ -1152,12 +1174,12 @@ class AppRouter {
         const data = await postRes.json();
         if (Array.isArray(data.categories)) {
           const finalMap = new Map();
-          (DEFAULT_CATEGORIES || []).forEach(c => { if (c && c.id) finalMap.set(c.id, c); });
-          mergedCategories.forEach(c => { if (c && c.id && c.id !== 'fhjr') finalMap.set(c.id, c); });
-          data.categories.forEach(c => { if (c && c.id && c.id !== 'fhjr') finalMap.set(c.id, c); });
-          finalMap.set(newCat.id, newCat);
-          finalMap.delete('fhjr');
-          window.appState.categories = Array.from(finalMap.values());
+          (DEFAULT_CATEGORIES || []).forEach(c => { if (!isBlocked(c)) finalMap.set(c.id, c); });
+          mergedCategories.forEach(c => { if (!isBlocked(c)) finalMap.set(c.id, c); });
+          data.categories.forEach(c => { if (!isBlocked(c)) finalMap.set(c.id, c); });
+          if (!isBlocked(newCat)) finalMap.set(newCat.id, newCat);
+          ['fhjr', 'kj'].forEach(b => finalMap.delete(b));
+          window.appState.categories = Array.from(finalMap.values()).filter(c => !isBlocked(c));
           saveGlobalState(window.appState);
           if (window.HomeView && this.currentView === 'home') window.HomeView.render();
           if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
@@ -1169,7 +1191,7 @@ class AppRouter {
 
     if (window.soundEngine) window.soundEngine.playCorrect();
     alert(`✅ Categoría "${name}" agregada con éxito conservando todas las demás categorías.`);
-  },
+  }
 
   async syncCategoriesWithCloud() {
     try {
@@ -1191,25 +1213,32 @@ class AppRouter {
         } catch(e) {}
       }
 
+      const isBlocked = (c) => {
+        if (!c || !c.id) return true;
+        const cid = String(c.id).toLowerCase().trim();
+        const cname = String(c.name || '').toLowerCase().trim();
+        return ['fhjr', 'kj'].includes(cid) || ['fhjr', 'kj'].includes(cname);
+      };
+
       // SIEMPRE garantizar las DEFAULT_CATEGORIES completas como base inmutable
       const map = new Map();
       (DEFAULT_CATEGORIES || []).forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+        if (!isBlocked(c)) map.set(c.id, c);
       });
       (window.appState.categories || []).forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+        if (!isBlocked(c)) map.set(c.id, c);
       });
 
       if (Array.isArray(cloudCategories) && cloudCategories.length > 0) {
         cloudCategories.forEach(c => {
-          if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') map.set(c.id, c);
+          if (!isBlocked(c)) map.set(c.id, c);
         });
       }
 
-      // Descartar explícitamente 'fhjr'
-      map.delete('fhjr');
+      // Descartar explícitamente 'fhjr' y 'kj'
+      ['fhjr', 'kj'].forEach(b => map.delete(b));
 
-      const allMerged = Array.from(map.values());
+      const allMerged = Array.from(map.values()).filter(c => !isBlocked(c));
       window.appState.categories = allMerged;
       saveGlobalState(window.appState);
 

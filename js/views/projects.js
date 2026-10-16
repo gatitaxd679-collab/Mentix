@@ -277,7 +277,12 @@ window.ProjectsView = {
       return;
     }
 
-    const categories = window.appState.categories || [];
+    const categories = (window.appState.categories || []).filter(c => {
+      if (!c || !c.id) return false;
+      const cid = String(c.id).toLowerCase().trim();
+      const cname = String(c.name || '').toLowerCase().trim();
+      return !['fhjr', 'kj'].includes(cid) && !['fhjr', 'kj'].includes(cname);
+    });
 
     // Reconciliar categorías
     let needsSave = false;
