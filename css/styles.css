@@ -664,11 +664,11 @@ h1, h2, h3, h4, h5, h6 {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 100;
-  display: flex;
+  display: none !important;
   align-items: center;
   justify-content: center;
   padding: 1rem;
@@ -678,6 +678,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .modal-overlay.active {
+  display: flex !important;
   opacity: 1;
   pointer-events: auto;
 }
@@ -4797,25 +4798,28 @@ button, input, select, textarea, a, .btn, .challenge-card, .game-answer-btn {
     min-height: 100dvh;
   }
 
-  /* 3. Aliviar carga del compositor GPU para evitar 'Black Screen' por GPU context loss */
+  /* 3. Eliminar completamente backdrop-filter en móviles para evitar los errores de textura negra (GPU tile bugs) en Motorola/Android */
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Fondos sólidos y elegantes de alto contraste para paneles y tarjetas en móvil */
   .glass-panel,
-  .glass-nav,
   .challenge-card,
   .modal-content,
   .waiting-avatar-halo,
   .entity-badge-box {
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    background-color: rgba(15, 23, 42, 0.95) !important; /* Fallback opaco seguro */
+    background-color: rgba(15, 23, 42, 0.96) !important;
   }
 
-  /* 4. Aceleración limpia por capas 3D sin memory leaks */
-  .challenge-card,
-  .btn,
+  .glass-nav {
+    background-color: rgba(11, 15, 25, 0.98) !important;
+  }
+
+  /* 4. Optimización táctil y prevención de memory leaks GPU */
   .game-answer-btn {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    touch-action: manipulation;
   }
 
   /* 5. Ajustes de espaciado y navegación compacta en pantallas pequeñas */

@@ -213,7 +213,7 @@ window.TeacherView = {
       </div>
 
       <!-- Modal de Selección de Cuestionario para Grupo -->
-      <div id="teacher-launch-modal" class="custom-modal" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
+      <div id="teacher-launch-modal" class="custom-modal" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.94); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
         <div class="glass-panel" style="max-width: 520px; width: 100%; padding: 2rem; border-color: var(--neon-cyan); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
           <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
             <span>🚀</span> Iniciar Reto con Grupo

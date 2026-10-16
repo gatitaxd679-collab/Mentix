@@ -316,7 +316,7 @@ window.HomeView = {
 
           <!-- Superior Derecha: Tiempo + Botón Eliminar -->
           <div style="position: absolute; top: 0.75rem; right: 0.75rem; display: flex; align-items: center; gap: 0.5rem; z-index: 4;">
-            <div style="background: rgba(10, 15, 30, 0.85); backdrop-filter: blur(8px); border: 1.5px solid rgba(0, 245, 212, 0.4); border-radius: 9999px; padding: 0.35rem 0.75rem; display: flex; align-items: center; gap: 0.35rem; font-weight: 900; font-size: 0.85rem; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+            <div style="background: rgba(10, 15, 30, 0.92); border: 1.5px solid rgba(0, 245, 212, 0.4); border-radius: 9999px; padding: 0.35rem 0.75rem; display: flex; align-items: center; gap: 0.35rem; font-weight: 900; font-size: 0.85rem; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
               <span style="font-size: 0.9rem;">⏱️</span> <span>${challenge.timePerQuestion || 20}</span>
             </div>
             ${isOwner ? `
@@ -333,7 +333,7 @@ window.HomeView = {
 
           <!-- Entidad Destacada en el Banner (Ocupa todo el cuadrito con PNG transparente) -->
           ${(challenge.entityLogo || challenge.entityName) ? `
-            <div class="entity-badge-box" style="position: absolute; right: 0.85rem; bottom: 0.75rem; width: 84px; height: 56px; display: flex; align-items: center; justify-content: center; background: rgba(5, 10, 25, 0.9); backdrop-filter: blur(12px); border: 2px solid rgba(59, 130, 246, 0.85); border-radius: 12px; padding: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.65), 0 0 15px rgba(59, 130, 246, 0.35); z-index: 3; overflow: hidden;">
+            <div class="entity-badge-box" style="position: absolute; right: 0.85rem; bottom: 0.75rem; width: 84px; height: 56px; display: flex; align-items: center; justify-content: center; background: rgba(5, 10, 25, 0.95); border: 2px solid rgba(59, 130, 246, 0.85); border-radius: 12px; padding: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.65), 0 0 15px rgba(59, 130, 246, 0.35); z-index: 3; overflow: hidden;">
               ${challenge.entityLogo ? `
                 <img 
                   src="${challenge.entityLogo}" 

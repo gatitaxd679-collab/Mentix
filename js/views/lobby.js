@@ -1153,7 +1153,7 @@ window.LobbyView = {
                 required
                 autofocus
                 autocomplete="off"
-                style="width: 100%; box-sizing: border-box; text-align: center; font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; padding: 1.15rem 1.5rem; border-radius: 18px; background: rgba(10, 20, 45, 0.88) !important; backdrop-filter: blur(12px); border: 2.5px solid #00f5d4 !important; color: #ffffff !important; outline: none; transition: var(--transition-bounce); box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(0, 245, 212, 0.35) !important; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0, 245, 212, 0.7), 0 2px 8px rgba(0,0,0,0.9);"
+                style="width: 100%; box-sizing: border-box; text-align: center; font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; padding: 1.15rem 1.5rem; border-radius: 18px; background: rgba(10, 20, 45, 0.94) !important; border: 2.5px solid #00f5d4 !important; color: #ffffff !important; outline: none; transition: var(--transition-bounce); box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(0, 245, 212, 0.35) !important; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0, 245, 212, 0.7), 0 2px 8px rgba(0,0,0,0.9);"
                 onfocus="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 0 35px rgba(0,245,212,0.7)';"
                 onblur="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(0, 245, 212, 0.35)';"
                 oninput="window.LobbyView.formatPinInput(this)"
@@ -1295,7 +1295,7 @@ window.LobbyView = {
 
         <!-- Contenedor interactivo -->
         <div style="position: relative; z-index: 2; width: 100%; max-width: 520px; margin: 0 auto;">
-          <div class="glass-panel" style="padding: 2.25rem 2rem; text-align: center; border-color: var(--neon-cyan); box-shadow: 0 15px 45px rgba(0,0,0,0.5); backdrop-filter: blur(16px);">
+          <div class="glass-panel" style="padding: 2.25rem 2rem; text-align: center; border-color: var(--neon-cyan); box-shadow: 0 15px 45px rgba(0,0,0,0.5); background: rgba(15, 23, 42, 0.96);">
             
             <!-- Encabezado de la Sala Encontrada -->
             <div style="background: rgba(10, 20, 45, 0.75); border: 1.5px solid rgba(0, 245, 212, 0.6); border-radius: 14px; padding: 0.95rem 1.25rem; margin-bottom: 1.75rem; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
@@ -1438,7 +1438,7 @@ window.LobbyView = {
           maxlength="25"
           value="${window.appState?.currentUser?.name || ''}"
           required
-          style="width: 100%; font-size: 1.15rem; font-weight: 800; padding: 0.9rem; border-radius: var(--border-radius-md); background: rgba(10, 20, 45, 0.88) !important; border: 2px solid #00f5d4 !important; color: #ffffff !important; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-shadow: 0 1px 4px rgba(0,0,0,0.8);"
+          style="width: 100%; font-size: 1.15rem; font-weight: 800; padding: 0.9rem; border-radius: var(--border-radius-md); background: rgba(10, 20, 45, 0.96) !important; border: 2px solid #00f5d4 !important; color: #ffffff !important; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-shadow: 0 1px 4px rgba(0,0,0,0.8);"
           onfocus="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 0 20px rgba(0,245,212,0.5)';"
           onblur="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.5)';"
         />
@@ -1455,7 +1455,7 @@ window.LobbyView = {
           maxlength="60"
           value="${window.appState?.currentUser?.email || ''}"
           required
-          style="width: 100%; font-size: 1.1rem; font-weight: 700; padding: 0.9rem; border-radius: var(--border-radius-md); background: rgba(10, 20, 45, 0.88) !important; border: 2px solid #00f5d4 !important; color: #ffffff !important; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-shadow: 0 1px 4px rgba(0,0,0,0.8);"
+          style="width: 100%; font-size: 1.1rem; font-weight: 700; padding: 0.9rem; border-radius: var(--border-radius-md); background: rgba(10, 20, 45, 0.96) !important; border: 2px solid #00f5d4 !important; color: #ffffff !important; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-shadow: 0 1px 4px rgba(0,0,0,0.8);"
           onfocus="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 0 20px rgba(0,245,212,0.5)';"
           onblur="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.5)';"
         />
