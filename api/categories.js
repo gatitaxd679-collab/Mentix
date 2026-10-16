@@ -20,12 +20,29 @@ const DEFAULT_CATEGORIES = [
 export default async function handler(req, res) {
   // Configurar CORS para acceso desde cualquier dispositivo o navegador
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+
+  // Helper para garantizar que DEFAULT_CATEGORIES siempre existan y 'fhjr' sea descartado
+  const mergeAndSanitize = (cats) => {
+    const map = new Map();
+    DEFAULT_CATEGORIES.forEach(c => {
+      if (c && c.id) map.set(c.id, c);
+    });
+    if (Array.isArray(cats)) {
+      cats.forEach(c => {
+        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') {
+          map.set(c.id, { ...map.get(c.id), ...c });
+        }
+      });
+    }
+    map.delete('fhjr');
+    return Array.from(map.values());
+  };
 
   // GET: Obtener todas las categorías públicas compartidas
   if (req.method === 'GET') {
@@ -42,7 +59,7 @@ export default async function handler(req, res) {
         const ghData = await ghRes.json();
         const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
         const categories = JSON.parse(contentStr);
-        return res.status(200).json(categories);
+        return res.status(200).json(mergeAndSanitize(categories));
       }
     } catch (e) {
       console.warn('Error leyendo categorías desde GitHub:', e);
@@ -50,7 +67,7 @@ export default async function handler(req, res) {
     return res.status(200).json(DEFAULT_CATEGORIES);
   }
 
-  // POST: Crear y guardar una nueva categoría para que la vean todos
+  // POST: Crear y guardar una nueva categoría sin borrar las demás
   if (req.method === 'POST') {
     try {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -60,7 +77,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nombre de categoría requerido' });
       }
 
-      // 1. Obtener contenido actual y SHA del archivo en GitHub
       let currentCategories = [...DEFAULT_CATEGORIES];
       let currentSha = null;
 
@@ -83,7 +99,6 @@ export default async function handler(req, res) {
         console.warn('No se pudo obtener SHA actual de GitHub:', err);
       }
 
-      // 2. Fusionar nueva categoría sin duplicados
       const cleanId = newCat.id || newCat.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_');
       const preparedCat = {
         id: cleanId,
@@ -93,23 +108,21 @@ export default async function handler(req, res) {
         count: newCat.count || 0
       };
 
-      const existingIndex = currentCategories.findIndex(c => c.id === preparedCat.id);
+      const sanitized = mergeAndSanitize(currentCategories);
+      const existingIndex = sanitized.findIndex(c => c.id === preparedCat.id);
       if (existingIndex >= 0) {
-        currentCategories[existingIndex] = { ...currentCategories[existingIndex], ...preparedCat };
+        sanitized[existingIndex] = { ...sanitized[existingIndex], ...preparedCat };
       } else {
-        currentCategories.push(preparedCat);
+        sanitized.push(preparedCat);
       }
 
-      // 3. Escribir archivo actualizado en GitHub
-      const updatedBuffer = Buffer.from(JSON.stringify(currentCategories, null, 2), 'utf8').toString('base64');
+      const updatedBuffer = Buffer.from(JSON.stringify(sanitized, null, 2), 'utf8').toString('base64');
       const putPayload = {
-        message: `feat: guardar categoria global "${preparedCat.name}" para todos los usuarios`,
+        message: `feat: guardar categoria global "${preparedCat.name}" conservando las demas`,
         content: updatedBuffer,
         branch: 'main'
       };
-      if (currentSha) {
-        putPayload.sha = currentSha;
-      }
+      if (currentSha) putPayload.sha = currentSha;
 
       const ghPut = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
         method: 'PUT',
@@ -127,9 +140,62 @@ export default async function handler(req, res) {
         console.error('Error al guardar en GitHub:', putErr);
       }
 
-      return res.status(200).json({ success: true, categories: currentCategories, category: preparedCat });
+      return res.status(200).json({ success: true, categories: sanitized, category: preparedCat });
     } catch (err) {
       console.error('Error procesando POST /api/categories:', err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // DELETE: Eliminar una categoría específica
+  if (req.method === 'DELETE') {
+    try {
+      const catId = req.query?.id || (req.body && req.body.id);
+      if (!catId) {
+        return res.status(400).json({ error: 'ID de categoría requerido' });
+      }
+
+      let currentCategories = [...DEFAULT_CATEGORIES];
+      let currentSha = null;
+
+      const ghGet = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}?ref=main`, {
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'Mentix-App'
+        }
+      });
+
+      if (ghGet.ok) {
+        const ghData = await ghGet.json();
+        currentSha = ghData.sha;
+        const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
+        currentCategories = JSON.parse(contentStr);
+      }
+
+      const filtered = currentCategories.filter(c => c && c.id !== catId && c.id !== 'fhjr');
+      const updatedBuffer = Buffer.from(JSON.stringify(filtered, null, 2), 'utf8').toString('base64');
+
+      const putPayload = {
+        message: `fix: eliminar categoria "${catId}"`,
+        content: updatedBuffer,
+        branch: 'main'
+      };
+      if (currentSha) putPayload.sha = currentSha;
+
+      await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mentix-App'
+        },
+        body: JSON.stringify(putPayload)
+      });
+
+      return res.status(200).json({ success: true, categories: filtered });
+    } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   }

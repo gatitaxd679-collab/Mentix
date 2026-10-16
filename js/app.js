@@ -1084,16 +1084,10 @@ class AppRouter {
       saveGlobalState(window.appState);
     }
 
-    // 3. Actualizar la nube pública
-    const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
+    // 3. Actualizar la nube pública (/api/categories)
     try {
-      await fetch(cloudCatUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'mentix_global_categories_v1',
-          data: { categories: window.appState.categories, updatedAt: new Date().toISOString() }
-        })
+      await fetch(`/api/categories?id=${encodeURIComponent(categoryId)}`, {
+        method: 'DELETE'
       });
     } catch (e) {
       console.warn('Error eliminando categoría en nube:', e);
@@ -1147,44 +1141,28 @@ class AppRouter {
     if (window.HomeView && this.currentView === 'home') window.HomeView.render();
     if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
 
-    // 2. Guardar en la nube pública uniendo todas las categorías para nunca perder ninguna
-    const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
+    // 2. Guardar en la nube pública (/api/categories) uniendo todas las categorías sin perder ninguna
     try {
-      const getRes = await fetch(cloudCatUrl);
-      let cloudCats = [];
-      if (getRes.ok) {
-        const json = await getRes.json();
-        cloudCats = json.data?.categories || [];
-      }
-
-      const cloudMap = new Map();
-      (DEFAULT_CATEGORIES || []).forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
-      });
-      cloudCats.forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
-      });
-      mergedCategories.forEach(c => {
-        if (c && c.id && c.id !== 'fhjr' && c.name?.toLowerCase().trim() !== 'fhjr') cloudMap.set(c.id, c);
-      });
-      cloudMap.set(newCat.id, newCat);
-      cloudMap.delete('fhjr');
-
-      const finalCats = Array.from(cloudMap.values());
-
-      await fetch(cloudCatUrl, {
-        method: 'PUT',
+      const postRes = await fetch('/api/categories', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'mentix_global_categories_v1',
-          data: { categories: finalCats, updatedAt: new Date().toISOString() }
-        })
+        body: JSON.stringify({ category: newCat })
       });
-
-      window.appState.categories = finalCats;
-      saveGlobalState(window.appState);
-      if (window.HomeView && this.currentView === 'home') window.HomeView.render();
-      if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
+      if (postRes.ok) {
+        const data = await postRes.json();
+        if (Array.isArray(data.categories)) {
+          const finalMap = new Map();
+          (DEFAULT_CATEGORIES || []).forEach(c => { if (c && c.id) finalMap.set(c.id, c); });
+          mergedCategories.forEach(c => { if (c && c.id && c.id !== 'fhjr') finalMap.set(c.id, c); });
+          data.categories.forEach(c => { if (c && c.id && c.id !== 'fhjr') finalMap.set(c.id, c); });
+          finalMap.set(newCat.id, newCat);
+          finalMap.delete('fhjr');
+          window.appState.categories = Array.from(finalMap.values());
+          saveGlobalState(window.appState);
+          if (window.HomeView && this.currentView === 'home') window.HomeView.render();
+          if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
+        }
+      }
     } catch (cloudErr) {
       console.warn('Categoría guardada localmente, sincronización en nube diferida:', cloudErr);
     }
@@ -1194,15 +1172,16 @@ class AppRouter {
   },
 
   async syncCategoriesWithCloud() {
-    const cloudCatUrl = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1223d56bf3159';
     try {
       let cloudCategories = null;
       try {
-        const res = await fetch(cloudCatUrl);
+        const res = await fetch(`/api/categories?t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.data && Array.isArray(json.data.categories)) {
-            cloudCategories = json.data.categories;
+          if (Array.isArray(json)) {
+            cloudCategories = json;
+          } else if (json.categories && Array.isArray(json.categories)) {
+            cloudCategories = json.categories;
           }
         }
       } catch (errCloud) {
@@ -1233,20 +1212,6 @@ class AppRouter {
       const allMerged = Array.from(map.values());
       window.appState.categories = allMerged;
       saveGlobalState(window.appState);
-
-      // Si la nube tenía 'fhjr' o le faltaban las categorías por defecto, sincronizarla con la lista limpia
-      if (Array.isArray(cloudCategories) && (cloudCategories.some(c => c.id === 'fhjr') || cloudCategories.length < DEFAULT_CATEGORIES.length)) {
-        try {
-          await fetch(cloudCatUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: 'mentix_global_categories_v1',
-              data: { categories: allMerged, updatedAt: new Date().toISOString() }
-            })
-          });
-        } catch(e) {}
-      }
 
       if (this.currentView === 'home' && window.HomeView) {
         window.HomeView.render();
