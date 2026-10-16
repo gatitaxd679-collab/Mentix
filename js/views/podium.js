@@ -272,8 +272,11 @@ window.PodiumView = {
           <button class="btn btn-cyan btn-lg" onclick="window.appRouter.navigate('home')">
             <span>🏠</span> Volver al Inicio
           </button>
-          <button class="btn btn-outline" onclick="window.PodiumView.exportResults(window.GameView.room)">
+          <button class="btn btn-outline" onclick="window.PodiumView.exportResults(window.PodiumView.getReportRoom())">
             <span>📊</span> Exportar Resultados
+          </button>
+          <button class="btn btn-outline" style="border-color: #10b981; color: #34d399; background: rgba(16, 185, 129, 0.14); font-weight: 800; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);" onclick="window.PodiumView.exportExcel(window.PodiumView.getReportRoom())">
+            <span>📗</span> Exportar en Excel
           </button>
           <button class="btn btn-outline" onclick="window.PodiumView.shareResults()">
             <span>📤</span> Compartir Victoria
@@ -282,9 +285,14 @@ window.PodiumView = {
 
         <!-- Tabla Completa de Calificaciones -->
         <div class="glass-panel" style="padding: 1.75rem; text-align: left;">
-          <h2 style="font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>📋</span> Desglose Completo de Calificaciones
-          </h2>
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.2rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📋</span> Desglose Completo de Calificaciones
+            </h2>
+            <button class="btn btn-outline" style="padding: 0.4rem 0.85rem; font-size: 0.82rem; border-color: #10b981; color: #34d399; background: rgba(16, 185, 129, 0.12); font-weight: 800;" onclick="window.PodiumView.exportExcel(window.PodiumView.getReportRoom())">
+              <span>📗</span> Descargar Excel (.xlsx)
+            </button>
+          </div>
 
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
@@ -382,13 +390,174 @@ window.PodiumView = {
   },
 
   exportResults(room) {
-    if (!room) return;
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(room, null, 2));
+    const activeRoom = room || this.getReportRoom();
+    if (!activeRoom) return;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeRoom, null, 2));
     const dlAnchor = document.createElement('a');
     dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `resultados_mentix_${room.pin || 'partida'}.json`);
+    dlAnchor.setAttribute("download", `resultados_mentix_${activeRoom.pin || 'partida'}.json`);
     dlAnchor.click();
     alert('📥 ¡Resultados exportados en formato JSON!');
+  },
+
+  exportExcel(room) {
+    const activeRoom = room || this.getReportRoom();
+    if (!activeRoom) {
+      alert('⚠️ No se encontraron datos de la partida para exportar.');
+      return;
+    }
+
+    const playersList = (activeRoom.players && activeRoom.players.length > 0)
+      ? activeRoom.players
+      : (window.realtimeEngine?.currentRoom?.players || window.GameView?.room?.players || []);
+
+    const questions = activeRoom?.challenge?.questions || window.GameView?.challenge?.questions || [];
+    const totalQuestions = questions.length || 1;
+
+    playersList.forEach(p => {
+      let c = p.correctCount || 0;
+      if (p.answers && Array.isArray(p.answers) && p.answers.length > 0) {
+        const inAnswers = p.answers.filter(a => a.isCorrect).length;
+        if (inAnswers > c) c = inAnswers;
+      }
+      p.correctCount = c;
+      if ((!p.score || p.score === 0) && p.answers && Array.isArray(p.answers)) {
+        p.score = p.answers.reduce((acc, a) => acc + (a.pointsEarned || 0), 0);
+      }
+    });
+
+    const sorted = [...playersList].sort((a, b) => (b.score || 0) - (a.score || 0));
+    const challengeTitle = activeRoom?.challenge?.title || 'Reto MENTIX';
+    const cleanTitle = challengeTitle.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g, '_').replace(/_+/g, '_').slice(0, 35);
+    const pinCode = activeRoom?.pin || 'partida';
+
+    // Construir filas de la hoja principal de Calificaciones
+    const rowsCalificaciones = sorted.map((p, idx) => {
+      const correct = p.correctCount || 0;
+      const pct = Math.min(100, Math.max(0, Math.round((correct / totalQuestions) * 100)));
+      const nota5 = Number(((correct / totalQuestions) * 4 + 1).toFixed(2));
+      const fails = this.getFailures(p, activeRoom);
+      const failsSummary = fails.length === 0
+        ? 'Sin fallos'
+        : fails.map(f => `P${f.num}: ${f.text} [Respondió: ${f.status === 'timeout' ? 'Sin responder' : f.chosen} | Correcta: ${f.correct}]`).join(' ; ');
+
+      return {
+        'Posición': idx + 1,
+        'Jugador': p.nickname || `Jugador ${idx + 1}`,
+        'Puntos': p.score || 0,
+        'Aciertos': correct,
+        'Total Preguntas': totalQuestions,
+        'Porcentaje Acierto (%)': `${pct}%`,
+        'Nota (1.0 a 5.0)': nota5,
+        'Racha Máxima': p.maxStreak || p.streak || 0,
+        'Cantidad de Fallos': fails.length,
+        'Detalle de Errores': failsSummary
+      };
+    });
+
+    // Construir hoja de Detalle por Pregunta
+    const optText = (q, v) => (typeof v === 'number' && q.options && q.options[v]) ? q.options[v].text : String(v ?? '');
+    const rowsDetallePreguntas = sorted.map((p, idx) => {
+      const row = {
+        'Posición': idx + 1,
+        'Jugador': p.nickname || `Jugador ${idx + 1}`,
+        'Puntos Totales': p.score || 0,
+        'Aciertos': `${p.correctCount || 0}/${totalQuestions}`
+      };
+
+      const answeredByIdx = {};
+      (p.answers || []).forEach((a, pos) => {
+        let qIdx = -1;
+        if (a.questionId !== undefined && a.questionId !== null) {
+          qIdx = questions.findIndex(q => q.id === a.questionId);
+        }
+        if (qIdx < 0 && typeof a.questionIndex === 'number') qIdx = a.questionIndex;
+        if (qIdx < 0) qIdx = pos;
+        answeredByIdx[qIdx] = a;
+      });
+
+      questions.forEach((q, qIdx) => {
+        const colName = `P${qIdx + 1}: ${(q.text || 'Pregunta').slice(0, 45)}`;
+        const ans = answeredByIdx[qIdx];
+        if (!ans) {
+          row[colName] = '⏱ Sin responder';
+        } else {
+          const chosenStr = optText(q, ans.answerIndex);
+          row[colName] = `${ans.isCorrect ? '✓' : '✗'} ${chosenStr} (${ans.pointsEarned || 0} pts)`;
+        }
+      });
+
+      return row;
+    });
+
+    // Construir hoja de Resumen del Reto
+    const totalCorrect = sorted.reduce((acc, p) => acc + (p.correctCount || 0), 0);
+    const accuracyDivisor = sorted.length === 1 ? totalQuestions : (sorted.length * totalQuestions);
+    const avgAccuracy = Math.min(100, Math.max(0, Math.round((totalCorrect / (accuracyDivisor || 1)) * 100)));
+
+    const rowsResumen = [
+      { 'Campo': 'Título del Reto', 'Valor': challengeTitle },
+      { 'Campo': 'Categoría', 'Valor': activeRoom?.challenge?.categoryName || activeRoom?.challenge?.category || 'General' },
+      { 'Campo': 'PIN de la Sala', 'Valor': String(pinCode) },
+      { 'Campo': 'Fecha de Exportación', 'Valor': new Date().toLocaleString('es-CO') },
+      { 'Campo': 'Total de Participantes', 'Valor': sorted.length },
+      { 'Campo': 'Total de Preguntas', 'Valor': totalQuestions },
+      { 'Campo': 'Promedio de Acierto Global', 'Valor': `${avgAccuracy}%` },
+      { 'Campo': 'Puntaje Máximo', 'Valor': sorted[0]?.score || 0 },
+      { 'Campo': 'Ganador (1er Lugar)', 'Valor': sorted[0]?.nickname || 'N/A' }
+    ];
+
+    if (window.XLSX) {
+      const wb = window.XLSX.utils.book_new();
+
+      const wsCalificaciones = window.XLSX.utils.json_to_sheet(rowsCalificaciones.length > 0 ? rowsCalificaciones : [{ 'Mensaje': 'Sin participantes registrados' }]);
+      wsCalificaciones['!cols'] = [
+        { wch: 10 },
+        { wch: 24 },
+        { wch: 12 },
+        { wch: 10 },
+        { wch: 16 },
+        { wch: 22 },
+        { wch: 16 },
+        { wch: 14 },
+        { wch: 18 },
+        { wch: 65 }
+      ];
+      window.XLSX.utils.book_append_sheet(wb, wsCalificaciones, 'Calificaciones');
+
+      if (rowsDetallePreguntas.length > 0 && questions.length > 0) {
+        const wsDetalle = window.XLSX.utils.json_to_sheet(rowsDetallePreguntas);
+        wsDetalle['!cols'] = [
+          { wch: 10 },
+          { wch: 24 },
+          { wch: 15 },
+          { wch: 12 },
+          ...questions.map(() => ({ wch: 30 }))
+        ];
+        window.XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle por Pregunta');
+      }
+
+      const wsResumen = window.XLSX.utils.json_to_sheet(rowsResumen);
+      wsResumen['!cols'] = [{ wch: 28 }, { wch: 45 }];
+      window.XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen del Reto');
+
+      window.XLSX.writeFile(wb, `Resultados_MENTIX_${cleanTitle}_${pinCode}.xlsx`);
+      if (window.soundEngine) window.soundEngine.playCorrect();
+    } else {
+      // Fallback CSV compatible con Excel (con BOM UTF-8)
+      const headers = ['Posición', 'Jugador', 'Puntos', 'Aciertos', 'Total Preguntas', 'Porcentaje Acierto (%)', 'Nota (1.0 a 5.0)', 'Racha Máxima', 'Cantidad de Fallos', 'Detalle de Errores'];
+      const csvLines = [
+        headers.join(';'),
+        ...rowsCalificaciones.map(r => headers.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(';'))
+      ];
+      const blob = new Blob(['\uFEFF' + csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Resultados_MENTIX_${cleanTitle}_${pinCode}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   },
 
   shareResults() {
