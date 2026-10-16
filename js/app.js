@@ -1372,24 +1372,11 @@ class AppRouter {
         window.appState.challenges = Array.from(map.values());
         saveGlobalState(window.appState);
 
-        // Subir a la nube cualquier reto local que tenga preguntas y falte en la nube
-        local.forEach(c => {
-          if (c && c.id && c.title && Array.isArray(c.questions) && c.questions.length > 0 && !cloudChallenges.some(cc => cc.id === c.id)) {
-            this.pushChallengeToCloud(c);
-          }
-        });
-
         if (this.currentView === 'home' && window.HomeView) {
           window.HomeView.render();
         } else if (this.currentView === 'projects' && window.ProjectsView) {
           window.ProjectsView.render();
         }
-      } else if (Array.isArray(window.appState.challenges) && window.appState.challenges.length > 0) {
-        window.appState.challenges.forEach(c => {
-          if (c && c.id && c.title) {
-            this.pushChallengeToCloud(c);
-          }
-        });
       }
     } catch (e) {
       console.warn('Error sincronizando retos con la nube:', e);

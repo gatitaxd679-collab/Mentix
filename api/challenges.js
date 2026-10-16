@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         if (GITHUB_TOKEN) {
           const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
           const putPayload = {
-            message: `feat: guardar reto "${challenge.title.slice(0, 40)}" globalmente`,
+            message: `chore(data): guardar reto "${challenge.title.slice(0, 40)}" [skip ci]`,
             content: updatedBuffer,
             branch: 'main'
           };
@@ -216,7 +216,7 @@ export default async function handler(req, res) {
         if (GITHUB_TOKEN && currentSha) {
           const updatedBuffer = Buffer.from(JSON.stringify(currentChallenges, null, 2), 'utf8').toString('base64');
           const putPayload = {
-            message: `feat: eliminar reto "${challengeId}" de la comunidad`,
+            message: `chore(data): eliminar reto "${challengeId}" [skip ci]`,
             content: updatedBuffer,
             sha: currentSha,
             branch: 'main'
