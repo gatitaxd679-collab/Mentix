@@ -1,5 +1,348 @@
 [
   {
+    "id": "reto_1791917611381",
+    "title": "Reto de Naturalesa",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre naturalesa",
+    "category": "cultura",
+    "difficulty": "Medio",
+    "banner": "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791917661267_9ymar",
+        "text": "¿Qué resume: La naturaleza es todo lo que nos rodea y que no ha sido creado por el ser humano, como los árboles, las flores, los animales, los ríos, las montañas y el mar?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "En la naturaleza podemos disfrutar del canto",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Es un mundo lleno de colores, sonidos",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La naturaleza es todo lo que nos rodea",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791917661267_5spsb",
+        "text": "¿Qué resume: Es un mundo lleno de colores, sonidos y vida que nos brinda aire puro, agua y alimentos para vivir?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "En la naturaleza podemos disfrutar del canto",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El sol ilumina la Tierra, la lluvia ayuda",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es un mundo lleno de colores, sonidos",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791917661268_78uf4",
+        "text": "¿Qué resume: En la naturaleza podemos disfrutar del canto de los pájaros, del aroma de las flores, del sonido del agua y de la belleza del paisaje?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "En la naturaleza podemos disfrutar del canto",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El sol ilumina la Tierra, la lluvia ayuda",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Debemos cuidar y proteger la naturaleza, evitando contaminar,",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1791917661268_fxahh",
+        "text": "¿Qué resume: El sol ilumina la Tierra, la lluvia ayuda a crecer a las plantas y los animales cumplen una función importante en el equilibrio del planeta?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La naturaleza es todo lo que nos rodea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "El sol ilumina la Tierra, la lluvia ayuda",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Debemos cuidar y proteger la naturaleza, evitando contaminar,",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791917661268_zc7br",
+        "text": "¿Qué resume: Debemos cuidar y proteger la naturaleza, evitando contaminar, ahorrando agua, sembrando árboles y respetando a todos los seres vivos, porque ella es esencial para nuestra vida y la de las futuras generaciones?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La naturaleza es todo lo que nos rodea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Debemos cuidar y proteger la naturaleza, evitando contaminar,",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es un mundo lleno de colores, sonidos",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791917661268_wador",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Es miembro de la Unión Mundial para",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1791917661268_8ndw3",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Es miembro de la Unión Mundial para",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791917661269_bssjs",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es miembro de la Unión Mundial para",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791917661269_ali6q",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1791917661275_tvm5b",
+        "text": "¿qué elemento o mecanismo interno resulta indispensable para su correcto funcionamiento y manifestación?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La dependencia exclusiva de factores externos impredecibles sin",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El aislamiento absoluto de cualquier interacción con su",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La articulación sinérgica de sus componentes esenciales conforme",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La eliminación arbitraria de variables de control",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      }
+    ],
+    "author": "Annie",
+    "authorAvatar": "🦊",
+    "entityName": "",
+    "categoryName": "Cultura General",
+    "authorId": "user_1791582602270",
+    "authorEmail": "acanon@ciudadmontesbilingue.edu.co",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:51:27.822Z",
+    "createdAt": "2026-10-13T20:29:45.735Z"
+  },
+  {
     "id": "reto_1791497604353",
     "title": "Reto de Gobierno de datos",
     "description": "Cuestionario interactivo de evaluación y destreza sobre gobierno de datos. ¡Responde rápido y acumula puntos!",
