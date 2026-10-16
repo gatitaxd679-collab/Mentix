@@ -1,5 +1,188 @@
 [
   {
+    "id": "reto_1791923408411",
+    "title": "Reto de Naturalesa",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre naturalesa",
+    "category": "cultura",
+    "difficulty": "Medio",
+    "banner": "https://img.magnific.com/vector-gratis/paisaje-primaveral-dibujado-mano_23-2148441472.jpg",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791923415768_im5u3",
+        "text": "De acuerdo con los fundamentos documentados de Naturalesa, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "https://img.magnific.com/vector-gratis/ilustracion-personaje-frailejon-dibujado-mano_23-2150034039.jpg?semt=ais_hybrid&w=740&q=80",
+        "mediaType": "image",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares (Mallorca, Menorca, Ibiza y Formentera) y en diversas delegaciones locales.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Es miembro de la Unión Mundial para la Naturaleza (UICN) y de la Oficina Europea de Medio Ambiente (OEMA).",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791923415768_o3btb",
+        "text": "De acuerdo con los fundamentos documentados de Naturalesa, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "https://www.shutterstock.com/image-vector/cute-deer-bunny-picnic-under-260nw-2622967075.jpg",
+        "mediaType": "image",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB de Ibiza y Formentera",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Es miembro de la Unión Mundial para la Naturaleza (UICN) y de la Oficina Europea de Medio Ambiente (OEMA).",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1791923415768_rtnsq",
+        "text": "De acuerdo con los fundamentos documentados de Naturalesa, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "https://www.shutterstock.com/image-vector/cute-kawaii-meadow-landscape-cloud-260nw-2535251057.jpg",
+        "mediaType": "image",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares (Mallorca, Menorca, Ibiza y Formentera) y en diversas delegaciones locales.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es miembro de la Unión Mundial para la Naturaleza (UICN) y de la Oficina Europea de Medio Ambiente (OEMA).",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB de Ibiza y Formentera",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791923415768_ankt7",
+        "text": "De acuerdo con los fundamentos documentados de Naturalesa, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "https://cdn.pixabay.com/photo/2016/07/28/00/46/kawaii-1546834_1280.png",
+        "mediaType": "image",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "GOB de Mallorca GOB de Menorca GOB de Ibiza y Formentera",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Dispone de diversas instalaciones donde practica la agricultura sostenible.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Se encuentra estructurada en cuatro secciones insulares (Mallorca, Menorca, Ibiza y Formentera) y en diversas delegaciones locales.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1791923415773_s4pai",
+        "text": "¿Al examinar las figuras, escuelas o movimientos pioneros vinculados a \"Naturalesa\", ¿cuál de los siguientes enfoques metodológicos ha caracterizado su práctica más rigurosa?",
+        "type": "single",
+        "media": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCfv9rT7I8ifSr8VzohX9yeX6SqDZtRykWDyCmSqozNw&s=10",
+        "mediaType": "image",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La contrastación sistemática de hipótesis respaldada por evidencia verificable y pensamiento crítico",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La extrapolación forzada de conceptos incompatibles tomados de áreas inconexas",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La renuncia explícita a cualquier estándar de calidad, medición o reproducibilidad",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La adopción incondicional de conjeturas subjetivas sin comprobación documental ni empírica",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      }
+    ],
+    "author": "Annie",
+    "authorAvatar": "🦊",
+    "entityName": "",
+    "categoryName": "Cultura General",
+    "authorId": "user_1791582602270",
+    "authorEmail": "acanon@ciudadmontesbilingue.edu.co",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T21:08:54.232Z",
+    "createdAt": "2026-10-13T20:30:18.074Z"
+  },
+  {
     "id": "reto_1791583229836",
     "title": "prueba",
     "description": "",
