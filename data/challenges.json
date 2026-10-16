@@ -1,5 +1,128 @@
 [
   {
+    "questions": [
+      {
+        "id": "q1",
+        "text": "¿Cuál es el planeta más cercano al Sol en el Sistema Solar?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Mercurio"
+          },
+          {
+            "text": "Venus"
+          },
+          {
+            "text": "La Tierra"
+          },
+          {
+            "text": "Marte"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q2",
+        "text": "La velocidad de la luz en el vacío es de aproximadamente 300,000 kilómetros por segundo.",
+        "type": "truefalse",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Verdadero"
+          },
+          {
+            "text": "Falso"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q3",
+        "text": "¿Cuál es el elemento químico más abundante en el universo observable?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Hidrógeno"
+          },
+          {
+            "text": "Oxígeno"
+          },
+          {
+            "text": "Carbono"
+          },
+          {
+            "text": "Helio"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q4",
+        "text": "¿Cuántos huesos forman aproximadamente el esqueleto humano de una persona adulta?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "206"
+          },
+          {
+            "text": "195"
+          },
+          {
+            "text": "218"
+          },
+          {
+            "text": "300"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q5",
+        "text": "¿Cuál es el océano de mayor superficie y profundidad en el planeta Tierra?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Océano Pacífico"
+          },
+          {
+            "text": "Océano Atlántico"
+          },
+          {
+            "text": "Océano Índico"
+          },
+          {
+            "text": "Océano Ártico"
+          }
+        ],
+        "correctAnswer": 0
+      }
+    ],
+    "title": "Reto Prueba Cloud Actualizado",
+    "author": "Comunidad",
+    "id": "reto_sample_cloud",
+    "description": "Desafío interactivo con preguntas de ciencia, cultura y tecnología.",
+    "category": "ciencias",
+    "categoryName": "Ciencias Naturales",
+    "authorAvatar": "👨‍🏫",
+    "plays": 15,
+    "difficulty": "Medio",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:57:06.572Z",
+    "createdAt": "2026-10-16T20:51:07.679Z"
+  },
+  {
     "id": "reto_1791652078225",
     "title": "Reto de Musicafdgdf",
     "description": "Cuestionario interactivo de evaluación y destreza sobre musica",
