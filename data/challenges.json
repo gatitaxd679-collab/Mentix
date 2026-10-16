@@ -1,5 +1,84 @@
 [
   {
+    "id": "reto_tech_mentix",
+    "title": "Desafío Relámpago de Tecnología y Código",
+    "description": "Pon a prueba tus conocimientos sobre internet, programación y el mundo digital.",
+    "category": "tecnologia",
+    "categoryName": "Tecnología & Programación",
+    "author": "Prof. Carlos Ruiz",
+    "authorAvatar": "💻",
+    "plays": 28,
+    "difficulty": "Medio",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "questions": [
+      {
+        "id": "qt1",
+        "text": "¿Qué lenguaje de programación se ejecuta nativamente en los navegadores web?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "JavaScript"
+          },
+          {
+            "text": "Python"
+          },
+          {
+            "text": "C++"
+          },
+          {
+            "text": "Java"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "qt2",
+        "text": "HTML es un lenguaje de marcado utilizado para estructurar las páginas web.",
+        "type": "truefalse",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Verdadero"
+          },
+          {
+            "text": "Falso"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "qt3",
+        "text": "¿Qué significan las siglas de URL en internet?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Uniform Resource Locator"
+          },
+          {
+            "text": "Universal Radio Link"
+          },
+          {
+            "text": "Unified Routing Language"
+          },
+          {
+            "text": "User Remote Login"
+          }
+        ],
+        "correctAnswer": 0
+      }
+    ],
+    "isPublic": true,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:27:51.287Z",
+    "createdAt": "2026-10-16T20:27:51.287Z"
+  },
+  {
     "id": "reto_sample_cloud",
     "title": "Reto Prueba Cloud Actualizado",
     "description": "Desafío interactivo con preguntas de ciencia, cultura y tecnología.",
