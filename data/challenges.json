@@ -1,5 +1,84 @@
 [
   {
+    "id": "reto_tech_mentix",
+    "title": "Desafío Relámpago de Tecnología y Código",
+    "description": "Pon a prueba tus conocimientos sobre internet, programación y el mundo digital.",
+    "category": "tecnologia",
+    "categoryName": "Tecnología & Programación",
+    "author": "Prof. Carlos Ruiz",
+    "authorAvatar": "💻",
+    "plays": 28,
+    "difficulty": "Medio",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "questions": [
+      {
+        "id": "qt1",
+        "text": "¿Qué lenguaje de programación se ejecuta nativamente en los navegadores web?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "JavaScript"
+          },
+          {
+            "text": "Python"
+          },
+          {
+            "text": "C++"
+          },
+          {
+            "text": "Java"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "qt2",
+        "text": "HTML es un lenguaje de marcado utilizado para estructurar las páginas web.",
+        "type": "truefalse",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Verdadero"
+          },
+          {
+            "text": "Falso"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "qt3",
+        "text": "¿Qué significan las siglas de URL en internet?",
+        "type": "quiz",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Uniform Resource Locator"
+          },
+          {
+            "text": "Universal Radio Link"
+          },
+          {
+            "text": "Unified Routing Language"
+          },
+          {
+            "text": "User Remote Login"
+          }
+        ],
+        "correctAnswer": 0
+      }
+    ],
+    "isPublic": true,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T21:06:56.850Z",
+    "createdAt": "2026-10-16T20:27:51.287Z"
+  },
+  {
     "id": "reto_1791582496591",
     "title": "Reto de animales",
     "description": "El Reto de Animales es una actividad divertida y educativa en la que los participantes pondrán a prueba sus conocimientos sobre el fascinante mundo animal. A través de una serie de preguntas sobre sus características, hábitats, alimentación, sonidos y curiosidades, deberán demostrar qué tanto saben y responder correctamente en el menor tiempo posible. ¡Acepta el desafío, aprende cosas nuevas y demuestra quién es el verdadero experto en animales! 🦁🐬🦒",
