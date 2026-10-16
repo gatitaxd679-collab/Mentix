@@ -1,5 +1,378 @@
 [
   {
+    "id": "reto_1791912575656",
+    "title": "Examen Estadistica II",
+    "description": "",
+    "category": "matematicas",
+    "difficulty": "Medio",
+    "banner": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+    "timePerQuestion": 60,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791912575656_tzx5",
+        "text": " Un analista de calidad inspecciona un único componente electrónico extraído al azar para verificar si cumple las especificaciones de calidad (\"Éxito\") o si presenta un defecto (\"Fracaso\"). ¿Qué modelos probabilísticos se aplican directamente a este experimento individual?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Distribución de Bernoulli con parámetro $p$ (probabilidad de éxito)",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Distribución Discreta General con espacio muestral de dos eventos $x \\in \\{0, 1\\}$.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": " Distribución Binomial con $n = 100$ componentes.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Distribución $t$-Student con $1$ grado de libertad.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          1
+        ]
+      },
+      {
+        "id": "q_1791912937056_j4n7",
+        "text": "Se selecciona una muestra aleatoria de $15$ pequeñas empresas para estimar el gasto medio mensual en publicidad. Se asume que la población de gastos sigue una distribución aproximadamente Normal, pero la desviación estándar poblacional ($\\sigma$) es desconocida. ¿Qué distribuciones se aplican directamente en la inferencia estadística de este problema?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Distribución Binomial con $n = 15$ y $p = 0.5$.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Una distribución continua para modelar el comportamiento del estadístico pivote $t = \\frac{\\bar{X} - \\mu}{S / \\sqrt{n}}$.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Distribución de Bernoulli para la probabilidad de gasto.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Distribución $t$-Student con $14$ grados de libertad ($n - 1$).",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          1,
+          3
+        ]
+      },
+      {
+        "id": "q_1791913040668_gqqw",
+        "text": "Un dado de 6 caras está cargado de forma que la probabilidad de obtener cada cara $x \\in \\{1, 2, 3, 4, 5, 6\\}$ es dada por una función de masa de probabilidad $P(X = x) = p_x$, donde $\\sum_{x=1}^{6} p_x = 1$. ¿Cuáles de las siguientes clasificaciones describen este modelo probabilístico?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Un espacio de probabilidad discreto finito definido en el soporte $\\{1, 2, 3, 4, 5, 6\\}$.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Distribución de Bernoulli con $p = 1/6$.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Distribución $t$-Student con 5 grados de libertad.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Distribución Discreta General, donde cada valor computable $x$ tiene asignada una probabilidad $p_x \\ge 0$.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          3
+        ]
+      },
+      {
+        "id": "q_1791913128508_4b6p",
+        "text": "Un centro de llamadas sabe que la probabilidad de que un cliente realice una compra en una llamada es $p = 0.08$. En una hora se realizan $50$ llamadas independientes. Sea $X$ el \"número de ventas realizadas en las 50 llamadas\". ¿Qué distribuciones modelan adecuadamente a $X$?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Distribución de Bernoulli con parámetro $p = 0.08 \\times 50$",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Distribución Binomial con parámetros $n = 50$ y $p = 0.08$",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Distribución Discreta General con soporte en el conjunto $\\{0, 1, 2, \\dots, 50\\}$.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": " Distribución $t$-Student con $n - 1 = 49$ grados de libertad.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "q_1791913219746_hwd8",
+        "text": "En un estudio clínico sobre $10$ pacientes, se mide el tiempo exacto de reacción (en segundos) ante una dosis de un fármaco. Asumiendo normalidad en la población de tiempos y $\\sigma$ desconocida, ¿cuáles de las siguientes características probabilísticas aplican al estudio?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "El tiempo de reacción promedio de la muestra se evalúa mediante una distribución $t$-Student con $9$ grados de libertad para la inferencia de la media $\\mu$",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El tiempo de reacción individual es una variable de Bernoulli.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La distribución $t$-Student es adecuada porque asigna mayor probabilidad a las colas que la Normal Estándar, reflejando la variabilidad de muestras pequeñas ($n = 10$).",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "El promedio de tiempos sigue una distribución Binomial.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          2
+        ]
+      },
+      {
+        "id": "q_1791913303573_z8wj",
+        "text": "Una compañía aseguradora clasifica el número de reclamaciones anuales de un usuario mediante una variable $Y$ con los siguientes valores de costo: $Y = \\$0$ (probabilidad $0.85$), $Y = \\$500$ (probabilidad $0.10$), y $Y = \\$5,000$ (probabilidad $0.05$). ¿Qué clasificaciones concuerdan con la naturaleza de $Y$?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Distribución Binomial con $n = 3$ y $p = 0.10$.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Variable aleatoria discreta cuyos valores posibles no están equiespaciados pero cumplen $\\sum P(Y=y) = 1$.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Distribución de Bernoulli pura.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Distribución Discreta General definida mediante una tabla de probabilidades asociadas a valores específicos.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          1,
+          3
+        ]
+      },
+      {
+        "id": "q_1791913386690_n9mv",
+        "text": "Se somete a prueba un nuevo algoritmo para clasificar $100$ imágenes de forma independiente. Para cada imagen, el algoritmo puede acertar (\"Éxito\") o fallar (\"Fracaso\"). ¿Bajo qué condiciones el total de aciertos se modela adecuadamente mediante una *Distribución Binomial*?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": " Cada clasificación individual de una imagen se comporta como un ensayo de Bernoulli.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Las clasificaciones de las imágenes son mutuamente independientes entre sí.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La velocidad de procesamiento de cada imagen sigue una distribución $t$-Student.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La probabilidad $p$ de clasificación correcta permanece constante en las $100$ imágenes probadas.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          3
+        ]
+      },
+      {
+        "id": "q_1791913470424_ua8n",
+        "text": " Un proceso industrial llena botellas con agua mineral. Se toma una muestra de $8$ botellas para probar si el volumen promedio llena la meta de $500\\text{ ml}$. Se asume que el volumen poblacional es normal y la desviación estándar poblacional es desconocida. ¿Qué propiedades distinguen la aplicación de la distribución $t$-Student sobre este contexto?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "El número de botellas defectuosas en la muestra de 8 sigue una distribución $t$-Student.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Se utiliza la distribución $t$-Student con $v = 7$ grados de libertad para calcular los valores críticos de prueba.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "A medida que el tamaño de muestra $n$ aumente hacia $\\infty$, la distribución $t$-Student convergerá a la distribución Normal Estándar $Z$.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La variable de prueba es una suma de variables cuantitativas discretas de Bernoulli.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "q_1791913590943_xhu6",
+        "text": " Un estudiante responde completamente al azar un examen de opción múltiple de $10$ preguntas. Cada pregunta tiene 4 opciones y solo una es correcta. ¿Cuáles de las siguientes relaciones de variables aleatorias y distribuciones son correctas?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Para cualquier pregunta individual $i$, la variable $X_i$ (\"Acierto en la pregunta $i$\") sigue una distribución de Bernoulli con $p = 0.25$.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La variable $Y$ es un caso especial de una Distribución Discreta General.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "El número total de respuestas correctas $Y = \\sum_{i=1}^{10} X_i$ sigue una distribución Binomial con $n = 10$ y $p = 0.25$.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La calificación del estudiante se modela mediante una distribución $t$-Student con $9$ grados de libertad.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          2
+        ]
+      },
+      {
+        "id": "q_1791913696537_ehrj",
+        "text": "Un profesor califica las tareas en una escala discreta de notas $1, 2, 3, 4, 5$. La probabilidad asignada a cada nota según el histórico del curso es: $P(1)=0.05, P(2)=0.15, P(3)=0.40, P(4)=0.30, P(5)=0.10$. ¿Qué afirmaciones reflejan adecuadamente la estructura de esta variable probabilística?",
+        "type": "multi",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 60,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Corresponde a una distribución Binomial de $n=5$ ensayos.",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Para verificar la media muestral de una muestra de 5 estudiantes sin conocer $\\sigma$, la nota individual de cada estudiante sigue la distribución $t$-Student.",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Corresponde a una Distribución Discreta General descrita mediante una función de masa de probabilidad explícita.",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La esperanza matemática $E[X]$ o valor esperado se calcula como $\\sum_{x=1}^{5} x \\cdot P(X=x)$.",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          2,
+          3
+        ]
+      }
+    ],
+    "entityName": "",
+    "categoryName": "Matematicas",
+    "author": "camilo  rios",
+    "authorAvatar": "🦊",
+    "authorId": "user_1791582684282",
+    "authorEmail": "darioscanon85@gmail.com",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T21:12:48.604Z",
+    "createdAt": "2026-10-16T19:25:20.786Z"
+  },
+  {
     "questions": [
       {
         "id": "q1",
