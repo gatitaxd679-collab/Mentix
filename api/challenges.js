@@ -34,12 +34,20 @@ export default async function handler(req, res) {
 
       if (ghRes.ok) {
         const ghData = await ghRes.json();
-        const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
-        const challenges = JSON.parse(contentStr);
-        if (Array.isArray(challenges)) {
-          inMemoryChallenges = challenges;
-          res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=10, stale-while-revalidate=30');
-          return res.status(200).json(challenges);
+        let contentStr = '';
+        if (ghData.content) {
+          contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
+        } else if (ghData.download_url) {
+          const rawRes = await fetch(ghData.download_url, { cache: 'no-store' });
+          if (rawRes.ok) contentStr = await rawRes.text();
+        }
+        if (contentStr) {
+          const challenges = JSON.parse(contentStr);
+          if (Array.isArray(challenges)) {
+            inMemoryChallenges = challenges;
+            res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=10, stale-while-revalidate=30');
+            return res.status(200).json(challenges);
+          }
         }
       }
     } catch (e) {
@@ -111,8 +119,16 @@ export default async function handler(req, res) {
           if (ghGet.ok) {
             const ghData = await ghGet.json();
             currentSha = ghData.sha;
-            const contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
-            currentChallenges = JSON.parse(contentStr);
+            let contentStr = '';
+            if (ghData.content) {
+              contentStr = Buffer.from(ghData.content, 'base64').toString('utf8');
+            } else if (ghData.download_url) {
+              const rawRes = await fetch(ghData.download_url, { cache: 'no-store' });
+              if (rawRes.ok) contentStr = await rawRes.text();
+            }
+            if (contentStr) {
+              currentChallenges = JSON.parse(contentStr);
+            }
             if (!Array.isArray(currentChallenges)) currentChallenges = [];
           }
         } catch (err) {

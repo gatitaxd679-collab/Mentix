@@ -128,7 +128,7 @@ export default async function handler(req, res) {
 
       const updatedBuffer = Buffer.from(JSON.stringify(sanitized, null, 2), 'utf8').toString('base64');
       const putPayload = {
-        message: `feat: guardar categoria global "${preparedCat.name}" conservando las demas`,
+        message: `chore(data): guardar categoria global "${preparedCat.name}" [skip ci]`,
         content: updatedBuffer,
         branch: 'main'
       };
@@ -187,7 +187,7 @@ export default async function handler(req, res) {
       const updatedBuffer = Buffer.from(JSON.stringify(filtered, null, 2), 'utf8').toString('base64');
 
       const putPayload = {
-        message: `fix: eliminar categoria "${catId}"`,
+        message: `chore(data): eliminar categoria "${catId}" [skip ci]`,
         content: updatedBuffer,
         branch: 'main'
       };

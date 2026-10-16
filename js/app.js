@@ -1099,7 +1099,8 @@ class AppRouter {
 
     // 3. Actualizar la nube pública (/api/categories)
     try {
-      await fetch(`/api/categories?id=${encodeURIComponent(categoryId)}`, {
+      const apiBase = this.getApiBase();
+      await fetch(`${apiBase}/api/categories?id=${encodeURIComponent(categoryId)}`, {
         method: 'DELETE'
       });
     } catch (e) {
@@ -1110,6 +1111,11 @@ class AppRouter {
     if (window.HomeView && this.currentView === 'home') window.HomeView.render();
     if (window.ProjectsView && this.currentView === 'projects') window.ProjectsView.render();
     if (window.soundEngine) window.soundEngine.playTrash();
+  }
+
+  getApiBase() {
+    const h = window.location.hostname || '';
+    return h.endsWith('vercel.app') ? '' : 'https://mentixs.vercel.app';
   }
 
   async handleCreateCategory(e) {
@@ -1165,7 +1171,8 @@ class AppRouter {
 
     // 2. Guardar en la nube pública (/api/categories) uniendo todas las categorías sin perder ninguna
     try {
-      const postRes = await fetch('/api/categories', {
+      const apiBase = this.getApiBase();
+      const postRes = await fetch(`${apiBase}/api/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ category: newCat })
@@ -1197,7 +1204,8 @@ class AppRouter {
     try {
       let cloudCategories = null;
       try {
-        const res = await fetch(`/api/categories?t=${Date.now()}`);
+        const apiBase = this.getApiBase();
+        const res = await fetch(`${apiBase}/api/categories?t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
           if (Array.isArray(json)) {
@@ -1282,7 +1290,8 @@ class AppRouter {
       challenge.projectType = challenge.projectType || 'quiz';
       challenge.updatedAt = new Date().toISOString();
 
-      const res = await fetch('/api/challenges', {
+      const apiBase = this.getApiBase();
+      const res = await fetch(`${apiBase}/api/challenges`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ challenge })
@@ -1300,7 +1309,8 @@ class AppRouter {
   async deleteChallengeFromCloud(challengeId) {
     if (!challengeId) return;
     try {
-      await fetch(`/api/challenges?id=${encodeURIComponent(challengeId)}`, {
+      const apiBase = this.getApiBase();
+      await fetch(`${apiBase}/api/challenges?id=${encodeURIComponent(challengeId)}`, {
         method: 'DELETE'
       });
       console.log('🗑️ Reto eliminado de MENTIX Cloud:', challengeId);
@@ -1315,7 +1325,8 @@ class AppRouter {
 
       // 1. Consultar API global de retos en Vercel
       try {
-        const res = await fetch(`/api/challenges?t=${Date.now()}`);
+        const apiBase = this.getApiBase();
+        const res = await fetch(`${apiBase}/api/challenges?t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
           if (Array.isArray(json) && json.length > 0) {
