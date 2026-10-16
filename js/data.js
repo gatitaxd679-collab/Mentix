@@ -212,14 +212,73 @@ const DEFAULT_CHALLENGES = [
   }
 ];
 
+// Sanitizador universal para limpiar texto corrupto (mojibake)
+function fixMojibake(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/\u251C\u00A1/g, 'í')
+    .replace(/\u251C\u00ED/g, 'á')
+    .replace(/\u251C\u2502/g, 'ó')
+    .replace(/\u251C\u00AE/g, 'é')
+    .replace(/\u251C\u2592/g, 'ñ')
+    .replace(/\u251C\u2551/g, 'ú')
+    .replace(/\u251C\u255D/g, 'ü')
+    .replace(/\u251C\u00FC/g, 'Á')
+    .replace(/\u251C\u00EB/g, 'É')
+    .replace(/\u251C\u00EC/g, 'Í')
+    .replace(/\u251C\u00F4/g, 'Ó')
+    .replace(/\u251C\u00DC/g, 'Ú')
+    .replace(/\u251C\u00E6/g, 'Ñ')
+    .replace(/\u252C[\u00A1\u00ED]/g, '¡')
+    .replace(/\u252C[\u2510\u00BF]/g, '¿')
+    .replace(/­ƒªü/g, '🦁')
+    .replace(/­ƒÉ¼/g, '🐬')
+    .replace(/­ƒªÆ/g, '🦒')
+    .replace(/­ƒªè/g, '🦊')
+    .replace(/Ã¡/g, 'á')
+    .replace(/Ã©/g, 'é')
+    .replace(/Ã­/g, 'í')
+    .replace(/Ã³/g, 'ó')
+    .replace(/Ãº/g, 'ú')
+    .replace(/Ã±/g, 'ñ')
+    .replace(/Ã/g, 'Á')
+    .replace(/Ã‰/g, 'É')
+    .replace(/Ã/g, 'Í')
+    .replace(/Ã“/g, 'Ó')
+    .replace(/Ãš/g, 'Ú')
+    .replace(/Ã‘/g, 'Ñ')
+    .replace(/Â¡/g, '¡')
+    .replace(/Â¿/g, '¿');
+}
+
+function deepCleanMojibake(val) {
+  if (typeof val === 'string') return fixMojibake(val);
+  if (Array.isArray(val)) return val.map(deepCleanMojibake);
+  if (val && typeof val === 'object') {
+    const res = {};
+    for (const k in val) {
+      res[k] = deepCleanMojibake(val[k]);
+    }
+    return res;
+  }
+  return val;
+}
+window.fixMojibake = fixMojibake;
+window.deepCleanMojibake = deepCleanMojibake;
+
 // Helper para inicializar o recuperar almacenamiento con desinfección automática
 function loadInitialState() {
   // Purgar almacenamiento local si contiene texto corrupto (mojibake)
   ['te_reto_challenges', 'te_reto_users', 'te_reto_groups'].forEach(key => {
     const raw = localStorage.getItem(key);
-    if (raw && (/ðŸ|Ã¡|Ã³|Ã©|Ã­|Ãº|Ã±|âœ|â¬|âš/.test(raw))) {
+    if (raw && (/ðŸ|Ã¡|Ã³|Ã©|Ã­|Ãº|Ã±|âœ|â¬|âš|\u251C|\u252C/.test(raw))) {
       console.log(`[Auto-Clean] Desinfectando entrada de localStorage: ${key}`);
-      localStorage.removeItem(key);
+      try {
+        const cleaned = deepCleanMojibake(JSON.parse(raw));
+        localStorage.setItem(key, JSON.stringify(cleaned));
+      } catch (err) {
+        localStorage.removeItem(key);
+      }
     }
   });
 
@@ -258,7 +317,7 @@ function loadInitialState() {
       const parsed = JSON.parse(storedChallenges);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Conservar solo proyectos reales creados por el usuario, eliminando los de muestra
-        challenges = parsed.filter(c => c && c.id && !OLD_MOCK_IDS.includes(c.id));
+        challenges = deepCleanMojibake(parsed.filter(c => c && c.id && !OLD_MOCK_IDS.includes(c.id)));
       }
     } catch(e) {}
   }

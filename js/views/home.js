@@ -352,7 +352,7 @@ window.HomeView = {
         
         <div style="padding: 1.25rem; display: flex; flex-direction: column; flex: 1;">
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <span style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700;">${challenge.categoryName || 'General'}</span>
+            <span style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700;">${window.fixMojibake ? window.fixMojibake(challenge.categoryName || 'General') : (challenge.categoryName || 'General')}</span>
             <span style="color: var(--text-muted);">•</span>
             <span style="font-size: 0.85rem; color: var(--text-muted);">
               ${projectType === 'presentation' ? (challenge.slides ? challenge.slides.length : 0) + ' diapositivas' : (projectType === 'video' ? (challenge.chapters ? challenge.chapters.length : 0) + ' capítulos' : (challenge.questions ? challenge.questions.length : 0) + ' preguntas')}
@@ -360,11 +360,11 @@ window.HomeView = {
           </div>
 
           <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; line-height: 1.3;">
-            ${challenge.title}
+            ${window.fixMojibake ? window.fixMojibake(challenge.title) : challenge.title}
           </h3>
 
           <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-            ${challenge.description || 'Contenido didáctico interactivo.'}
+            ${window.fixMojibake ? window.fixMojibake(challenge.description || 'Contenido didáctico interactivo.') : (challenge.description || 'Contenido didáctico interactivo.')}
           </p>
 
           <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.85rem; gap: 0.5rem;">

@@ -1351,6 +1351,9 @@ class AppRouter {
       }
 
       if (Array.isArray(cloudChallenges) && cloudChallenges.length > 0) {
+        if (typeof window.deepCleanMojibake === 'function') {
+          cloudChallenges = window.deepCleanMojibake(cloudChallenges);
+        }
         const local = Array.isArray(window.appState.challenges) ? window.appState.challenges : [];
         const map = new Map();
         local.forEach(c => { if (c && c.id) map.set(c.id, c); });
