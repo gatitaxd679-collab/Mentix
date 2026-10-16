@@ -1,5 +1,192 @@
 [
   {
+    "id": "reto_1791652078225",
+    "title": "Reto de Musicafdgdf",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre musica",
+    "category": "cultura",
+    "difficulty": "Medio",
+    "banner": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791659300235_khtm7",
+        "text": "De acuerdo con los fundamentos documentados de musica, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "con intenciones que van desde el amor hasta la crítica social",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "En la música contemporánea actual, predominan diferentes géneros musicales como el rock, jazz, blues, r&b, pop, balada romántica, música folclórica, música electrónica, rap, salsa, cumbia, reggaetón, etc",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "El estudio de la música como disciplina artística se denomina teoría musical y a menudo se enseña en conservatorios de música junto con otros estudios como la notación musical, el solfeo y la lectura de partituras",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1791659300235_dpvtm",
+        "text": "De acuerdo con los fundamentos documentados de musica, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "El concepto de música en la civilización occidental ha ido evolucionando desde su origen en la Antigua Grecia, en que se reunía sin distinción a la poesía, la música y la danza como arte unitario",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "En la música contemporánea actual, predominan diferentes géneros musicales como el rock, jazz, blues, r&b, pop, balada romántica, música folclórica, música electrónica, rap, salsa, cumbia, reggaetón, etc",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "con intenciones que van desde el amor hasta la crítica social",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791659300236_haz3b",
+        "text": "De acuerdo con los fundamentos documentados de musica, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "con intenciones que van desde el amor hasta la crítica social",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El concepto de música en la civilización occidental ha ido evolucionando desde su origen en la Antigua Grecia, en que se reunía sin distinción a la poesía, la música y la danza como arte unitario",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La música cumple una función importante en el desarrollo cognitivo del ser humano",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1791659300236_qcbub",
+        "text": "De acuerdo con los fundamentos documentados de musica, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La música cumple una función importante en el desarrollo cognitivo del ser humano",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El concepto de música en la civilización occidental ha ido evolucionando desde su origen en la Antigua Grecia, en que se reunía sin distinción a la poesía, la música y la danza como arte unitario",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La gente puede hacer música por afición, como, por ejemplo, un adolescente que toca el violonchelo en una orquesta juvenil, o trabajar como músico o cantante profesional",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791659300236_lgoh2",
+        "text": "De acuerdo con los fundamentos documentados de musica, cuál de los siguientes enunciados es verdadero",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Incluso una vez que se ha interpretado una canción o pieza, la crítica musical, el periodismo musical y la musicología pueden valorar y evaluar la pieza y su interpretación",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La gente puede hacer música por afición, como, por ejemplo, un adolescente que toca el violonchelo en una orquesta juvenil, o trabajar como músico o cantante profesional",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La música cumple una función importante en el desarrollo cognitivo del ser humano",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      }
+    ],
+    "author": "Eimy",
+    "authorAvatar": "🦊",
+    "entityName": "",
+    "categoryName": "Cultura General",
+    "authorId": "user_1791496180841",
+    "authorEmail": "gatitaxd679@gmail.com",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:42:53.416Z",
+    "createdAt": "2026-10-13T20:29:11.835Z",
+    "authorRole": "student",
+    "accessMode": "public",
+    "accessCode": "",
+    "expiresAt": null
+  },
+  {
     "id": "reto_1791914831046",
     "title": "ghf",
     "description": "dfh",
