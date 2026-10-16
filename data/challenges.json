@@ -1,5 +1,353 @@
 [
   {
+    "id": "reto_1792028482891",
+    "title": "Reto de Juegos y diviersion",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre juegos y diviersion",
+    "category": "entretenimiento",
+    "difficulty": "Fácil",
+    "banner": "https://i.pinimg.com/236x/cb/89/bc/cb89bcbfa31c10f4625bc5b6611036ea.jpg",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "accessMode": "public",
+    "accessCode": "",
+    "expiresAt": null,
+    "temporalDuration": "24h",
+    "questions": [
+      {
+        "id": "q_1792028549359_8qyf6",
+        "text": "¿Qué resume: ¡Bienvenidos a un mundo lleno de alegría, emoción y entretenimiento! 🥳 Aquí encontrarás juegos divertidos, retos emocionantes y actividades para compartir con amigos y familiares?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "¡Prepárate para reír, jugar, aprender y vivir momentos",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "¡Bienvenidos a un mundo lleno de alegría, emoción",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "¡Bienvenidos a un mundo lleno de alegría, emoción",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1792028549359_oy1we",
+        "text": "¿Qué resume: ¡Prepárate para reír, jugar, aprender y vivir momentos inolvidables! 🌟🎈?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "¡Bienvenidos a un mundo lleno de alegría, emoción",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica reciente",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "¡Prepárate para reír, jugar, aprender y vivir momentos",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "¡Prepárate para reír, jugar, aprender y vivir momentos",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1792028549363_nvbvv",
+        "text": "¿qué transformación histórica clave propició la evolución de juegos y diviersion?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Obligó a descartar por completo todos los conocimientos",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Se limitó a una formulación puramente nominal sin",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Provocó el estancamiento permanente de su área",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Permitió resolver problemas complejos de su disciplina, abriendo",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1792028549363_qfajz",
+        "text": "¿cuál de los siguientes hitos o premisas fundamentales definió su origen y consolidación?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "El establecimiento de principios conceptuales rigurosos y metodologías",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Un proceso exclusivo de divulgación popular carente",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La subordinación pasiva a doctrinas arcaicas que prohibían",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Una mera coincidencia accidental sin ningún tipo",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1792028549363_3fuqt",
+        "text": "¿cuál de las siguientes opciones describe un elemento o manifestación clave?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Un factor secundario sin influencia en los resultados",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Un mecanismo opuesto que anula sus efectos",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Una variable irrelevante para su disciplina",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Las propiedades funcionales y estructurales que definen a",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1792028549363_lknj6",
+        "text": "¿cuál de los siguientes enfoques metodológicos ha caracterizado su práctica más rigurosa?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La adopción incondicional de conjeturas subjetivas sin comprobación",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La contrastación sistemática de hipótesis respaldada por evidencia",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La extrapolación forzada de conceptos incompatibles tomados",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La renuncia explícita a cualquier estándar de calidad,",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1792028549363_iizjq",
+        "text": "¿cuál representa uno de los debates o campos de desarrollo más activos y avanzados respecto a juegos y diviersion?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La reducción simplista de sus postulados a fórmulas",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La optimización de sus procesos y la integración",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La imposibilidad absoluta de medir o evaluar su",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "El abandono total de su estudio debido a",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1792028549363_wgwyr",
+        "text": "¿qué elemento o mecanismo interno resulta indispensable para su correcto funcionamiento y manifestación?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La dependencia exclusiva de factores externos impredecibles sin",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La eliminación arbitraria de variables de control",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La articulación sinérgica de sus componentes esenciales conforme",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "El aislamiento absoluto de cualquier interacción con su",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1792028549363_azhyj",
+        "text": "¿Cuál de los siguientes criterios es fundamental al evaluar la efectividad o desarrollo de juegos y diviersion?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "El aislamiento frente a estándares de calidad",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La dependencia de factores puramente fortuitos",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La ausencia total de métricas o comprobaciones",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La coherencia de sus resultados con los objetivos",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1792028549363_t1csy",
+        "text": "¿cuál de los siguientes elementos define con mayor precisión su objetivo o característica central?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Un factor secundario sin influencia en los resultados reales",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Las propiedades, normas y aplicaciones fundamentales que distinguen",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Una práctica descartada por falta de sustento técnico",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Un elemento incompatible que anula su propósito",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      }
+    ],
+    "author": "Annie",
+    "authorAvatar": "🐰",
+    "entityName": "",
+    "categoryName": "Entretenimiento & Juegos",
+    "authorId": "user_1791582602270",
+    "authorEmail": "acanon@ciudadmontesbilingue.edu.co",
+    "authorRole": "student",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T21:08:33.926Z",
+    "createdAt": "2026-10-15T01:43:52.370Z"
+  },
+  {
     "id": "reto_1791582496591",
     "title": "Reto de animales",
     "description": "El Reto de Animales es una actividad divertida y educativa en la que los participantes pondrán a prueba sus conocimientos sobre el fascinante mundo animal. A través de una serie de preguntas sobre sus características, hábitats, alimentación, sonidos y curiosidades, deberán demostrar qué tanto saben y responder correctamente en el menor tiempo posible. ¡Acepta el desafío, aprende cosas nuevas y demuestra quién es el verdadero experto en animales! 🦁🐬🦒",
