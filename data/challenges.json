@@ -1,5 +1,192 @@
 [
   {
+    "id": "reto_1791825668453",
+    "title": "Reto de Musicagg",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre musica",
+    "category": "cultura",
+    "difficulty": "Medio",
+    "banner": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791827929903_iosgv",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El estudio de la música como disciplina artística",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "con intenciones que van desde el amor hasta",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "En la música contemporánea actual, predominan diferentes géneros",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791827929903_sdply",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "En la música contemporánea actual, predominan diferentes géneros",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "El concepto de música en la civilización occidental",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "con intenciones que van desde el amor hasta",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1791827929903_cibai",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El concepto de música en la civilización occidental",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "con intenciones que van desde el amor hasta",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "La música cumple una función importante en",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791827929903_92xc1",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La gente puede hacer música por afición, como,",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La música cumple una función importante en",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "El concepto de música en la civilización occidental",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791827929903_txt6j",
+        "text": "¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "La gente puede hacer música por afición, como,",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "La música cumple una función importante en",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Incluso una vez que se ha interpretado",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      }
+    ],
+    "author": "Eimy",
+    "authorAvatar": "🦊",
+    "entityName": "",
+    "categoryName": "Cultura General",
+    "authorId": "user_1791496180841",
+    "authorEmail": "gatitaxd679@gmail.com",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T21:01:20.732Z",
+    "createdAt": "2026-10-13T20:29:11.750Z",
+    "accessMode": "private",
+    "authorRole": "student",
+    "accessCode": "",
+    "expiresAt": null
+  },
+  {
     "id": "reto_1791583229836",
     "title": "prueba",
     "description": "",
