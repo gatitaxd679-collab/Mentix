@@ -1,5 +1,192 @@
 [
   {
+    "id": "reto_1791582496591",
+    "title": "Reto de animales",
+    "description": "El Reto de Animales es una actividad divertida y educativa en la que los participantes pondrán a prueba sus conocimientos sobre el fascinante mundo animal. A través de una serie de preguntas sobre sus características, hábitats, alimentación, sonidos y curiosidades, deberán demostrar qué tanto saben y responder correctamente en el menor tiempo posible. ¡Acepta el desafío, aprende cosas nuevas y demuestra quién es el verdadero experto en animales! 🦁🐬🦒",
+    "category": "ciencias",
+    "difficulty": "Medio",
+    "banner": "https://i.pinimg.com/736x/c6/86/d5/c686d5a02dd18b73e06f465fb08e0397.jpg",
+    "timePerQuestion": 10,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791582496592_5xmw",
+        "text": "¿Los elefantes son mamíferos ?",
+        "type": "boolean",
+        "media": "https://content.nationalgeographic.com.es/medio/2026/08/13/1-elefante_819f7e8a_260813151716_800x800.webp",
+        "mediaType": "image",
+        "timeLimit": 10,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Verdadero",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Falso",
+            "shape": "⬢",
+            "color": "opt-2"
+          }
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "id": "q_1791582710581_b7nz",
+        "text": "¿Quién es el animal mas tranquilo?",
+        "type": "single",
+        "media": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLWpM_1tFzS4gw5YY7m0UnONHyPem-ugEV5Lf0aXmSVrpVgvuF0onFPiY&s=10",
+        "mediaType": "image",
+        "timeLimit": 10,
+        "points": 1000,
+        "options": [
+          {
+            "text": "elefante",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "chigüiro ",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "león",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "conejo",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791582938949_r1o5",
+        "text": "¿Quien  es omnivoro?",
+        "type": "multi",
+        "media": "https://humanidades.com/wp-content/uploads/2017/03/osos-e1563753461114.jpg",
+        "mediaType": "image",
+        "timeLimit": 10,
+        "points": 1000,
+        "options": [
+          {
+            "text": "humano",
+            "shape": "🔷",
+            "color": "opt-1"
+          },
+          {
+            "text": "elefante",
+            "shape": "🔶",
+            "color": "opt-2"
+          },
+          {
+            "text": "cerdo",
+            "shape": "🟢",
+            "color": "opt-3"
+          },
+          {
+            "text": "pajaro",
+            "shape": "🟣",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          2
+        ],
+        "acceptedAnswers": [
+          ""
+        ]
+      },
+      {
+        "id": "q_1791600274313",
+        "text": "¿Quien es un carnivoro?",
+        "type": "multi",
+        "media": "https://misanimales.com/wp-content/uploads/2015/03/cerdo.jpg",
+        "mediaType": "image",
+        "timeLimit": 10,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Leon",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Tortuga",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Gato",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Pez",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          0,
+          2
+        ],
+        "acceptedAnswers": []
+      },
+      {
+        "id": "q_1791600590833",
+        "text": "¿Quien es herbivoro?",
+        "type": "multi",
+        "media": "https://static.wikia.nocookie.net/reinoanimalia/images/1/16/Zorro_rojo_3.png/revision/latest/scale-to-width-down/340?cb=20130423221137&path-prefix=es",
+        "mediaType": "image",
+        "timeLimit": 10,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Humano",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Tortuga",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Tiburon",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Vaca",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": [
+          1,
+          3
+        ],
+        "acceptedAnswers": []
+      }
+    ],
+    "categoryName": "Ciencias Naturales",
+    "entityName": "",
+    "author": "Annie",
+    "authorAvatar": "🦊",
+    "authorId": "user_1791582602270",
+    "authorEmail": "acanon@ciudadmontesbilingue.edu.co",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:59:08.457Z",
+    "createdAt": "2026-10-13T20:29:43.134Z"
+  },
+  {
     "id": "reto_1791583229836",
     "title": "prueba",
     "description": "",
