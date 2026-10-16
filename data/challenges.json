@@ -1,5 +1,186 @@
 [
   {
+    "id": "reto_1791497604353",
+    "title": "Reto de Gobierno de datos",
+    "description": "Cuestionario interactivo de evaluación y destreza sobre gobierno de datos. ¡Responde rápido y acumula puntos!",
+    "category": "tecnologia",
+    "difficulty": "Medio",
+    "banner": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
+    "timePerQuestion": 20,
+    "pointsStandard": 1000,
+    "isPublic": true,
+    "questions": [
+      {
+        "id": "q_1791497610793_gfbkl",
+        "text": "De acuerdo con los fundamentos documentados de \"gobierno de datos\", ¿cuál de los siguientes enunciados es verdadero?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Carece de aplicación en la práctica profesional contemporánea",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "--- Gestión de datos --- La gestión de datos se compone de todas las disciplinas relaciona...",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Es un principio descartado por la evidencia empírica",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Aplica únicamente a modelos teóricos sin respaldo real",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791497610797_vsmdu",
+        "text": "En el almacenamiento analítico (DW/BI) según DAMA, ¿cómo gestiona una Dimensión de Cambio Lento de Tipo 2 (SCD Tipo 2) la actualización histórica de un atributo?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Sobrescribe el valor anterior borrando permanentemente el dato histórico (SCD Tipo 1)",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Elimina toda la tabla de hechos asociada al cliente",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Crea un nuevo registro en la dimensión con fechas de vigencia (Start Date / End Date e indicador actual), preservando todo el historial",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Bloquea la base de datos para impedir cualquier modificación futura",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "id": "q_1791497610797_bxwnc",
+        "text": "En el Modelo de Madurez de Gestión de Datos de DAMA (Data Management Maturity Model), ¿cuál es la escala típica de niveles de madurez organizacional?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Nivel Básico ➔ Nivel Medio ➔ Nivel Avanzado",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Nivel 1 (Inicial / Ad-hoc) ➔ Nivel 2 (Repetible) ➔ Nivel 3 (Definido) ➔ Nivel 4 (Gestionado) ➔ Nivel 5 (Optimizado)",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Nivel Bronce ➔ Nivel Plata ➔ Nivel Oro ➔ Nivel Platino",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Nivel Alpha ➔ Nivel Beta ➔ Nivel Release ➔ Nivel Gold",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "id": "q_1791497610797_9t1ot",
+        "text": "En la disciplina de Calidad de Datos (DAMA-DMBOK), ¿qué técnica consiste en examinar empíricamente los datos reales de una fuente para identificar patrones, distribuciones y porcentajes de nulos?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "La Desfragmentación de Archivos",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "El Escaneo de Puertos de Red",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "El Particionamiento de Disco Lógico",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "El Perfilamiento de Datos (Data Profiling)",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "id": "q_1791497610797_o9530",
+        "text": "En los diagramas contextuales de DAMA-DMBOK, ¿qué elementos ambientales enmarcan cada una de las 11 áreas de conocimiento (Hexágono de DAMA)?",
+        "type": "single",
+        "media": "",
+        "mediaType": "none",
+        "timeLimit": 20,
+        "points": 1000,
+        "options": [
+          {
+            "text": "Metas y Principios, Actividades, Entregables, Roles y Responsabilidades, Prácticas y Métodos, Herramientas, y Organización y Cultura",
+            "shape": "✦",
+            "color": "opt-1"
+          },
+          {
+            "text": "Servidores, Redes, Almacenamiento, Software, Licencias y Costos",
+            "shape": "⬢",
+            "color": "opt-2"
+          },
+          {
+            "text": "Entrada, Proceso, Salida, Realimentación, Memoria y Control",
+            "shape": "⚡",
+            "color": "opt-3"
+          },
+          {
+            "text": "Planear, Hacer, Verificar, Actuar, Auditar y Reportar",
+            "shape": "🛡️",
+            "color": "opt-4"
+          }
+        ],
+        "correctAnswer": 0
+      }
+    ],
+    "author": "Carlos",
+    "authorAvatar": "🦊",
+    "entityName": "",
+    "categoryName": "Tecnología & Programación",
+    "plays": 0,
+    "projectType": "quiz",
+    "updatedAt": "2026-10-16T20:57:06.567Z",
+    "createdAt": "2026-10-13T20:29:12.238Z"
+  },
+  {
     "questions": [
       {
         "id": "q1",
