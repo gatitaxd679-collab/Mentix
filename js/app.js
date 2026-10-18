@@ -1281,7 +1281,7 @@ class AppRouter {
     const cleanName = (u.name || '').trim().toLowerCase();
     const cleanEmail = (u.email || '').trim().toLowerCase();
     const isMelisa = cleanName === 'melisa' || cleanName.includes('melisa') || cleanEmail.includes('melisa') || cleanEmail.includes('meli030814abc');
-    const isAgileScrum = cleanTitle.includes('agile') && cleanTitle.includes('scrum');
+    const isAgileScrum = (cleanTitle.includes('agile') && cleanTitle.includes('scrum')) || challenge.id === 'reto_1792180343870';
 
     if (isAgileScrum) {
       if (isMelisa) {
