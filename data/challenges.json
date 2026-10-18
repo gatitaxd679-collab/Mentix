@@ -2927,19 +2927,19 @@
     "title": "Reto de Juegos y diviersion",
     "description": "Cuestionario interactivo de evaluaciÔö£Ôöén y destreza sobre juegos y diviersion",
     "category": "entretenimiento",
-    "difficulty": "FÔö£├¡cil",
+    "difficulty": "Fácil",
     "banner": "https://i.pinimg.com/236x/cb/89/bc/cb89bcbfa31c10f4625bc5b6611036ea.jpg",
     "timePerQuestion": 20,
     "pointsStandard": 1000,
     "isPublic": true,
-    "accessMode": "public",
+    "accessMode": "room_only",
     "accessCode": "",
     "expiresAt": null,
     "temporalDuration": "24h",
     "questions": [
       {
         "id": "q_1792028549359_8qyf6",
-        "text": "Ôö¼ÔöÉQuÔö£┬« resume: Ôö¼├¡Bienvenidos a un mundo lleno de alegrÔö£┬ía, emociÔö£Ôöén y entretenimiento! ┬¡ãÆ├æÔöé AquÔö£┬í encontrarÔö£├¡s juegos divertidos, retos emocionantes y actividades para compartir con amigos y familiares?",
+        "text": "Ôö¼ÔöÉQuÔö£┬« resume: Ôö¼íBienvenidos a un mundo lleno de alegrÔö£¡a, emociÔö£Ôöén y entretenimiento! ¡ãÆÑÔöé AquÔö£¡ encontrarÔö£ís juegos divertidos, retos emocionantes y actividades para compartir con amigos y familiares?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -2947,23 +2947,23 @@
         "points": 1000,
         "options": [
           {
-            "text": "Ôö¼├¡PrepÔö£├¡rate para reÔö£┬ír, jugar, aprender y vivir momentos",
+            "text": "Ôö¼íPrepÔö£írate para reÔö£¡r, jugar, aprender y vivir momentos",
             "shape": "├ö┬ú┬¬",
             "color": "opt-1"
           },
           {
-            "text": "Ôö¼├¡Bienvenidos a un mundo lleno de alegrÔö£┬ía, emociÔö£Ôöén",
-            "shape": "├ö┬╝├│",
+            "text": "Ôö¼íBienvenidos a un mundo lleno de alegrÔö£¡a, emociÔö£Ôöén",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
-            "text": "Es un principio descartado por la evidencia empÔö£┬írica reciente",
-            "shape": "├ö├£├¡",
+            "text": "Es un principio descartado por la evidencia empÔö£¡rica reciente",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
-            "text": "Ôö¼├¡Bienvenidos a un mundo lleno de alegrÔö£┬ía, emociÔö£Ôöén",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "text": "Ôö¼íBienvenidos a un mundo lleno de alegrÔö£¡a, emociÔö£Ôöén",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -2971,7 +2971,7 @@
       },
       {
         "id": "q_1792028549359_oy1we",
-        "text": "Ôö¼ÔöÉQuÔö£┬« resume: Ôö¼├¡PrepÔö£├¡rate para reÔö£┬ír, jugar, aprender y vivir momentos inolvidables! ┬¡ãÆ├«ãÆ┬¡ãÆ├ä├¬?",
+        "text": "Ôö¼ÔöÉQuÔö£┬« resume: Ôö¼íPrepÔö£írate para reÔö£¡r, jugar, aprender y vivir momentos inolvidables! ¡ãÆ├«ãÆ¡ãÆ├ä├¬?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -2979,23 +2979,23 @@
         "points": 1000,
         "options": [
           {
-            "text": "Ôö¼├¡Bienvenidos a un mundo lleno de alegrÔö£┬ía, emociÔö£Ôöén",
+            "text": "Ôö¼íBienvenidos a un mundo lleno de alegrÔö£¡a, emociÔö£Ôöén",
             "shape": "├ö┬ú┬¬",
             "color": "opt-1"
           },
           {
-            "text": "Es un principio descartado por la evidencia empÔö£┬írica reciente",
-            "shape": "├ö┬╝├│",
+            "text": "Es un principio descartado por la evidencia empÔö£¡rica reciente",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
-            "text": "Ôö¼├¡PrepÔö£├¡rate para reÔö£┬ír, jugar, aprender y vivir momentos",
-            "shape": "├ö├£├¡",
+            "text": "Ôö¼íPrepÔö£írate para reÔö£¡r, jugar, aprender y vivir momentos",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
-            "text": "Ôö¼├¡PrepÔö£├¡rate para reÔö£┬ír, jugar, aprender y vivir momentos",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "text": "Ôö¼íPrepÔö£írate para reÔö£¡r, jugar, aprender y vivir momentos",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3017,17 +3017,17 @@
           },
           {
             "text": "Se limitÔö£Ôöé a una formulaciÔö£Ôöén puramente nominal sin",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
-            "text": "ProvocÔö£Ôöé el estancamiento permanente de su Ôö£├¡rea",
-            "shape": "├ö├£├¡",
+            "text": "ProvocÔö£Ôöé el estancamiento permanente de su Ôö£írea",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "PermitiÔö£Ôöé resolver problemas complejos de su disciplina, abriendo",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3035,7 +3035,7 @@
       },
       {
         "id": "q_1792028549363_qfajz",
-        "text": "Ôö¼ÔöÉcuÔö£├¡l de los siguientes hitos o premisas fundamentales definiÔö£Ôöé su origen y consolidaciÔö£Ôöén?",
+        "text": "Ôö¼ÔöÉcuÔö£íl de los siguientes hitos o premisas fundamentales definiÔö£Ôöé su origen y consolidaciÔö£Ôöén?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3043,23 +3043,23 @@
         "points": 1000,
         "options": [
           {
-            "text": "El establecimiento de principios conceptuales rigurosos y metodologÔö£┬ías",
+            "text": "El establecimiento de principios conceptuales rigurosos y metodologÔö£¡as",
             "shape": "├ö┬ú┬¬",
             "color": "opt-1"
           },
           {
             "text": "Un proceso exclusivo de divulgaciÔö£Ôöén popular carente",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
-            "text": "La subordinaciÔö£Ôöén pasiva a doctrinas arcaicas que prohibÔö£┬ían",
-            "shape": "├ö├£├¡",
+            "text": "La subordinaciÔö£Ôöén pasiva a doctrinas arcaicas que prohibÔö£¡an",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "Una mera coincidencia accidental sin ningÔö£Ôòæn tipo",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3067,7 +3067,7 @@
       },
       {
         "id": "q_1792028549363_3fuqt",
-        "text": "Ôö¼ÔöÉcuÔö£├¡l de las siguientes opciones describe un elemento o manifestaciÔö£Ôöén clave?",
+        "text": "Ôö¼ÔöÉcuÔö£íl de las siguientes opciones describe un elemento o manifestaciÔö£Ôöén clave?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3081,17 +3081,17 @@
           },
           {
             "text": "Un mecanismo opuesto que anula sus efectos",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "Una variable irrelevante para su disciplina",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "Las propiedades funcionales y estructurales que definen a",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3099,7 +3099,7 @@
       },
       {
         "id": "q_1792028549363_lknj6",
-        "text": "Ôö¼ÔöÉcuÔö£├¡l de los siguientes enfoques metodolÔö£Ôöégicos ha caracterizado su prÔö£├¡ctica mÔö£├¡s rigurosa?",
+        "text": "Ôö¼ÔöÉcuÔö£íl de los siguientes enfoques metodolÔö£Ôöégicos ha caracterizado su prÔö£íctica mÔö£ís rigurosa?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3112,18 +3112,18 @@
             "color": "opt-1"
           },
           {
-            "text": "La contrastaciÔö£Ôöén sistemÔö£├¡tica de hipÔö£Ôöétesis respaldada por evidencia",
-            "shape": "├ö┬╝├│",
+            "text": "La contrastaciÔö£Ôöén sistemÔö£ítica de hipÔö£Ôöétesis respaldada por evidencia",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "La extrapolaciÔö£Ôöén forzada de conceptos incompatibles tomados",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
-            "text": "La renuncia explÔö£┬ícita a cualquier estÔö£├¡ndar de calidad,",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "text": "La renuncia explÔö£¡cita a cualquier estÔö£índar de calidad,",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3131,7 +3131,7 @@
       },
       {
         "id": "q_1792028549363_iizjq",
-        "text": "Ôö¼ÔöÉcuÔö£├¡l representa uno de los debates o campos de desarrollo mÔö£├¡s activos y avanzados respecto a juegos y diviersion?",
+        "text": "Ôö¼ÔöÉcuÔö£íl representa uno de los debates o campos de desarrollo mÔö£ís activos y avanzados respecto a juegos y diviersion?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3145,17 +3145,17 @@
           },
           {
             "text": "La optimizaciÔö£Ôöén de sus procesos y la integraciÔö£Ôöén",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "La imposibilidad absoluta de medir o evaluar su",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "El abandono total de su estudio debido a",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3177,17 +3177,17 @@
           },
           {
             "text": "La eliminaciÔö£Ôöén arbitraria de variables de control",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "La articulaciÔö£Ôöén sinÔö£┬«rgica de sus componentes esenciales conforme",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "El aislamiento absoluto de cualquier interacciÔö£Ôöén con su",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3195,7 +3195,7 @@
       },
       {
         "id": "q_1792028549363_azhyj",
-        "text": "Ôö¼ÔöÉCuÔö£├¡l de los siguientes criterios es fundamental al evaluar la efectividad o desarrollo de juegos y diviersion?",
+        "text": "Ôö¼ÔöÉCuÔö£íl de los siguientes criterios es fundamental al evaluar la efectividad o desarrollo de juegos y diviersion?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3203,23 +3203,23 @@
         "points": 1000,
         "options": [
           {
-            "text": "El aislamiento frente a estÔö£├¡ndares de calidad",
+            "text": "El aislamiento frente a estÔö£índares de calidad",
             "shape": "├ö┬ú┬¬",
             "color": "opt-1"
           },
           {
             "text": "La dependencia de factores puramente fortuitos",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "La ausencia total de mÔö£┬«tricas o comprobaciones",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "La coherencia de sus resultados con los objetivos",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3227,7 +3227,7 @@
       },
       {
         "id": "q_1792028549363_t1csy",
-        "text": "Ôö¼ÔöÉcuÔö£├¡l de los siguientes elementos define con mayor precisiÔö£Ôöén su objetivo o caracterÔö£┬ística central?",
+        "text": "Ôö¼ÔöÉcuÔö£íl de los siguientes elementos define con mayor precisiÔö£Ôöén su objetivo o caracterÔö£¡stica central?",
         "type": "single",
         "media": "",
         "mediaType": "none",
@@ -3241,17 +3241,17 @@
           },
           {
             "text": "Las propiedades, normas y aplicaciones fundamentales que distinguen",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
-            "text": "Una prÔö£├¡ctica descartada por falta de sustento tÔö£┬«cnico",
-            "shape": "├ö├£├¡",
+            "text": "Una prÔö£íctica descartada por falta de sustento tÔö£┬«cnico",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "Un elemento incompatible que anula su propÔö£Ôöésito",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -3259,7 +3259,7 @@
       }
     ],
     "author": "Annie",
-    "authorAvatar": "┬¡ãÆ├ëÔûæ",
+    "authorAvatar": "¡ãÆÉÔûæ",
     "entityName": "",
     "categoryName": "Entretenimiento & Juegos",
     "authorId": "user_1791582602270",
@@ -3267,7 +3267,7 @@
     "authorRole": "student",
     "plays": 0,
     "projectType": "quiz",
-    "updatedAt": "2026-10-16T21:21:10.173Z",
+    "updatedAt": "2026-10-18T18:17:38.153Z",
     "createdAt": "2026-10-15T01:43:52.370Z"
   },
   {
