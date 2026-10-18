@@ -1497,7 +1497,7 @@
   {
     "id": "reto_1791582496591",
     "title": "Reto de animales",
-    "description": "El Reto de Animales es una actividad divertida y educativa en la que los participantes pondrÔö£├¡n a prueba sus conocimientos sobre el fascinante mundo animal. A travÔö£┬«s de una serie de preguntas sobre sus caracterÔö£┬ísticas, hÔö£├¡bitats, alimentaciÔö£Ôöén, sonidos y curiosidades, deberÔö£├¡n demostrar quÔö£┬« tanto saben y responder correctamente en el menor tiempo posible. Ôö¼├¡Acepta el desafÔö£┬ío, aprende cosas nuevas y demuestra quiÔö£┬«n es el verdadero experto en animales! ┬¡ãÆ┬¬├╝┬¡ãÆ├ë┬╝┬¡ãÆ┬¬├å",
+    "description": "El Reto de Animales es una actividad divertida y educativa en la que los participantes pondrÔö£ín a prueba sus conocimientos sobre el fascinante mundo animal. A travÔö£┬«s de una serie de preguntas sobre sus caracterÔö£¡sticas, hÔö£íbitats, alimentaciÔö£Ôöén, sonidos y curiosidades, deberÔö£ín demostrar quÔö£┬« tanto saben y responder correctamente en el menor tiempo posible. Ôö¼íAcepta el desafÔö£¡o, aprende cosas nuevas y demuestra quiÔö£┬«n es el verdadero experto en animales! ¡ãÆ┬¬ü¡ãÆÉ┬╝¡ãÆ┬¬├å",
     "category": "ciencias",
     "difficulty": "Medio",
     "banner": "https://i.pinimg.com/736x/c6/86/d5/c686d5a02dd18b73e06f465fb08e0397.jpg",
@@ -1507,7 +1507,7 @@
     "questions": [
       {
         "id": "q_1791582496592_5xmw",
-        "text": "Ôö¼ÔöÉLos elefantes son mamÔö£┬íferos ?",
+        "text": "Ôö¼ÔöÉLos elefantes son mamÔö£¡feros ?",
         "type": "boolean",
         "media": "https://content.nationalgeographic.com.es/medio/2026/08/13/1-elefante_819f7e8a_260813151716_800x800.webp",
         "mediaType": "image",
@@ -1521,7 +1521,7 @@
           },
           {
             "text": "Falso",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           }
         ],
@@ -1543,17 +1543,17 @@
           },
           {
             "text": "chigÔö£ÔòØiro ",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "leÔö£Ôöén",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "conejo",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -1570,22 +1570,22 @@
         "options": [
           {
             "text": "humano",
-            "shape": "┬¡ãÆ├Â├Ç",
+            "shape": "¡ãÆ├Â├Ç",
             "color": "opt-1"
           },
           {
             "text": "elefante",
-            "shape": "┬¡ãÆ├Â├é",
+            "shape": "¡ãÆ├Â├é",
             "color": "opt-2"
           },
           {
             "text": "cerdo",
-            "shape": "┬¡ãÆãÆ├│",
+            "shape": "¡ãÆãÆó",
             "color": "opt-3"
           },
           {
             "text": "pajaro",
-            "shape": "┬¡ãÆãÆ├║",
+            "shape": "¡ãÆãÆú",
             "color": "opt-4"
           }
         ],
@@ -1613,17 +1613,17 @@
           },
           {
             "text": "Tortuga",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "Gato",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "Pez",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -1649,17 +1649,17 @@
           },
           {
             "text": "Tortuga",
-            "shape": "├ö┬╝├│",
+            "shape": "├ö┬╝ó",
             "color": "opt-2"
           },
           {
             "text": "Tiburon",
-            "shape": "├ö├£├¡",
+            "shape": "├ö├£í",
             "color": "opt-3"
           },
           {
             "text": "Vaca",
-            "shape": "┬¡ãÆ├©├¡┬┤┬®├à",
+            "shape": "¡ãÆ├©í┬┤┬®├à",
             "color": "opt-4"
           }
         ],
@@ -1673,13 +1673,17 @@
     "categoryName": "Ciencias Naturales",
     "entityName": "",
     "author": "Annie",
-    "authorAvatar": "┬¡ãÆ┬¬├¿",
+    "authorAvatar": "¡ãÆ┬¬├¿",
     "authorId": "user_1791582602270",
     "authorEmail": "acanon@ciudadmontesbilingue.edu.co",
     "plays": 0,
     "projectType": "quiz",
-    "updatedAt": "2026-10-16T21:21:24.014Z",
-    "createdAt": "2026-10-13T20:29:43.134Z"
+    "updatedAt": "2026-10-18T18:18:06.008Z",
+    "createdAt": "2026-10-13T20:29:43.134Z",
+    "accessMode": "room_only",
+    "authorRole": "student",
+    "accessCode": "",
+    "expiresAt": null
   },
   {
     "id": "reto_1791652078225",
