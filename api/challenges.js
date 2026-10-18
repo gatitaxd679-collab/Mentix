@@ -95,6 +95,23 @@ export default async function handler(req, res) {
       challenge.updatedAt = new Date().toISOString();
       if (!challenge.createdAt) challenge.createdAt = new Date().toISOString();
 
+      // Normalizar símbolos canónicos en las opciones (✦, ⬢, ⚡, 🛡️)
+      const CANONICAL_SHAPES = ['✦', '⬢', '⚡', '🛡️', '⬟', '💎'];
+      if (Array.isArray(challenge.questions)) {
+        challenge.questions.forEach(q => {
+          if (Array.isArray(q.options)) {
+            q.options.forEach((opt, idx) => {
+              if (opt && typeof opt === 'object') {
+                const s = opt.shape;
+                if (!s || typeof s !== 'string' || !['✦', '⬢', '⚡', '🛡️', '▲', '◆', '⬟', '💎'].includes(s.trim())) {
+                  opt.shape = CANONICAL_SHAPES[idx % CANONICAL_SHAPES.length];
+                }
+              }
+            });
+          }
+        });
+      }
+
       let currentChallenges = [];
       let currentSha = null;
 

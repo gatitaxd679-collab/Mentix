@@ -248,7 +248,20 @@ function fixMojibake(str) {
     .replace(/Ãš/g, 'Ú')
     .replace(/Ã‘/g, 'Ñ')
     .replace(/Â¡/g, '¡')
-    .replace(/Â¿/g, '¿');
+    .replace(/Â¿/g, '¿')
+    .replace(/Ô£ª/g, '✦')
+    .replace(/Ô¼ó/g, '⬢')
+    .replace(/ÔÜí/g, '⚡')
+    .replace(/­ƒøí´©Å/g, '🛡️')
+    .replace(/ƒøí´©Å/g, '🛡️');
+}
+
+function fixOptionShape(shape, optIdx) {
+  const shapes = ['✦', '⬢', '⚡', '🛡️', '⬟', '💎'];
+  if (!shape || typeof shape !== 'string') return shapes[optIdx % shapes.length];
+  const s = shape.trim();
+  if (['✦', '⬢', '⚡', '🛡️', '▲', '◆', '⬟', '💎'].includes(s)) return s;
+  return shapes[optIdx % shapes.length];
 }
 
 function deepCleanMojibake(val) {
@@ -259,11 +272,19 @@ function deepCleanMojibake(val) {
     for (const k in val) {
       res[k] = deepCleanMojibake(val[k]);
     }
+    if (Array.isArray(res.options)) {
+      res.options.forEach((opt, optIdx) => {
+        if (opt && typeof opt === 'object') {
+          opt.shape = fixOptionShape(opt.shape, optIdx);
+        }
+      });
+    }
     return res;
   }
   return val;
 }
 window.fixMojibake = fixMojibake;
+window.fixOptionShape = fixOptionShape;
 window.deepCleanMojibake = deepCleanMojibake;
 
 // Helper para inicializar o recuperar almacenamiento con desinfección automática

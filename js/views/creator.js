@@ -71,10 +71,34 @@ window.CreatorView = {
     }, 40);
   },
 
+  getOptionShape(opt, optIdx) {
+    const canonicalShapes = ['✦', '⬢', '⚡', '🛡️', '⬟', '💎'];
+    const s = (opt && typeof opt === 'object') ? opt.shape : (typeof opt === 'string' ? opt : null);
+    if (!s || typeof s !== 'string') {
+      return canonicalShapes[optIdx % canonicalShapes.length];
+    }
+    const clean = s.trim();
+    if (['✦', '⬢', '⚡', '🛡️', '▲', '◆', '⬟', '💎'].includes(clean)) {
+      return clean;
+    }
+    return canonicalShapes[optIdx % canonicalShapes.length];
+  },
+
   resetForm(existingChallenge = null) {
     this.currentPage = 1;
     if (existingChallenge) {
       this.currentChallenge = JSON.parse(JSON.stringify(existingChallenge));
+      if (Array.isArray(this.currentChallenge.questions)) {
+        this.currentChallenge.questions.forEach(q => {
+          if (Array.isArray(q.options)) {
+            q.options.forEach((opt, optIdx) => {
+              if (opt) {
+                opt.shape = this.getOptionShape(opt, optIdx);
+              }
+            });
+          }
+        });
+      }
     } else {
       this.currentChallenge = {
         id: 'reto_' + Date.now(),
@@ -828,7 +852,7 @@ window.CreatorView = {
                 <div 
                   style="width: 38px; height: 38px; border-radius: 8px; border: 2px solid rgba(167, 139, 250, 0.5); background: rgba(167, 139, 250, 0.15); color: #c4b5fd; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;"
                 >
-                  ${opt.shape}
+                  ${this.getOptionShape(opt, optIdx)}
                 </div>
 
                 <textarea 
@@ -856,7 +880,7 @@ window.CreatorView = {
                   onclick="window.CreatorView.toggleMultiCorrectAnswer(${idx}, ${optIdx})"
                   style="width: 38px; height: 38px; border-radius: 8px; border: 2px solid ${isCorr ? 'var(--neon-emerald)' : 'rgba(255,255,255,0.2)'}; background: ${isCorr ? 'var(--neon-emerald)' : 'transparent'}; color: ${isCorr ? '#0b0f19' : 'white'}; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: var(--transition-bounce); flex-shrink: 0;"
                 >
-                  ${isCorr ? '✓' : opt.shape}
+                  ${isCorr ? '✓' : this.getOptionShape(opt, optIdx)}
                 </button>
 
                 <textarea 
@@ -880,7 +904,7 @@ window.CreatorView = {
                   onclick="window.CreatorView.setCorrectAnswer(${idx}, ${optIdx})"
                   style="width: 38px; height: 38px; border-radius: 8px; border: 2px solid ${q.correctAnswer === optIdx ? 'var(--neon-emerald)' : 'rgba(255,255,255,0.2)'}; background: ${q.correctAnswer === optIdx ? 'var(--neon-emerald)' : 'transparent'}; color: ${q.correctAnswer === optIdx ? '#0b0f19' : 'white'}; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: var(--transition-bounce); flex-shrink: 0;"
                 >
-                  ${q.correctAnswer === optIdx ? '✓' : opt.shape}
+                  ${q.correctAnswer === optIdx ? '✓' : this.getOptionShape(opt, optIdx)}
                 </button>
 
                 <textarea 
@@ -958,10 +982,10 @@ window.CreatorView = {
       // single
       if (!q.options || q.options.length < 4) {
         q.options = [
-          { text: q.options?.[0]?.text || '', shape: '🔷', color: 'opt-1' },
-          { text: q.options?.[1]?.text || '', shape: '🔶', color: 'opt-2' },
-          { text: q.options?.[2]?.text || '', shape: '🟢', color: 'opt-3' },
-          { text: q.options?.[3]?.text || '', shape: '🟣', color: 'opt-4' }
+          { text: q.options?.[0]?.text || '', shape: '✦', color: 'opt-1' },
+          { text: q.options?.[1]?.text || '', shape: '⬢', color: 'opt-2' },
+          { text: q.options?.[2]?.text || '', shape: '⚡', color: 'opt-3' },
+          { text: q.options?.[3]?.text || '', shape: '🛡️', color: 'opt-4' }
         ];
       }
       if (Array.isArray(q.correctAnswer)) {
@@ -1285,6 +1309,19 @@ window.CreatorView = {
     c.projectType = c.projectType || 'quiz';
     c.updatedAt = new Date().toISOString();
     if (!c.createdAt) c.createdAt = new Date().toISOString();
+
+    // Normalizar símbolos canónicos en todas las opciones (✦, ⬢, ⚡, 🛡️)
+    if (Array.isArray(c.questions)) {
+      c.questions.forEach(q => {
+        if (Array.isArray(q.options)) {
+          q.options.forEach((opt, optIdx) => {
+            if (opt) {
+              opt.shape = this.getOptionShape(opt, optIdx);
+            }
+          });
+        }
+      });
+    }
 
     // Verificar si es edición o nuevo
     const existingIndex = window.appState.challenges.findIndex(item => item.id === c.id);
