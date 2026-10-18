@@ -1133,7 +1133,7 @@ window.LobbyView = {
             </span>
           </a>
 
-          <h1 style="font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 900; margin: 0 0 0.6rem; color: #ffffff !important; letter-spacing: -0.02em; text-shadow: 0 4px 24px rgba(0,0,0,0.95), 0 0 30px rgba(0,245,212,0.45);">
+          <h1 style="font-size: clamp(1.4rem, 5.5vw, 2.5rem); line-height: 1.2; font-weight: 900; margin: 0 0 0.6rem; color: #ffffff !important; letter-spacing: -0.02em; text-shadow: 0 4px 24px rgba(0,0,0,0.95), 0 0 30px rgba(0,245,212,0.45); padding: 0 0.5rem;">
             Ingresa el código para unirte
           </h1>
           
