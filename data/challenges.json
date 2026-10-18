@@ -5,11 +5,11 @@
     "description": "",
     "category": "tecnologia",
     "difficulty": "Medio",
-    "banner": "https://png.pngtree.com/thumb_back/fh260/background/20230413/pngtree-robot-blue-cute-background-image_2358304.jpg",
+    "banner": "https://wallpaperaccess.com/full/1224636.jpg",
     "timePerQuestion": 60,
     "pointsStandard": 1000,
     "isPublic": true,
-    "accessMode": "public",
+    "accessMode": "room_only",
     "accessCode": "",
     "expiresAt": null,
     "temporalDuration": "24h",
@@ -1304,7 +1304,7 @@
     "authorRole": "teacher",
     "plays": 0,
     "projectType": "quiz",
-    "updatedAt": "2026-10-18T18:16:48.337Z",
+    "updatedAt": "2026-10-18T18:19:07.824Z",
     "createdAt": "2026-10-16T21:52:13.370Z"
   },
   {
