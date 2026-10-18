@@ -154,8 +154,10 @@ window.ProfileView = {
 
           ${(() => {
             const myChallenges = (window.appState.challenges || []).filter(c => 
-              (c.author && c.author.toLowerCase() === u.name?.toLowerCase()) ||
-              (c.authorId && c.authorId === u.id)
+              window.appRouter ? window.appRouter.isChallengeOwner(c) : (
+                (c.author && c.author.toLowerCase() === u.name?.toLowerCase()) ||
+                (c.authorId && c.authorId === u.id)
+              )
             );
 
             if (myChallenges.length === 0) {

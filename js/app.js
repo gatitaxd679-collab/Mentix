@@ -597,6 +597,11 @@ class AppRouter {
           <span style="font-size: 1.1rem;">←</span> <span>Volver a los Retos</span>
         </button>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
+          ${isOwner ? `
+            <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-weight: 800; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: var(--border-radius-md);" onclick="window.appRouter.closeModal('preview-modal'); window.appRouter.navigate('creator', { editId: '${c.id}' })">
+              <span>✏️</span> <span>Editar Reto</span>
+            </button>
+          ` : ''}
           <button class="btn btn-outline btn-icon" title="Cerrar" style="width: 38px; height: 38px; border-radius: 50%; font-size: 1.1rem;" onclick="window.appRouter.closeModal('preview-modal')">✕</button>
         </div>
       </div>
@@ -700,17 +705,22 @@ class AppRouter {
 
         <!-- Panel de Administración del Creador -->
         ${isOwner ? `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding: 1.25rem 1.75rem; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--border-radius-lg); flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding: 1.25rem 1.75rem; background: rgba(0, 245, 212, 0.08); border: 1px solid rgba(0, 245, 212, 0.35); border-radius: var(--border-radius-lg); flex-wrap: wrap; gap: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
               <span style="font-size: 1.75rem;">👑</span>
               <div>
-                <div style="font-size: 1rem; font-weight: 800; color: white;">Eres el creador de este cuestionario</div>
-                <div style="font-size: 0.82rem; color: var(--text-muted);">Tienes permisos de autor para gestionar o remover este reto de la comunidad.</div>
+                <div style="font-size: 1rem; font-weight: 800; color: white;">Eres el autor de este cuestionario</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">Tienes permisos exclusivos para editar las preguntas, configuración o remover este reto.</div>
               </div>
             </div>
-            <button class="btn btn-danger" style="padding: 0.7rem 1.4rem; font-size: 0.9rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--border-radius-md);" onclick="window.appRouter.deleteChallenge('${c.id}')">
-              <span>🗑️</span> <span>Eliminar Cuestionario</span>
-            </button>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button class="btn btn-primary" style="padding: 0.65rem 1.3rem; font-size: 0.9rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.45rem; border-radius: var(--border-radius-md);" onclick="window.appRouter.closeModal('preview-modal'); window.appRouter.navigate('creator', { editId: '${c.id}' })">
+                <span>✏️</span> <span>Editar Cuestionario</span>
+              </button>
+              <button class="btn btn-danger" style="padding: 0.65rem 1.3rem; font-size: 0.9rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.45rem; border-radius: var(--border-radius-md);" onclick="window.appRouter.deleteChallenge('${c.id}')">
+                <span>🗑️</span> <span>Eliminar</span>
+              </button>
+            </div>
           </div>
         ` : ''}
       </div>
@@ -1266,6 +1276,25 @@ class AppRouter {
     if (!u || u.isGuest) return false;
     if (u.role === 'admin') return true;
 
+    // Autoría y permisos exclusivos: El reto 'AGILE Y SCRUM' solo puede ser editado y gestionado por Melisa
+    const cleanTitle = (challenge.title || '').trim().toLowerCase();
+    const cleanName = (u.name || '').trim().toLowerCase();
+    const cleanEmail = (u.email || '').trim().toLowerCase();
+    const isMelisa = cleanName === 'melisa' || cleanName.includes('melisa') || cleanEmail.includes('melisa') || cleanEmail.includes('meli030814abc');
+    const isAgileScrum = cleanTitle.includes('agile') && cleanTitle.includes('scrum');
+
+    if (isAgileScrum) {
+      if (isMelisa) {
+        if (!challenge.author || challenge.author === 'Profesor' || challenge.author === 'Comunidad') {
+          challenge.author = u.name || 'Melisa';
+          challenge.authorAvatar = u.avatar || '🦊';
+          challenge.authorId = u.id || 'usr_melisa';
+        }
+        return true;
+      }
+      return false; // Exclusivo: ningún otro usuario que no sea Melisa puede editarlo
+    }
+
     // 1. Comparación por authorId
     if (challenge.authorId && u.id && String(challenge.authorId) === String(u.id)) return true;
 
@@ -1275,7 +1304,6 @@ class AppRouter {
     // 3. Comparación por nombre exacto o normalizado
     if (challenge.author && u.name) {
       const cleanAuthor = challenge.author.trim().toLowerCase();
-      const cleanName = u.name.trim().toLowerCase();
       if (cleanAuthor === cleanName) return true;
       if (cleanAuthor.includes(cleanName) || cleanName.includes(cleanAuthor)) return true;
     }
