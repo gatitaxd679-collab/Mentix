@@ -333,7 +333,7 @@ function loadInitialState() {
   // Purgar almacenamiento local si contiene texto corrupto (mojibake)
   ['te_reto_challenges', 'te_reto_users', 'te_reto_groups'].forEach(key => {
     const raw = localStorage.getItem(key);
-    if (raw && (/ðŸ|Ã¡|Ã³|Ã©|Ã­|Ãº|Ã±|âœ|â¬|âš|\u251C|\u252C/.test(raw))) {
+    if (raw && (/ðŸ|Ã¡|Ã³|Ã©|Ã­|Ãº|Ã±|âœ|â¬|âš|\u251C|\u252C|\u00D4\u00F6/.test(raw))) {
       console.log(`[Auto-Clean] Desinfectando entrada de localStorage: ${key}`);
       try {
         const cleaned = deepCleanMojibake(JSON.parse(raw));
