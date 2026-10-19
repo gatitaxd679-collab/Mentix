@@ -1325,6 +1325,10 @@ window.CreatorView = {
 
     // Verificar si es edición o nuevo
     const existingIndex = window.appState.challenges.findIndex(item => item.id === c.id);
+    if (existingIndex >= 0 && !window.appRouter.isChallengeOwner(window.appState.challenges[existingIndex])) {
+      alert('🚫 Solo Melisa tiene permiso para editar cuestionarios publicados.');
+      return;
+    }
     if (existingIndex >= 0) {
       window.appState.challenges[existingIndex] = c;
     } else {
@@ -1392,11 +1396,7 @@ window.CreatorView = {
 
     if (isSaved) {
       // Si ya está publicado, verificar estrictamente que el usuario sea el autor original o administrador
-      const isOwner = u && (
-        (c.author && c.author.toLowerCase() === u.name?.toLowerCase()) ||
-        (c.authorId && c.authorId === u.id) ||
-        u.role === 'admin'
-      );
+      const isOwner = window.appRouter.isChallengeOwner(c);
       if (!isOwner) {
         alert('🚫 Solo el creador original de este examen tiene permiso para eliminarlo.');
         return;

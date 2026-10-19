@@ -1274,41 +1274,22 @@ class AppRouter {
     if (!challenge) return false;
     const u = window.appState?.currentUser;
     if (!u || u.isGuest) return false;
-    if (u.role === 'admin') return true;
 
-    // Autoría y permisos exclusivos: El reto 'AGILE Y SCRUM' solo puede ser editado y gestionado por Melisa
-    const cleanTitle = (challenge.title || '').trim().toLowerCase();
+    // Permiso exclusivo: SOLO Melisa puede editar y gestionar cualquier cuestionario o proyecto.
     const cleanName = (u.name || '').trim().toLowerCase();
     const cleanEmail = (u.email || '').trim().toLowerCase();
-    const isMelisa = cleanName === 'melisa' || cleanName.includes('melisa') || cleanEmail.includes('melisa') || cleanEmail.includes('meli030814abc');
+    const isMelisa = cleanName === 'melisa' || cleanEmail === 'meli030814abc@gmail.com';
+    if (!isMelisa) return false;
+
+    // Si el reto de AGILE Y SCRUM no tiene autor definido, asignarlo a Melisa
+    const cleanTitle = (challenge.title || '').trim().toLowerCase();
     const isAgileScrum = (cleanTitle.includes('agile') && cleanTitle.includes('scrum')) || challenge.id === 'reto_1792180343870';
-
-    if (isAgileScrum) {
-      if (isMelisa) {
-        if (!challenge.author || challenge.author === 'Profesor' || challenge.author === 'Comunidad') {
-          challenge.author = u.name || 'Melisa';
-          challenge.authorAvatar = u.avatar || '🦊';
-          challenge.authorId = u.id || 'usr_melisa';
-        }
-        return true;
-      }
-      return false; // Exclusivo: ningún otro usuario que no sea Melisa puede editarlo
+    if (isAgileScrum && (!challenge.author || challenge.author === 'Profesor' || challenge.author === 'Comunidad')) {
+      challenge.author = u.name || 'Melisa';
+      challenge.authorAvatar = u.avatar || '🦊';
+      challenge.authorId = u.id || 'usr_melisa';
     }
-
-    // 1. Comparación por authorId
-    if (challenge.authorId && u.id && String(challenge.authorId) === String(u.id)) return true;
-
-    // 2. Comparación por authorEmail
-    if (challenge.authorEmail && u.email && challenge.authorEmail.trim().toLowerCase() === u.email.trim().toLowerCase()) return true;
-
-    // 3. Comparación por nombre exacto o normalizado
-    if (challenge.author && u.name) {
-      const cleanAuthor = challenge.author.trim().toLowerCase();
-      if (cleanAuthor === cleanName) return true;
-      if (cleanAuthor.includes(cleanName) || cleanName.includes(cleanAuthor)) return true;
-    }
-
-    return false;
+    return true;
   }
 
   async pushChallengeToCloud(challenge) {
