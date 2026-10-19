@@ -212,9 +212,50 @@ const DEFAULT_CHALLENGES = [
   }
 ];
 
+const CP850_HIGH = 'ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´\u00AD±‗¾¶§÷¸°¨·¹³²■\u00A0';
+function cp850Bytes(s, strict) {
+  const out = [];
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (c < 128) { out.push(c); continue; }
+    const i = CP850_HIGH.indexOf(ch);
+    if (i < 0) { if (strict) return null; out.push(63); continue; }
+    out.push(128 + i);
+  }
+  return out;
+}
+function utf8Strict(bytes) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bytes)); } catch (e) { return null; }
+}
+function repairCp850Mojibake(str) {
+  if (!/[\u00D4\u251C\u252C]/.test(str)) return str;
+  // Paso 1: tokens "Ô" + 2 caracteres = bytes UTF-8 E2 xx yy leídos como cp850
+  let r = str.replace(/\u00D4([\u00F6\u00F2\u00FB\u00F9])(.)/g, (m, a, b) => {
+    const x = cp850Bytes(a + b, true);
+    const d = x && utf8Strict([0xE2, ...x]);
+    return d || m;
+  });
+  r = r.replace(/\u00D4(.)(.)/g, (m, a, b) => {
+    const x = cp850Bytes(a + b, true);
+    const d = x && utf8Strict([0xE2, ...x]);
+    return d || m;
+  });
+  // Paso 2: cadena completa cp850 -> UTF-8
+  const whole = cp850Bytes(r, true);
+  const dec = whole && utf8Strict(whole);
+  if (dec) r = dec;
+  r = r.replace(/\u251C\u252C[\u00AB\u00A1\u00ED]/g, m => ({ '\u00AB': 'é', '\u00A1': 'í', '\u00ED': 'í' }[m[2]]));
+  r = r.replace(/[\u251C\u252C]./g, m => {
+    const x = cp850Bytes(m, true);
+    return (x && utf8Strict(x)) || m;
+  });
+  return r;
+}
+
 // Sanitizador universal para limpiar texto corrupto (mojibake)
 function fixMojibake(str) {
   if (typeof str !== 'string') return str;
+  str = repairCp850Mojibake(str);
   return str
     .replace(/\u251C\u00A1/g, 'í')
     .replace(/\u251C\u00ED/g, 'á')
@@ -378,7 +419,7 @@ function loadInitialState() {
 
   if (storedCategories) {
     try {
-      const parsedCats = JSON.parse(storedCategories);
+      const parsedCats = deepCleanMojibake(JSON.parse(storedCategories));
       if (Array.isArray(parsedCats)) {
         parsedCats.forEach(cat => {
           if (cat && cat.id && !isBlockedCat(cat)) {
