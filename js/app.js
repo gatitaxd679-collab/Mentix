@@ -1074,16 +1074,34 @@ class AppRouter {
           <span>${c.icon || '📁'}</span>
           <span style="font-weight: 700; color: ${c.color || 'white'};">${c.name}</span>
         </div>
-        <button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-color: rgba(239, 68, 68, 0.5); color: #f87171;" onclick="window.appRouter.deleteCategory('${c.id}')" title="Eliminar categoría">
+        ${this.isCategoryOwner(c) ? `<button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-color: rgba(239, 68, 68, 0.5); color: #f87171;" onclick="window.appRouter.deleteCategory('${c.id}')" title="Eliminar categoría">
           🗑️
-        </button>
+        </button>` : ''}
       </div>
     `).join('');
+  }
+
+  isCategoryOwner(cat) {
+    const u = window.appState?.currentUser;
+    if (!cat || !u || u.isGuest) return false;
+    const name = (u.name || '').trim().toLowerCase();
+    const email = (u.email || '').trim().toLowerCase();
+    // Melisa puede eliminar cualquier categoría
+    if (name === 'melisa' || email === 'meli030814abc@gmail.com') return true;
+    // El autor puede eliminar las categorías que creó
+    if (cat.authorId && u.id && String(cat.authorId) === String(u.id)) return true;
+    if (cat.authorEmail && email && String(cat.authorEmail).trim().toLowerCase() === email) return true;
+    if (cat.authorName && name && String(cat.authorName).trim().toLowerCase() === name) return true;
+    return false;
   }
 
   async deleteCategory(categoryId) {
     if (!categoryId) return;
     const cat = (window.appState.categories || []).find(c => c.id === categoryId);
+    if (cat && !this.isCategoryOwner(cat)) {
+      alert('🚫 Solo el creador de esta categoría o Melisa pueden eliminarla.');
+      return;
+    }
     const catName = cat ? cat.name : categoryId;
     if (!confirm(`🗑️ ¿Estás seguro de que deseas eliminar la categoría "${catName}"?`)) return;
 
@@ -1145,12 +1163,16 @@ class AppRouter {
     if (!name) return;
 
     const cleanId = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_');
+    const cu = window.appState.currentUser || {};
     const newCat = {
       id: cleanId,
       name: name,
       icon: icon,
       color: color,
-      count: 0
+      count: 0,
+      authorId: cu.id || '',
+      authorName: cu.name || '',
+      authorEmail: cu.email || ''
     };
 
     const isBlocked = (c) => {

@@ -113,7 +113,10 @@ export default async function handler(req, res) {
         name: newCat.name.trim(),
         icon: newCat.icon || '💡',
         color: newCat.color || '#00f5d4',
-        count: newCat.count || 0
+        count: newCat.count || 0,
+      authorId: newCat.authorId || '',
+      authorName: newCat.authorName || '',
+      authorEmail: newCat.authorEmail || ''
       };
 
       const sanitized = mergeAndSanitize(currentCategories);
