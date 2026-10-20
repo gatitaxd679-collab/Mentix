@@ -1109,6 +1109,13 @@ window.LobbyView = {
       this.renderJoinProfileStep(container);
     } else {
       this.renderJoinPinStep(container);
+      // Solo enfocar automaticamente en escritorio; en celulares abre el teclado y descuadra la pantalla
+      try {
+        if (!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) {
+          const pinEl = document.getElementById('join-pin-input');
+          if (pinEl) pinEl.focus({ preventScroll: true });
+        }
+      } catch (e) {}
     }
   },
 
@@ -1117,18 +1124,18 @@ window.LobbyView = {
   // ==========================================
   renderJoinPinStep(container) {
     container.innerHTML = `
-      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-y: auto;">
+      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-x: hidden; -webkit-text-size-adjust: 100%;">
         
         <!-- Overlay sutil para legibilidad perfecta conservando todo el brillo y geometrías -->
-        <div style="position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none;"></div>
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none; z-index: 0;"></div>
 
         <!-- Contenido principal interactivo sobre el fondo -->
         <div style="position: relative; z-index: 2; width: 100%; max-width: 680px; text-align: center; margin: 0 auto;">
           
           <!-- Nombre de la Página / Logotipo Destacado -->
-          <a href="javascript:void(0)" onclick="window.appRouter.navigate('home')" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; cursor: pointer;">
-            <span style="font-size: 2.8rem; filter: drop-shadow(0 0 16px rgba(0,245,212,0.85));">🧠</span>
-            <span style="font-size: 2.6rem; font-weight: 900; letter-spacing: -0.02em; color: #ffffff !important; text-shadow: 0 4px 20px rgba(0,0,0,0.95);">
+          <a href="javascript:void(0)" onclick="window.appRouter.navigate('home')" style="text-decoration: none; display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.5rem 0.75rem; margin-bottom: 1.5rem; cursor: pointer;">
+            <span style="font-size: clamp(2rem, 9vw, 2.8rem); filter: drop-shadow(0 0 16px rgba(0,245,212,0.85));">🧠</span>
+            <span style="font-size: clamp(1.9rem, 8.5vw, 2.6rem); font-weight: 900; letter-spacing: -0.02em; color: #ffffff !important; text-shadow: 0 4px 20px rgba(0,0,0,0.95);">
               MEN<span style="color: #00f5d4 !important; text-shadow: 0 0 25px rgba(0,245,212,0.95), 0 2px 10px rgba(0,0,0,0.9);">TIX</span>
             </span>
           </a>
@@ -1151,7 +1158,6 @@ window.LobbyView = {
                 inputmode="numeric"
                 value="${this.joinPin ? (this.joinPin.length === 6 ? this.joinPin.slice(0, 3) + ' ' + this.joinPin.slice(3) : this.joinPin) : ''}"
                 required
-                autofocus
                 autocomplete="off"
                 style="width: 100%; box-sizing: border-box; text-align: center; font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 900; padding: 1.15rem 1.5rem; border-radius: 18px; background: rgba(10, 20, 45, 0.94) !important; border: 2.5px solid #00f5d4 !important; color: #ffffff !important; outline: none; transition: var(--transition-bounce); box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(0, 245, 212, 0.35) !important; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0, 245, 212, 0.7), 0 2px 8px rgba(0,0,0,0.9);"
                 onfocus="this.style.borderColor='#00f5d4'; this.style.boxShadow='0 0 35px rgba(0,245,212,0.7)';"
@@ -1289,9 +1295,9 @@ window.LobbyView = {
     const randomAvatar = '🦊'; // Clásico zorro Kahoot de referencia
 
     container.innerHTML = `
-      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-y: auto;">
+      <div style="min-height: 100vh; min-height: 100dvh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; box-sizing: border-box; background: #0b0f19 url('assets/mentix_join_bg.jpg') center center / cover no-repeat; position: relative; overflow-x: hidden; -webkit-text-size-adjust: 100%;">
         <!-- Overlay sutil para legibilidad perfecta conservando todo el brillo y geometrías -->
-        <div style="position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none;"></div>
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(5, 12, 35, 0.45) 0%, rgba(3, 7, 24, 0.75) 100%); pointer-events: none; z-index: 0;"></div>
 
         <!-- Contenedor interactivo -->
         <div style="position: relative; z-index: 2; width: 100%; max-width: 520px; margin: 0 auto;">

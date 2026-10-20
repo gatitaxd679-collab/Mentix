@@ -4857,3 +4857,36 @@ button, input, select, textarea, a, .btn, .challenge-card, .game-answer-btn {
     padding: 1rem 0.85rem 2rem !important;
   }
 }
+
+/* =========================================================================
+   Union a sala en celulares: sin saltos de altura, sin zoom y sin repintados
+   ========================================================================= */
+@media (max-width: 900px), (pointer: coarse) {
+  .gamified-lobby-container,
+  .waiting-fullscreen-view {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden !important;
+    background-attachment: scroll !important;
+  }
+
+  #view-lobby input,
+  #view-lobby textarea,
+  #view-lobby select {
+    font-size: max(16px, 1em);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #view-lobby button,
+  #view-lobby .btn,
+  #view-lobby a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #view-lobby {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+}
