@@ -131,16 +131,18 @@ class AppRouter {
       }
     });
 
-    // Si el anfitrion cierra la pestana, avisar a los jugadores (ademas del aviso automatico del broker MQTT)
-    window.addEventListener('pagehide', () => {
+    // Si el anfitrion cierra la pestana o recarga, cerrar la sala inmediatamente para todos los jugadores
+    const handleHostTabExit = () => {
       try {
         const re = window.realtimeEngine;
         if (re && re.isHost && re.currentRoom && !re.roomClosed &&
             ['lobby-host', 'game', 'leaderboard', 'podium'].includes(this.currentView)) {
-          re.broadcast({ type: 'ROOM_CLOSED', pin: String(re.currentRoom.pin || ''), abrupt: true, reason: 'host_left' });
+          re.closeRoomAsHost();
         }
       } catch (e) {}
-    });
+    };
+    window.addEventListener('pagehide', handleHostTabExit);
+    window.addEventListener('beforeunload', handleHostTabExit);
 
     setInterval(() => {
       if (document.visibilityState === 'visible' && (this.currentView === 'home' || this.currentView === 'projects')) {

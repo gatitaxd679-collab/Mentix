@@ -631,7 +631,7 @@ class RealtimeEngine {
 
   // El jugador recibe que el anfitrion salio: salir del juego
   handleRoomClosed(msg) {
-    if (this.isHost || this.roomClosedHandled || !this.localPlayer) return;
+    if (this.isHost || this.roomClosedHandled || (!this.localPlayer && !this.currentRoom && !this.activePin)) return;
     const myPin = String(this.currentRoom?.pin || this.activePin || '').replace(/\D/g, '');
     if (!myPin || myPin !== String(msg.pin || '').replace(/\D/g, '')) return;
     const view = window.appRouter && window.appRouter.currentView;
@@ -640,24 +640,33 @@ class RealtimeEngine {
       if (this.roomClosedHandled) return;
       this.roomClosedHandled = true;
       try { if (window.LobbyView && window.LobbyView.waitingPollInterval) clearInterval(window.LobbyView.waitingPollInterval); } catch (e) {}
+      try { if (window.LeaderboardView && window.LeaderboardView.waitingPollInterval) {
+        clearInterval(window.LeaderboardView.waitingPollInterval);
+        window.LeaderboardView.waitingPollInterval = null;
+      } } catch (e) {}
+      try { if (window.GameView) {
+        if (window.GameView.timerInterval) clearInterval(window.GameView.timerInterval);
+        if (window.GameView.autoAdvanceInterval) clearInterval(window.GameView.autoAdvanceInterval);
+        if (window.GameView.transitionTimeout) clearTimeout(window.GameView.transitionTimeout);
+      } } catch (e) {}
+      try { if (window.soundEngine) window.soundEngine.stopMusic(); } catch (e) {}
       try { if (this.mqttClient) this.mqttClient.end(true); } catch (e) {}
       try { if (this.peer) this.peer.destroy(); } catch (e) {}
       this.currentRoom = null;
       this.activePin = null;
       this.activeMqttPin = null;
       this.mqttClient = null;
-      try { alert('\uD83D\uDEAA El anfitri\u00F3n sali\u00F3 de la sala. El juego ha terminado para todos.'); } catch (e) {}
+      try { alert('🚪 El anfitrión salió de la sala. El juego ha terminado para todos.'); } catch (e) {}
       if (window.appRouter) window.appRouter.navigate('home');
     };
     if (msg.abrupt) {
-      // Desconexion brusca: esperar unos segundos por si el anfitrion solo recargo la pagina
+      // Desconexion brusca: esperar brevemente (3 segundos) por si fue una reconexion instantanea
       const since = Date.now();
-      setTimeout(() => { if ((this.lastHostSignal || 0) > since) return; leave(); }, 12000);
+      setTimeout(() => { if ((this.lastHostSignal || 0) > since) return; leave(); }, 3000);
     } else {
       leave();
     }
   }
-
   // Generador de PIN único de 6 dígitos
   generatePin() {
     return Math.floor(100000 + Math.random() * 900000).toString();

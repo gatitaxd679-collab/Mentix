@@ -2776,6 +2776,11 @@ window.LobbyView = {
               window.realtimeEngine.currentRoom.modeConfig = parsed.modeConfig;
               this.render();
             }
+            if (parsed.status === 'closed') {
+              clearInterval(this.waitingPollInterval);
+              window.realtimeEngine.handleRoomClosed({ pin: pin, abrupt: false, reason: 'host_left' });
+              return;
+            }
             if (parsed.status === 'question' || parsed.status === 'intro' || parsed.status === 'self_paced') {
               clearInterval(this.waitingPollInterval);
               window.soundEngine.playFanfare();

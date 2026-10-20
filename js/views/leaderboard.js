@@ -109,6 +109,12 @@ window.LeaderboardView = {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
+          if (parsed.status === 'closed') {
+            clearInterval(this.waitingPollInterval);
+            this.waitingPollInterval = null;
+            window.realtimeEngine.handleRoomClosed({ pin: pin, abrupt: false, reason: 'host_left' });
+            return;
+          }
           const currentIdx = window.GameView?.currentQuestionIndex || 0;
           if (parsed.status === 'question' && parsed.currentQuestionIndex !== undefined && parsed.currentQuestionIndex !== currentIdx) {
             clearInterval(this.waitingPollInterval);
