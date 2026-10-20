@@ -131,6 +131,17 @@ class AppRouter {
       }
     });
 
+    // Si el anfitrion cierra la pestana, avisar a los jugadores (ademas del aviso automatico del broker MQTT)
+    window.addEventListener('pagehide', () => {
+      try {
+        const re = window.realtimeEngine;
+        if (re && re.isHost && re.currentRoom && !re.roomClosed &&
+            ['lobby-host', 'game', 'leaderboard', 'podium'].includes(this.currentView)) {
+          re.broadcast({ type: 'ROOM_CLOSED', pin: String(re.currentRoom.pin || ''), abrupt: true, reason: 'host_left' });
+        }
+      } catch (e) {}
+    });
+
     setInterval(() => {
       if (document.visibilityState === 'visible' && (this.currentView === 'home' || this.currentView === 'projects')) {
         this.syncChallengesWithCloud();
@@ -158,6 +169,16 @@ class AppRouter {
         return;
       }
     }
+    // Si el anfitrion abandona la sala (lobby, juego o resultados), se cierra para todos los jugadores
+    try {
+      const hostViews = ['lobby-host', 'game', 'leaderboard', 'podium'];
+      const re = window.realtimeEngine;
+      if (re && re.isHost && re.currentRoom && !re.roomClosed &&
+          hostViews.includes(this.currentView) && !hostViews.includes(viewName)) {
+        re.closeRoomAsHost();
+      }
+    } catch (e) {}
+
     if (pushToHistory) {
       this.historyStack.push(viewName);
     }

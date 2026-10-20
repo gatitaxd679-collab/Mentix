@@ -103,7 +103,14 @@ class RealtimeEngine {
         clean: true,
         connectTimeout: 5000,
         reconnectPeriod: 2000,
-        keepalive: 30
+        keepalive: 30,
+        // Si el anfitrion se desconecta de golpe (cierra la pestana, pierde red), el broker avisa a todos
+        will: isHost ? {
+          topic: `mentix/rooms/${cleanPin}/host_events`,
+          payload: JSON.stringify({ type: 'ROOM_CLOSED', pin: cleanPin, abrupt: true, reason: 'host_left', timestamp: Date.now(), _msgId: 'room_closed_will_' + cleanPin }),
+          qos: 0,
+          retain: false
+        } : undefined
       });
 
       this.mqttClient = client;
@@ -152,6 +159,8 @@ class RealtimeEngine {
       client.on('message', (topic, messageBuffer) => {
         try {
           const msgStr = messageBuffer.toString();
+          if (!isHost && /\/host_(events|state)$/.test(topic) && msgStr) this.lastHostSignal = Date.now();
+          if (!msgStr) return;
           const data = JSON.parse(msgStr);
           const dataPin = String(data?.pin || data?.room?.pin || '').replace(/\D/g, '');
           if (data && (!dataPin || dataPin === cleanPin)) {
@@ -591,7 +600,62 @@ class RealtimeEngine {
       try { localStorage.setItem('mentix_admin_design', JSON.stringify(msg.room.design)); } catch(e) {}
     }
 
+    if (msg.type === 'ROOM_CLOSED') {
+      this.handleRoomClosed(msg);
+    }
+
     this.emit(msg.type, msg);
+  }
+
+  // El anfitrion sale: cerrar la sala para todos
+  closeRoomAsHost() {
+    if (!this.isHost || !this.currentRoom || this.roomClosed) return;
+    this.roomClosed = true;
+    const pin = String(this.currentRoom.pin || this.activePin || '').replace(/\D/g, '');
+    this.currentRoom.status = 'closed';
+    try {
+      localStorage.setItem(`te_reto_room_${pin}`, JSON.stringify(this.currentRoom));
+      localStorage.setItem(`mentix_room_${pin}`, JSON.stringify(this.currentRoom));
+    } catch (e) {}
+    try { this.broadcast({ type: 'ROOM_CLOSED', pin: pin, abrupt: false, reason: 'host_left' }); } catch (e) {}
+    // Borrar el estado retenido para que nadie pueda entrar a una sala cerrada
+    try {
+      if (this.mqttClient && this.mqttClient.connected) {
+        this.mqttClient.publish(`mentix/rooms/${pin}/host_state`, '', { qos: 0, retain: true });
+      }
+    } catch (e) {}
+    setTimeout(() => {
+      try { if (this.mqttClient && this.activeMqttPin === pin && this.activeMqttIsHost) this.mqttClient.end(); } catch (e) {}
+    }, 800);
+  }
+
+  // El jugador recibe que el anfitrion salio: salir del juego
+  handleRoomClosed(msg) {
+    if (this.isHost || this.roomClosedHandled || !this.localPlayer) return;
+    const myPin = String(this.currentRoom?.pin || this.activePin || '').replace(/\D/g, '');
+    if (!myPin || myPin !== String(msg.pin || '').replace(/\D/g, '')) return;
+    const view = window.appRouter && window.appRouter.currentView;
+    if (view === 'podium') return; // el juego ya termino
+    const leave = () => {
+      if (this.roomClosedHandled) return;
+      this.roomClosedHandled = true;
+      try { if (window.LobbyView && window.LobbyView.waitingPollInterval) clearInterval(window.LobbyView.waitingPollInterval); } catch (e) {}
+      try { if (this.mqttClient) this.mqttClient.end(true); } catch (e) {}
+      try { if (this.peer) this.peer.destroy(); } catch (e) {}
+      this.currentRoom = null;
+      this.activePin = null;
+      this.activeMqttPin = null;
+      this.mqttClient = null;
+      try { alert('\uD83D\uDEAA El anfitri\u00F3n sali\u00F3 de la sala. El juego ha terminado para todos.'); } catch (e) {}
+      if (window.appRouter) window.appRouter.navigate('home');
+    };
+    if (msg.abrupt) {
+      // Desconexion brusca: esperar unos segundos por si el anfitrion solo recargo la pagina
+      const since = Date.now();
+      setTimeout(() => { if ((this.lastHostSignal || 0) > since) return; leave(); }, 12000);
+    } else {
+      leave();
+    }
   }
 
   // Generador de PIN único de 6 dígitos
@@ -603,6 +667,7 @@ class RealtimeEngine {
   createRoom(challenge, gameMode = 'clasico', modeConfig = {}, rosterConfig = null, roomType = 'presented') {
     const pin = this.generatePin();
     this.isHost = true;
+    this.roomClosed = false;
     this.localPlayer = null; // El anfitrión es el profesor/presentador, no un jugador competidor
 
     let safeChallenge = challenge;
@@ -688,6 +753,7 @@ class RealtimeEngine {
   joinRoom(pin, nickname, avatar = '😎', email = '', rosterStudentId = null, initialRoomData = null) {
     const cleanPin = pin.toString().replace(/\D/g, '').trim();
     this.isHost = false;
+    this.roomClosedHandled = false;
     let tabPlayerId = null;
     try {
       tabPlayerId = sessionStorage.getItem('mentix_tab_player_id');
