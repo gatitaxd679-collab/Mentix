@@ -747,6 +747,11 @@ class AppRouter {
     if (u && u.challengesCreated && u.challengesCreated > 0) {
       u.challengesCreated--;
     }
+    try {
+      const del = JSON.parse(localStorage.getItem('te_reto_deleted_ids') || '[]');
+      if (!del.includes(challengeId)) del.push(challengeId);
+      localStorage.setItem('te_reto_deleted_ids', JSON.stringify(del));
+    } catch (e) {}
     saveGlobalState(window.appState);
 
     if (window.CreatorView && window.CreatorView.currentChallenge && window.CreatorView.currentChallenge.id === challengeId) {
@@ -1366,6 +1371,31 @@ class AppRouter {
             }
           }
         } catch(e) {}
+      }
+
+      // Retos eliminados: quitarlos de la nube y de este dispositivo
+      let deletedIds = [];
+      try {
+        const resDel = await fetch(`${this.getApiBase()}/api/challenges?deleted=1&t=${Date.now()}`);
+        if (resDel.ok) {
+          const jd = await resDel.json();
+          if (Array.isArray(jd)) deletedIds = jd;
+        }
+      } catch (errDel) {}
+      try {
+        const own = JSON.parse(localStorage.getItem('te_reto_deleted_ids') || '[]');
+        if (Array.isArray(own)) deletedIds = Array.from(new Set([...deletedIds, ...own]));
+      } catch (e) {}
+      if (deletedIds.length > 0) {
+        const gone = new Set(deletedIds);
+        if (Array.isArray(cloudChallenges)) cloudChallenges = cloudChallenges.filter(c => c && !gone.has(c.id));
+        const before = (window.appState.challenges || []).length;
+        window.appState.challenges = (window.appState.challenges || []).filter(c => c && !gone.has(c.id));
+        if (window.appState.challenges.length !== before) {
+          saveGlobalState(window.appState);
+          if (this.currentView === 'home' && window.HomeView) window.HomeView.render();
+          else if (this.currentView === 'projects' && window.ProjectsView) window.ProjectsView.render();
+        }
       }
 
       if (Array.isArray(cloudChallenges) && cloudChallenges.length > 0) {

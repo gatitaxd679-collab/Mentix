@@ -6,6 +6,54 @@ const FILE_PATH = 'data/challenges.json';
 
 let inMemoryChallenges = null;
 
+const DELETED_PATH = 'data/deleted_challenges.json';
+let inMemoryDeleted = [];
+
+function ghHeaders() {
+  const h = { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Mentix-App' };
+  if (GITHUB_TOKEN) h['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+  return h;
+}
+
+async function readDeletedIds() {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DELETED_PATH}?ref=main`, { headers: ghHeaders(), cache: 'no-store' });
+    if (r.ok) {
+      const d = await r.json();
+      const arr = JSON.parse(Buffer.from(d.content, 'base64').toString('utf8'));
+      if (Array.isArray(arr)) {
+        inMemoryDeleted = Array.from(new Set([...arr, ...inMemoryDeleted]));
+        return { ids: arr, sha: d.sha };
+      }
+    }
+  } catch (e) {}
+  return { ids: [...inMemoryDeleted], sha: null };
+}
+
+async function addDeletedId(id) {
+  if (!inMemoryDeleted.includes(id)) inMemoryDeleted.push(id);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { ids, sha } = await readDeletedIds();
+    const next = Array.from(new Set([...ids, id]));
+    const payload = {
+      message: `chore(data): registrar reto eliminado "${id}" [skip ci]`,
+      content: Buffer.from(JSON.stringify(next, null, 2), 'utf8').toString('base64'),
+      branch: 'main'
+    };
+    if (sha) payload.sha = sha;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${DELETED_PATH}`, {
+        method: 'PUT',
+        headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (r.ok) return true;
+    } catch (e) {}
+    await new Promise(r => setTimeout(r, 600));
+  }
+  return false;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
@@ -16,7 +64,14 @@ export default async function handler(req, res) {
   }
 
   // 1. GET: Consultar todos los retos y proyectos compartidos en la nube
+  if (req.method === 'GET' && req.query && req.query.deleted) {
+    const { ids } = await readDeletedIds();
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json(ids);
+  }
+
   if (req.method === 'GET') {
+    const deletedNow = (await readDeletedIds()).ids;
     // A. Consultar GitHub con el token de persistencia
     try {
       const headers = {
@@ -44,9 +99,10 @@ export default async function handler(req, res) {
         if (contentStr) {
           const challenges = JSON.parse(contentStr);
           if (Array.isArray(challenges)) {
-            inMemoryChallenges = challenges;
+            const visible = challenges.filter(c => !deletedNow.includes(c.id));
+            inMemoryChallenges = visible;
             res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=10, stale-while-revalidate=30');
-            return res.status(200).json(challenges);
+            return res.status(200).json(visible);
           }
         }
       }
@@ -272,6 +328,7 @@ export default async function handler(req, res) {
       }
 
       inMemoryChallenges = currentChallenges;
+      await addDeletedId(challengeId);
 
       return res.status(200).json({ success: true, id: challengeId });
     } catch (err) {
