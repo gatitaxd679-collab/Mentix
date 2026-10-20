@@ -1326,7 +1326,7 @@ window.CreatorView = {
     // Verificar si es edición o nuevo
     const existingIndex = window.appState.challenges.findIndex(item => item.id === c.id);
     if (existingIndex >= 0 && !window.appRouter.isChallengeOwner(window.appState.challenges[existingIndex])) {
-      alert('🚫 Solo Melisa tiene permiso para editar cuestionarios publicados.');
+      alert('🚫 Solo el creador del cuestionario o Melisa pueden editarlo.');
       return;
     }
     if (existingIndex >= 0) {

@@ -1275,21 +1275,30 @@ class AppRouter {
     const u = window.appState?.currentUser;
     if (!u || u.isGuest) return false;
 
-    // Permiso exclusivo: SOLO Melisa puede editar y gestionar cualquier cuestionario o proyecto.
+    // Permisos: Melisa puede editar TODO; además cada autor puede editar sus propios cuestionarios.
     const cleanName = (u.name || '').trim().toLowerCase();
     const cleanEmail = (u.email || '').trim().toLowerCase();
     const isMelisa = cleanName === 'melisa' || cleanEmail === 'meli030814abc@gmail.com';
-    if (!isMelisa) return false;
 
     // Si el reto de AGILE Y SCRUM no tiene autor definido, asignarlo a Melisa
     const cleanTitle = (challenge.title || '').trim().toLowerCase();
     const isAgileScrum = (cleanTitle.includes('agile') && cleanTitle.includes('scrum')) || challenge.id === 'reto_1792180343870';
-    if (isAgileScrum && (!challenge.author || challenge.author === 'Profesor' || challenge.author === 'Comunidad')) {
+    if (isMelisa && isAgileScrum && (!challenge.author || challenge.author === 'Profesor' || challenge.author === 'Comunidad')) {
       challenge.author = u.name || 'Melisa';
       challenge.authorAvatar = u.avatar || '🦊';
       challenge.authorId = u.id || 'usr_melisa';
     }
-    return true;
+    if (isMelisa) return true;
+
+    // AGILE Y SCRUM sigue siendo exclusivo de Melisa
+    if (isAgileScrum) return false;
+
+    // Autor del cuestionario: por id, correo o nombre exacto
+    if (challenge.authorId && u.id && String(challenge.authorId) === String(u.id)) return true;
+    if (challenge.authorEmail && cleanEmail && challenge.authorEmail.trim().toLowerCase() === cleanEmail) return true;
+    if (challenge.author && cleanName && challenge.author.trim().toLowerCase() === cleanName) return true;
+
+    return false;
   }
 
   async pushChallengeToCloud(challenge) {
