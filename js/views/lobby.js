@@ -58,14 +58,22 @@ window.LobbyView = {
     if (!pin) return null;
     const clean = pin.toString().replace(/\D/g, '').trim();
     try {
+      if (localStorage.getItem('te_reto_room_closed_' + clean) === 'true') {
+        return null;
+      }
       const stored = localStorage.getItem(`te_reto_room_${clean}`) || localStorage.getItem(`mentix_room_${clean}`);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (parsed.status === 'closed') return null;
+        return parsed;
       }
     } catch (e) {
       console.warn(e);
     }
     if (window.realtimeEngine?.currentRoom?.pin === clean) {
+      if (window.realtimeEngine.currentRoom.status === 'closed' || window.realtimeEngine.roomClosed) {
+        return null;
+      }
       return window.realtimeEngine.currentRoom;
     }
     return null;
@@ -1238,12 +1246,12 @@ window.LobbyView = {
         }
       }
 
-      if (!room || !room.challenge) {
+      if (!room || !room.challenge || room.status === 'closed') {
         if (err) {
-          err.innerHTML = `❌ No encontramos una sala activa con el código <strong>${cleanPin}</strong>.<br><span style="font-size: 0.82rem; font-weight: 500; color: #ffd166;">Verifica que el anfitrión tenga la sala abierta en pantalla e intenta de nuevo.</span>`;
+          err.innerHTML = `❌ Código no válido.<br><span style="font-size: 0.82rem; font-weight: 500; color: #ffd166;">El código <strong>${cleanPin}</strong> no corresponde a una sala abierta o el anfitrión ya la cerró.</span>`;
           err.style.display = 'block';
         } else {
-          alert(`No se encontró ninguna sala activa con el PIN ${cleanPin}.`);
+          alert(`Código no válido. La sala ${cleanPin} no está activa o ya ha sido cerrada.`);
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2687,6 +2695,13 @@ window.LobbyView = {
 
     // Obtener los datos reales de la sala para no perder el modo de juego
     const room = this.joinRoomData || this.findRoomByPin(pin);
+    if (!room || room.status === 'closed') {
+      alert('⚠️ Código no válido. La sala no está disponible o fue cerrada por el anfitrión.');
+      this.joinStep = 'pin';
+      this.joinRoomData = null;
+      this.render();
+      return;
+    }
 
     let finalEmail = email;
     if (!finalEmail) {

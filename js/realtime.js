@@ -104,12 +104,12 @@ class RealtimeEngine {
         connectTimeout: 5000,
         reconnectPeriod: 2000,
         keepalive: 30,
-        // Si el anfitrion se desconecta de golpe (cierra la pestana, pierde red), el broker avisa a todos
+        // Si el anfitrion se desconecta de golpe (cierra la pestana, pierde red), el broker avisa a todos y marca la sala como cerrada
         will: isHost ? {
-          topic: `mentix/rooms/${cleanPin}/host_events`,
-          payload: JSON.stringify({ type: 'ROOM_CLOSED', pin: cleanPin, abrupt: true, reason: 'host_left', timestamp: Date.now(), _msgId: 'room_closed_will_' + cleanPin }),
+          topic: 'mentix/rooms/' + cleanPin + '/host_state',
+          payload: JSON.stringify({ type: 'ROOM_CLOSED', status: 'closed', pin: cleanPin, abrupt: true, reason: 'host_left', timestamp: Date.now(), _msgId: 'room_closed_will_' + cleanPin }),
           qos: 0,
-          retain: false
+          retain: true
         } : undefined
       });
 
@@ -267,8 +267,15 @@ class RealtimeEngine {
     if (!pin) return null;
     const clean = pin.toString().replace(/\D/g, '').trim();
 
+    // 0. Si la sala fue marcada como cerrada en este cliente, rechazar de inmediato
+    try {
+      if (localStorage.getItem('te_reto_room_closed_' + clean) === 'true') {
+        return null;
+      }
+    } catch(e) {}
+
     const hydrateChallenge = (roomObj) => {
-      if (!roomObj) return null;
+      if (!roomObj || roomObj.status === 'closed') return null;
       if (!roomObj.challenge || !Array.isArray(roomObj.challenge.questions) || roomObj.challenge.questions.length === 0) {
         const chId = roomObj.challenge?.id || roomObj.challenge;
         const fullCh = (window.appState?.challenges || []).find(c => c && String(c.id).trim() === String(chId).trim())
@@ -279,15 +286,23 @@ class RealtimeEngine {
     };
 
     // 1. Probar en memoria activa local
-    if (this.currentRoom && String(this.currentRoom.pin).replace(/\D/g, '') === clean && this.currentRoom.challenge) {
-      return hydrateChallenge(this.currentRoom);
+    if (this.currentRoom && String(this.currentRoom.pin).replace(/\D/g, '') === clean) {
+      if (this.currentRoom.status === 'closed' || this.roomClosed) {
+        return null;
+      }
+      if (this.currentRoom.challenge) {
+        return hydrateChallenge(this.currentRoom);
+      }
     }
 
     // 2. Probar en almacenamiento local de este navegador
     try {
-      const stored = localStorage.getItem(`te_reto_room_${clean}`) || localStorage.getItem(`mentix_room_${clean}`);
+      const stored = localStorage.getItem('te_reto_room_' + clean) || localStorage.getItem('mentix_room_' + clean);
       if (stored) {
         const parsed = JSON.parse(stored);
+        if (parsed.status === 'closed') {
+          return null;
+        }
         if (parsed && parsed.challenge) {
           return hydrateChallenge(parsed);
         }
@@ -327,9 +342,9 @@ class RealtimeEngine {
         });
 
         tempClient.on('connect', () => {
-          const stateTopic = `mentix/rooms/${clean}/host_state`;
+          const stateTopic = 'mentix/rooms/' + clean + '/host_state';
           tempClient.subscribe(stateTopic, () => {
-            const reqTopic = `mentix/rooms/${clean}/player_events`;
+            const reqTopic = 'mentix/rooms/' + clean + '/player_events';
             tempClient.publish(reqTopic, JSON.stringify({
               type: 'REQ_ROOM_INFO',
               pin: clean,
@@ -341,7 +356,18 @@ class RealtimeEngine {
         tempClient.on('message', (topic, payload) => {
           try {
             const data = JSON.parse(payload.toString());
+            // Si la sala está marcada como cerrada o el host salió, rechazar de inmediato
+            if (data && (data.type === 'ROOM_CLOSED' || data.status === 'closed' || data.room?.status === 'closed')) {
+              clearTimeout(timer);
+              finish(null);
+              return;
+            }
             if (data && (data.type === 'HOST_ROOM_STATE' || data.type === 'ROOM_CREATED') && data.room) {
+              if (data.room.status === 'closed') {
+                clearTimeout(timer);
+                finish(null);
+                return;
+              }
               const resPin = String(data.pin || data.room.pin || '').replace(/\D/g, '');
               if (resPin === clean && (data.room.challenge || data.room.title)) {
                 clearTimeout(timer);
@@ -613,20 +639,46 @@ class RealtimeEngine {
     this.roomClosed = true;
     const pin = String(this.currentRoom.pin || this.activePin || '').replace(/\D/g, '');
     this.currentRoom.status = 'closed';
+
+    // 1. Guardar como cerrada y borrar salas activas de este PIN en localStorage
     try {
-      localStorage.setItem(`te_reto_room_${pin}`, JSON.stringify(this.currentRoom));
-      localStorage.setItem(`mentix_room_${pin}`, JSON.stringify(this.currentRoom));
+      localStorage.setItem('te_reto_room_closed_' + pin, 'true');
+      localStorage.removeItem('te_reto_room_' + pin);
+      localStorage.removeItem('mentix_room_' + pin);
     } catch (e) {}
-    try { this.broadcast({ type: 'ROOM_CLOSED', pin: pin, abrupt: false, reason: 'host_left' }); } catch (e) {}
-    // Borrar el estado retenido para que nadie pueda entrar a una sala cerrada
+
+    // 2. Transmitir evento ROOM_CLOSED a todos los jugadores conectados
+    try {
+      this.broadcast({ type: 'ROOM_CLOSED', status: 'closed', pin: pin, abrupt: false, reason: 'host_left' });
+    } catch (e) {} 
+
+    // 3. Sobrescribir en MQTT con retain: true marcando estado cerrado para que nadie entre
     try {
       if (this.mqttClient && this.mqttClient.connected) {
-        this.mqttClient.publish(`mentix/rooms/${pin}/host_state`, '', { qos: 0, retain: true });
+        const payloadClosed = JSON.stringify({
+          type: 'ROOM_CLOSED',
+          status: 'closed',
+          pin: pin,
+          timestamp: Date.now(),
+          reason: 'host_left'
+        });
+        this.mqttClient.publish('mentix/rooms/' + pin + '/host_state', payloadClosed, { qos: 0, retain: true });
+        this.mqttClient.publish('mentix/rooms/' + pin + '/host_events', payloadClosed, { qos: 0, retain: false });
       }
     } catch (e) {}
+
+    // 4. Limpiar anfitrión en memoria
+    this.currentRoom = null;
+    this.isHost = false;
+
+    // 5. Desconectar MQTT
     setTimeout(() => {
-      try { if (this.mqttClient && this.activeMqttPin === pin && this.activeMqttIsHost) this.mqttClient.end(); } catch (e) {}
-    }, 800);
+      try {
+        if (this.mqttClient && this.activeMqttPin === pin && this.activeMqttIsHost) {
+          this.mqttClient.end(true);
+        }
+      } catch (e) {}
+    }, 600);
   }
 
   // El jugador recibe que el anfitrion salio: salir del juego
@@ -675,6 +727,7 @@ class RealtimeEngine {
   // Crear sala como Anfitrión (Host)
   createRoom(challenge, gameMode = 'clasico', modeConfig = {}, rosterConfig = null, roomType = 'presented') {
     const pin = this.generatePin();
+    try { localStorage.removeItem('te_reto_room_closed_' + pin); } catch(e) {}
     this.isHost = true;
     this.roomClosed = false;
     this.localPlayer = null; // El anfitrión es el profesor/presentador, no un jugador competidor
@@ -811,7 +864,8 @@ class RealtimeEngine {
       try {
         const stored = localStorage.getItem(`te_reto_room_${cleanPin}`) || localStorage.getItem(`mentix_room_${cleanPin}`);
         if (stored) {
-          roomData = JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.status !== 'closed') { roomData = parsed; }
         }
       } catch (e) {
         console.warn('Error al leer sala de storage:', e);

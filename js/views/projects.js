@@ -12,6 +12,17 @@ window.ProjectsView = {
   selectedProjectTypeId: 'presentation',
   currentSlideIndex: 0,
 
+  isTeacherOrAdmin() {
+    const u = window.appState && window.appState.currentUser;
+    if (!u) return false;
+    const r = (u.role || '').toLowerCase().trim();
+    if (r === 'teacher' || r === 'admin' || r === 'profesor' || r === 'maestro' || r === 'administrador') return true;
+    const name = (u.name || '').toLowerCase().trim();
+    const uname = (u.username || '').toLowerCase().trim();
+    if (name === 'melisa' || uname === 'melisa' || name.startsWith('prof') || uname.startsWith('prof')) return true;
+    return false;
+  },
+
   projectModes: [
     {
       id: 'presentation',
@@ -262,6 +273,7 @@ window.ProjectsView = {
     if (!container) return;
 
     const u = window.appState.currentUser;
+    const isTeacherOrAdmin = this.isTeacherOrAdmin();
     // En MENTIX, los proyectos abarcan: Presentaciones, Video Clases, Documentos Didácticos y Enlaces Web/URL
     const allProjects = (window.appState.challenges || []).filter(c => 
       c.projectType === 'presentation' || c.projectType === 'video' || c.projectType === 'document' || c.projectType === 'url'
@@ -351,16 +363,47 @@ window.ProjectsView = {
             </p>
           </div>
 
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-            
-            <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
-              <span>➕</span> <span>Crear Proyecto</span>
-            </button>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-start;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem;">
+              <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
+                <span>➕</span> <span>Crear Proyecto</span>
+              </button>
+              ${isTeacherOrAdmin ? `
+                <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(0, 245, 212, 0.12); border: 1px solid rgba(0, 245, 212, 0.4); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: var(--neon-cyan); max-width: 300px; line-height: 1.3; text-shadow: 0 0 10px rgba(0,245,212,0.3);">
+                  <span>📢</span> Enviar un código o crear un código de proyecto para estudiantes
+                </div>
+              ` : ''}
+            </div>
             <button class="btn btn-outline" onclick="window.appRouter.openCategoryModal()" style="padding: 0.8rem 1.2rem; font-weight: 800;">
               <span>🏷️</span> Categorías
             </button>
           </div>
         </div>
+
+        ${isTeacherOrAdmin ? `
+          <!-- Banner Exclusivo para Profesores y Administradores -->
+          <div class="teacher-admin-project-notice animate-fade-in" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(20, 35, 65, 0.92)); border: 1.5px solid var(--neon-cyan); border-radius: 16px; padding: 1.15rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; box-shadow: 0 8px 30px rgba(0, 245, 212, 0.18);">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0, 245, 212, 0.15); border: 1.5px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; flex-shrink: 0; box-shadow: 0 0 15px rgba(0,245,212,0.3);">
+                👨‍🏫
+              </div>
+              <div>
+                <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(0, 245, 212, 0.18); color: var(--neon-cyan); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; padding: 0.2rem 0.65rem; border-radius: 9999px; letter-spacing: 0.5px; margin-bottom: 0.35rem; border: 1px solid rgba(0,245,212,0.35);">
+                  <span>🛡️</span> Solo para Maestros y Administradores
+                </div>
+                <h3 style="font-size: 1.15rem; font-weight: 900; color: #ffffff; margin: 0 0 0.2rem; text-shadow: 0 2px 8px rgba(0,0,0,0.8); line-height: 1.35;">
+                  Enviar un código o crear un código de proyecto para estudiantes
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                  Como maestro o administrador, puedes crear un código de proyecto o enviar el código a tus estudiantes para que se unan a la sesión.
+                </p>
+              </div>
+            </div>
+            <button class="btn btn-cyan btn-sm" onclick="window.ProjectsView.openCreateProjectModal()" style="font-weight: 900; padding: 0.65rem 1.25rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,245,212,0.35); white-space: nowrap; font-size: 0.9rem;">
+              <span>🔑</span> Crear Código de Proyecto
+            </button>
+          </div>
+        ` : ''}
 
         <!-- Barra de Estadísticas Resumen -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.25rem;">
@@ -1585,6 +1628,7 @@ window.ProjectsView = {
   },
 
   renderProjectSelectorView(container) {
+    const isTeacherOrAdmin = this.isTeacherOrAdmin();
     const selectedMode = this.projectModes.find((m) => m.id === this.selectedProjectTypeId) || this.projectModes[0];
 
     container.innerHTML = `
@@ -1596,7 +1640,11 @@ window.ProjectsView = {
           </button>
           <div class="experience-title-group">
             <h1 class="experience-main-title">Seleccionar proyecto</h1>
-            <p class="experience-subtitle">Para tu clase interactiva • Elige qué tipo de proyecto deseas crear</p>
+            <p class="experience-subtitle">
+              ${isTeacherOrAdmin ? `
+                <span style="color: var(--neon-cyan); font-weight: 900;">👨‍🏫 Solo para Maestros y Administradores:</span> Enviar un código o crear un código de proyecto para estudiantes
+              ` : `Para tu clase interactiva • Elige qué tipo de proyecto deseas crear`}
+            </p>
           </div>
           <div class="experience-header-spacer"></div>
         </div>
