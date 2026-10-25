@@ -364,16 +364,18 @@ window.ProjectsView = {
           </div>
 
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-start;">
+            ${isTeacherOrAdmin ? `
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem;">
               <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
                 <span>➕</span> <span>Crear Proyecto</span>
               </button>
-              ${isTeacherOrAdmin ? `
+              
                 <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(0, 245, 212, 0.12); border: 1px solid rgba(0, 245, 212, 0.4); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: var(--neon-cyan); max-width: 300px; line-height: 1.3; text-shadow: 0 0 10px rgba(0,245,212,0.3);">
                   <span>📢</span> Enviar un código o crear un código de proyecto para estudiantes
                 </div>
-              ` : ''}
+              
             </div>
+            ` : ''}
             <button class="btn btn-outline" onclick="window.appRouter.openCategoryModal()" style="padding: 0.8rem 1.2rem; font-weight: 800;">
               <span>🏷️</span> Categorías
             </button>
@@ -888,11 +890,18 @@ window.ProjectsView = {
   },
 
   openCreateProjectModal() {
+    if (!this.isTeacherOrAdmin()) {
+      alert('🚫 Solo los maestros y administradores pueden crear un código de proyecto para estudiantes.');
+      return;
+    }
     this.viewMode = 'selector';
-    if (!this.selectedProjectTypeId) this.selectedProjectTypeId = 'presentation';
     if (window.soundEngine) window.soundEngine.playClick();
     this.render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const inp = document.getElementById('custom-project-code-input');
+      if (inp) inp.focus();
+    }, 100);
   },
 
   closeCreateProjectModal() {
@@ -1627,38 +1636,185 @@ window.ProjectsView = {
     });
   },
 
+  getSavedProjectCodes() {
+    try {
+      const raw = localStorage.getItem('mentix_custom_project_codes');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  },
+
+  saveCustomProjectCode() {
+    if (!this.isTeacherOrAdmin()) {
+      alert('🚫 Solo maestros y administradores pueden crear códigos de proyecto.');
+      return;
+    }
+    const input = document.getElementById('custom-project-code-input');
+    const errEl = document.getElementById('custom-code-error');
+    const okEl = document.getElementById('custom-code-success');
+    const rawCode = input ? input.value.trim() : '';
+
+    if (errEl) errEl.style.display = 'none';
+    if (okEl) okEl.style.display = 'none';
+
+    if (!rawCode) {
+      if (errEl) {
+        errEl.textContent = '⚠️ Por favor escribe el código que deseas asignar (ej: 1234, PROYECTO1, etc.).';
+        errEl.style.display = 'block';
+      } else {
+        alert('Por favor escribe un código.');
+      }
+      if (input) input.focus();
+      return;
+    }
+
+    const u = window.appState?.currentUser || {};
+    const codes = this.getSavedProjectCodes().filter(item => String(item.code).toLowerCase() !== rawCode.toLowerCase());
+    const newEntry = {
+      code: rawCode,
+      author: u.name || u.username || 'Profesor',
+      createdAt: new Date().toLocaleString()
+    };
+    codes.unshift(newEntry);
+
+    try {
+      localStorage.setItem('mentix_custom_project_codes', JSON.stringify(codes));
+      localStorage.removeItem('te_reto_room_closed_' + rawCode);
+    } catch (e) {}
+
+    this.lastCreatedCode = rawCode;
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+  },
+
+  copyCustomProjectCode(code) {
+    if (!code) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Código "' + code + '" copiado para enviarlo a los estudiantes.');
+      }).catch(() => {
+        prompt('Copia este código para tus estudiantes:', code);
+      });
+    } else {
+      prompt('Copia este código para tus estudiantes:', code);
+    }
+  },
+
+  deleteCustomProjectCode(code) {
+    const codes = this.getSavedProjectCodes().filter(item => item.code !== code);
+    try {
+      localStorage.setItem('mentix_custom_project_codes', JSON.stringify(codes));
+    } catch (e) {}
+    if (this.lastCreatedCode === code) this.lastCreatedCode = null;
+    if (window.soundEngine) window.soundEngine.playClick();
+    this.render();
+  },
+
   renderProjectSelectorView(container) {
     const isTeacherOrAdmin = this.isTeacherOrAdmin();
-    const selectedMode = this.projectModes.find((m) => m.id === this.selectedProjectTypeId) || this.projectModes[0];
+    if (!isTeacherOrAdmin) {
+      this.viewMode = 'list';
+      this.render();
+      return;
+    }
+
+    const savedCodes = this.getSavedProjectCodes();
+    const recentCode = this.lastCreatedCode || (savedCodes[0] ? savedCodes[0].code : '');
 
     container.innerHTML = `
-      <div class="experience-screen-container animate-fade-in">
+      <div class="experience-screen-container animate-fade-in" style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.25rem 4rem;">
         <!-- Header -->
-        <div class="experience-header">
+        <div class="experience-header" style="width: 100%; max-width: 680px; margin-bottom: 1.5rem;">
           <button class="experience-back-btn" onclick="ProjectsView.closeCreateProjectModal()">
             ← Volver a Proyectos
           </button>
-          <div class="experience-title-group">
-            <h1 class="experience-main-title">Seleccionar proyecto</h1>
-            <p class="experience-subtitle">
-              ${isTeacherOrAdmin ? `
-                <span style="color: var(--neon-cyan); font-weight: 900;">👨‍🏫 Solo para Maestros y Administradores:</span> Enviar un código o crear un código de proyecto para estudiantes
-              ` : `Para tu clase interactiva • Elige qué tipo de proyecto deseas crear`}
-            </p>
-          </div>
-          <div class="experience-header-spacer"></div>
         </div>
 
-        <!-- Project Types Grid -->
-        <div class="experience-grid-wrapper">
-          <div class="experience-grid">
-            ${this.projectModes.map((mode) => this.renderProjectModeCard(mode, mode.id === selectedMode.id)).join('')}
+        <!-- Tarjeta única para que el profesor escriba el código que él elija -->
+        <div class="glass-panel" style="width: 100%; max-width: 640px; padding: 2.5rem 2rem; border-radius: 22px; border: 2px solid var(--neon-cyan); background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(19, 27, 46, 0.96)); box-shadow: 0 15px 45px rgba(0, 245, 212, 0.2); text-align: center;">
+          
+          <div style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(0, 245, 212, 0.15); color: var(--neon-cyan); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; padding: 0.35rem 0.9rem; border-radius: 9999px; letter-spacing: 0.6px; margin-bottom: 1rem; border: 1px solid rgba(0,245,212,0.4);">
+            <span>👨‍🏫</span> Solo para Maestros y Administradores
           </div>
-        </div>
 
-        <!-- Bottom Sticky Selected Project Bar -->
-        <div class="experience-action-bar" id="project-selector-action-bar">
-          ${this.renderProjectConfigBar(selectedMode)}
+          <h1 style="font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 900; color: #ffffff; margin: 0 0 0.5rem; line-height: 1.25;">
+            🔑 Crear Código de Proyecto
+          </h1>
+
+          <p style="color: var(--text-secondary); font-size: 1rem; margin: 0 auto 1.75rem; max-width: 500px; line-height: 1.5;">
+            Escribe tú mismo el código que elijas para este proyecto y compártelo con tus estudiantes.
+          </p>
+
+          <form onsubmit="event.preventDefault(); window.ProjectsView.saveCustomProjectCode();" style="max-width: 460px; margin: 0 auto;">
+            <label for="custom-project-code-input" style="display: block; text-align: left; font-size: 0.85rem; font-weight: 900; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.6rem;">
+              ✏️ Escribe el código que tú elijas:
+            </label>
+
+            <input
+              type="text"
+              id="custom-project-code-input"
+              placeholder="Ej: PROYECTO1, 2026, CLASE10..."
+              autocomplete="off"
+              maxlength="24"
+              style="width: 100%; box-sizing: border-box; padding: 1.1rem 1.25rem; font-size: 1.5rem; font-weight: 900; text-align: center; letter-spacing: 2px; color: #ffffff; background: rgba(8, 13, 26, 0.9); border: 2px solid rgba(0, 245, 212, 0.6); border-radius: 14px; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6), 0 0 20px rgba(0,245,212,0.15); margin-bottom: 1rem;"
+            />
+
+            <div id="custom-code-error" style="display: none; color: #ff6b6b; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;"></div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem;">
+              <button type="button" class="btn btn-outline" onclick="window.ProjectsView.closeCreateProjectModal()" style="padding: 0.85rem 1.4rem; font-weight: 800; border-radius: 12px;">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-cyan btn-lg" style="padding: 0.85rem 2rem; font-weight: 900; font-size: 1.05rem; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,245,212,0.4);">
+                <span>✅</span> Guardar Mi Código
+              </button>
+            </div>
+          </form>
+
+          ${recentCode ? `
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+              <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.5rem;">
+                Código activo elegido por el profesor:
+              </div>
+              <div style="display: inline-flex; align-items: center; gap: 0.85rem; background: rgba(0, 245, 212, 0.12); border: 1.5px solid var(--neon-cyan); padding: 0.75rem 1.4rem; border-radius: 14px; margin-bottom: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                <span style="font-size: 1.75rem; font-weight: 900; color: var(--neon-cyan); letter-spacing: 3px; text-shadow: 0 0 15px rgba(0,245,212,0.5);">
+                  ${this.escapeHtml(recentCode)}
+                </span>
+                <button type="button" class="btn btn-cyan btn-sm" onclick="window.ProjectsView.copyCustomProjectCode('${this.escapeHtml(recentCode)}')" style="font-weight: 800; padding: 0.45rem 0.9rem; border-radius: 8px;">
+                  📋 Copiar para enviar
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          ${savedCodes.length > 0 ? `
+            <div style="margin-top: 1.25rem; text-align: left;">
+              <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">
+                Mis códigos creados (${savedCodes.length}):
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.45rem; max-height: 180px; overflow-y: auto;">
+                ${savedCodes.map(item => `
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.5rem 0.85rem; border-radius: 10px;">
+                    <div>
+                      <span style="font-weight: 900; color: #ffffff; font-size: 1rem; letter-spacing: 1px;">${this.escapeHtml(item.code)}</span>
+                      <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;">• ${this.escapeHtml(item.author || 'Profesor')}</span>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <button type="button" class="btn btn-outline btn-sm" onclick="window.ProjectsView.copyCustomProjectCode('${this.escapeHtml(item.code)}')" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+                        📋 Copiar
+                      </button>
+                      <button type="button" class="btn btn-danger btn-sm" onclick="window.ProjectsView.deleteCustomProjectCode('${this.escapeHtml(item.code)}')" style="padding: 0.25rem 0.55rem; font-size: 0.78rem;">
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
