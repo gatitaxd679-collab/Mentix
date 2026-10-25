@@ -1229,8 +1229,14 @@ window.ProjectsView = {
             </div>
 
             <div class="plp-hero-grid">
-              <!-- Columna Izquierda (Video o Portada): Reproductor integrado con miniatura personalizada y botÃ³n Play central -->
-              <div class="plp-video-card" id="plp-hero-video-box" aria-label="Video explicativo del proyecto">
+              <!-- Columna Izquierda (Video o Portada estilo Pawly Smart Stream): Reproductor integrado con HUD de telemetrÃ­a -->
+              <div class="plp-video-card" id="plp-hero-video-box" aria-label="Smart Pet Care & Health Stream">
+                <!-- Barra HUD Superior de TelemetrÃ­a estilo Pawly -->
+                <div class="plp-hud-stream-bar">
+                  <span class="plp-hud-chip live">â— EN VIVO</span>
+                  <span class="plp-hud-chip">ðŸ”‹ 98% BaterÃ­a â€¢ ðŸ¾ TelemetrÃ­a Activa</span>
+                </div>
+
                 ${isVideoPublic ? `
                   <div
                     class="plp-video-poster"
@@ -1243,53 +1249,94 @@ window.ProjectsView = {
                     <div class="plp-play-btn" aria-hidden="true">â–¶</div>
                     <div class="plp-video-caption">
                       <span>ðŸŽ¬ ${videoTitle}</span>
-                      <span>${videoDuration}</span>
+                      <span>â¤ï¸ 78 BPM â€¢ ðŸŒ¡ï¸ 38.2Â°C â€¢ ðŸ“ TelemetrÃ­a</span>
                     </div>
                   </div>
                 ` : `
                   <div class="plp-video-poster" style="background-image: url('${coverPoster}'); cursor: default;">
                     <div class="plp-video-caption">
                       <span>ðŸ–¼ï¸ ${selectedTitle}</span>
-                      <span>Portada Oficial</span>
+                      <span>ðŸ¾ Dispositivo de Monitoreo Conectado</span>
                     </div>
                   </div>
                 `}
               </div>
 
-              <!-- Columna Derecha (DefiniciÃ³n): MisiÃ³n, VisiÃ³n, Impacto y BotÃ³n "Saber MÃ¡s" -->
-              <article class="plp-hero-definition">
-                <h2 class="plp-hero-def-title">DefiniciÃ³n del Proyecto</h2>
-                <p class="plp-hero-def-text">
-                  <strong>Objetivo y PropÃ³sito:</strong> ${missionText}
-                </p>
-                <p class="plp-hero-def-text">
-                  <strong>Beneficios e Impacto:</strong> ${visionText}
-                </p>
-                ${howItWorksText}
+              <!-- Columna Derecha (Pawly Smart Care & Health Monitoring Dashboard Hub) -->
+              <article class="plp-bento-hero-panel">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.15rem; gap: 0.5rem; flex-wrap: wrap;">
+                  <span class="plp-pawly-header-badge">
+                    <span>ðŸ¾</span> Pawly Smart Health Hub
+                  </span>
+                  <span style="font-size: 0.78rem; font-weight: 800; color: var(--plp-emerald-600); background: var(--plp-emerald-100); padding: 0.25rem 0.65rem; border-radius: 999px;">
+                    â— Dispositivo Sincronizado
+                  </span>
+                </div>
 
-                <div class="plp-hero-pillars">
-                  <div class="plp-pillar-chip">
-                    <strong>${this.escapeHtml((selected && (selected.projectState || 'Activo')).toString().replace('_', ' ').toUpperCase())}</strong>
-                    <span>Estado del Proyecto</span>
+                <!-- Score Circular de Vitalidad / Salud estilo Pawly Dribbble -->
+                <div class="plp-vitals-score-row">
+                  <div class="plp-vitals-ring-box">
+                    <svg viewBox="0 0 80 80">
+                      <circle class="plp-vitals-ring-bg" cx="40" cy="40" r="35"></circle>
+                      <circle class="plp-vitals-ring-fill" cx="40" cy="40" r="35"></circle>
+                    </svg>
+                    <div class="plp-vitals-ring-text">98%</div>
                   </div>
-                  <div class="plp-pillar-chip">
-                    <strong>${this.escapeHtml((selected && (selected.targetAudience || 'Comunidad')).toString().slice(0, 18))}</strong>
-                    <span>PÃºblico Objetivo</span>
-                  </div>
-                  <div class="plp-pillar-chip">
-                    <strong>${this.escapeHtml((selected && (selected.teamResponsible || selected.author || 'GovData IA')).toString().slice(0, 18))}</strong>
-                    <span>Equipo / Autor</span>
+                  <div class="plp-vitals-score-info">
+                    <h4>â¤ï¸ Ãndice de Salud & Bienestar</h4>
+                    <p>Estado Ã³ptimo general. Signos vitales estables y actividad dentro del rango saludable.</p>
                   </div>
                 </div>
 
-                <button type="button" class="plp-btn-secondary" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">
-                  <span>Explorar Recursos PÃºblicos (${publicResources.length || 3})</span>
-                  <span class="plp-arrow" aria-hidden="true">â†’</span>
+                <!-- Mini Bento Grid de 3 Indicadores RÃ¡pidos -->
+                <div class="plp-mini-bento-grid">
+                  <div class="plp-mini-bento-card">
+                    <span class="plp-mini-bento-icon">â¤ï¸</span>
+                    <strong class="plp-mini-bento-val">78 BPM</strong>
+                    <span class="plp-mini-bento-lbl">Frecuencia</span>
+                  </div>
+                  <div class="plp-mini-bento-card">
+                    <span class="plp-mini-bento-icon">ðŸ”¥</span>
+                    <strong class="plp-mini-bento-val">8.4k</strong>
+                    <span class="plp-mini-bento-lbl">Actividad</span>
+                  </div>
+                  <div class="plp-mini-bento-card">
+                    <span class="plp-mini-bento-icon">ðŸ’§</span>
+                    <strong class="plp-mini-bento-val">650 ml</strong>
+                    <span class="plp-mini-bento-lbl">HidrataciÃ³n</span>
+                  </div>
+                </div>
+
+                <!-- Rutina Diaria de Cuidados y TelemetrÃ­a -->
+                <div class="plp-care-checklist">
+                  <div class="plp-care-check-title">
+                    <span>ðŸ“‹</span> Rutina Diaria & Monitoreo Inteligente
+                  </div>
+                  <div class="plp-care-check-item">
+                    <span class="plp-care-check-icon">âœ”</span>
+                    <span>RevisiÃ³n matutina y calibraciÃ³n de sensores</span>
+                  </div>
+                  <div class="plp-care-check-item">
+                    <span class="plp-care-check-icon">âœ”</span>
+                    <span>SincronizaciÃ³n de registros clÃ­nicos y mÃ©tricas</span>
+                  </div>
+                  <div class="plp-care-check-item">
+                    <span class="plp-care-check-icon pending">â³</span>
+                    <span>SesiÃ³n vespertina de actividad y suplementos</span>
+                  </div>
+                </div>
+
+                <p style="font-size: 0.9rem; color: var(--plp-text-body); margin: 0 0 1.25rem; line-height: 1.55;">
+                  <strong>PropÃ³sito del Proyecto:</strong> ${missionText}
+                </p>
+
+                <button type="button" class="plp-pawly-action-btn" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">
+                  <span>ðŸ¾ Ver Historial de Salud, GuÃ­as y Recursos (${publicResources.length || 3})</span>
+                  <span>â†’</span>
                 </button>
               </article>
             </div>
           </section>
-
           <!-- ================================================================
                3. SECCIÃ“N DE DOCUMENTOS Y RECURSOS (CARDS INTERACTIVOS)
                ================================================================ -->

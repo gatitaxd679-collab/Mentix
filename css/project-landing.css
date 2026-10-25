@@ -5,31 +5,44 @@
    Tipografías: 'Montserrat' / 'Inter' (Títulos) y 'Open Sans' / 'Roboto' (Texto)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* ==========================================================================
+   PAWLY SMART PET CARE & HEALTH MONITORING DASHBOARD AESTHETICS (NICKELFOX)
+   Paleta: Coral / Sunset (#FF6B4A / #FF7A59), Menta / Salud (#10B981),
+           Lavanda / AI (#8B5CF6), Crema Claro (#FAF8F5 / #F8FAFC) y Pizarra (#0F172A)
+   ========================================================================== */
 .plp-wrapper {
-  --plp-navy-900: #0a192f;
-  --plp-navy-800: #0f2942;
-  --plp-navy-700: #1e3a5f;
+  --plp-coral: #ff6b4a;
+  --plp-coral-hover: #f05533;
+  --plp-coral-light: #fff2ee;
+  --plp-coral-border: #ffd7ce;
+  --plp-navy-900: #0f172a;
+  --plp-navy-800: #1e293b;
+  --plp-navy-700: #334155;
   --plp-emerald-500: #10b981;
   --plp-emerald-600: #059669;
-  --plp-emerald-100: #d1fae5;
+  --plp-emerald-100: #ecfdf5;
+  --plp-lavender-500: #8b5cf6;
+  --plp-lavender-100: #f5f3ff;
   --plp-bg-white: #ffffff;
   --plp-bg-light: #f8fafc;
   --plp-bg-subtle: #f1f5f9;
+  --plp-bg-cream: #faf8f5;
   --plp-text-main: #0f172a;
   --plp-text-body: #334155;
   --plp-text-muted: #64748b;
   --plp-border: #e2e8f0;
-  --plp-shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
-  --plp-shadow-md: 0 12px 32px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
-  --plp-shadow-lg: 0 20px 45px -10px rgba(15, 23, 42, 0.14), 0 8px 20px -6px rgba(16, 185, 129, 0.12);
-  --plp-radius-sm: 10px;
-  --plp-radius-md: 16px;
-  --plp-radius-lg: 24px;
+  --plp-shadow-sm: 0 4px 16px rgba(15, 23, 42, 0.04);
+  --plp-shadow-md: 0 14px 36px -4px rgba(15, 23, 42, 0.07), 0 4px 14px -2px rgba(255, 107, 74, 0.05);
+  --plp-shadow-lg: 0 24px 50px -12px rgba(15, 23, 42, 0.12), 0 10px 24px -6px rgba(255, 107, 74, 0.15);
+  --plp-radius-sm: 12px;
+  --plp-radius-md: 20px;
+  --plp-radius-lg: 28px;
+  --plp-radius-xl: 36px;
   --plp-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
-  font-family: 'Open Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--plp-bg-white);
   color: var(--plp-text-body);
   line-height: 1.65;
@@ -1857,4 +1870,336 @@ body[data-theme="dark"] .plp-lightbox-content {
   .gdn-wizard-footer {
     padding: 0.85rem 1rem;
   }
+}
+
+
+/* ==========================================================================
+   PAWLY SMART HEALTH & CARE DASHBOARD WIDGETS
+   ========================================================================== */
+.plp-pawly-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--plp-coral-light);
+  color: var(--plp-coral);
+  border: 1px solid var(--plp-coral-border);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.plp-cta-btn {
+  background: linear-gradient(135deg, var(--plp-coral), #ff8466) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 74, 0.38) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  padding: 0.72rem 1.6rem !important;
+  cursor: pointer;
+  transition: var(--plp-transition) !important;
+}
+
+.plp-cta-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 10px 28px rgba(255, 107, 74, 0.48) !important;
+  background: linear-gradient(135deg, var(--plp-coral-hover), #ff704d) !important;
+}
+
+/* Smart Stream HUD */
+.plp-hud-stream-bar {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.plp-hud-chip {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.plp-hud-chip.live {
+  background: rgba(239, 68, 68, 0.85);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+.plp-hud-chip.live::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: plpHudPulse 1.4s infinite;
+}
+
+@keyframes plpHudPulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Pawly Bento Diagnostics Hub */
+.plp-bento-hero-panel {
+  background: var(--plp-bg-white);
+  border-radius: var(--plp-radius-xl);
+  padding: 2.25rem;
+  border: 1px solid var(--plp-border);
+  box-shadow: var(--plp-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.plp-bento-hero-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, var(--plp-coral), var(--plp-emerald-500), var(--plp-lavender-500));
+}
+
+.plp-vitals-score-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 107, 74, 0.06), rgba(16, 185, 129, 0.06));
+  border: 1.5px solid rgba(255, 107, 74, 0.18);
+  border-radius: var(--plp-radius-lg);
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.plp-vitals-ring-box {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  flex-shrink: 0;
+}
+
+.plp-vitals-ring-box svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.plp-vitals-ring-bg {
+  fill: none;
+  stroke: rgba(226, 232, 240, 0.8);
+  stroke-width: 7;
+}
+
+.plp-vitals-ring-fill {
+  fill: none;
+  stroke: var(--plp-coral);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-dasharray: 219.9;
+  stroke-dashoffset: 8.8; /* 96% score */
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.plp-vitals-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.15rem;
+  color: var(--plp-navy-900);
+}
+
+.plp-vitals-score-info h4 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--plp-navy-900);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.plp-vitals-score-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--plp-text-muted);
+  line-height: 1.4;
+}
+
+/* 3 Mini Bento Stat Cards */
+.plp-mini-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.plp-mini-bento-card {
+  background: var(--plp-bg-light);
+  border: 1px solid var(--plp-border);
+  border-radius: var(--plp-radius-md);
+  padding: 0.9rem 0.8rem;
+  text-align: center;
+  transition: var(--plp-transition);
+}
+
+.plp-mini-bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--plp-shadow-sm);
+  border-color: var(--plp-coral-border);
+}
+
+.plp-mini-bento-icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.3rem;
+  display: inline-block;
+}
+
+.plp-mini-bento-val {
+  font-size: 0.96rem;
+  font-weight: 900;
+  color: var(--plp-navy-900);
+  display: block;
+  line-height: 1.2;
+}
+
+.plp-mini-bento-lbl {
+  font-size: 0.72rem;
+  color: var(--plp-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Pawly Interactive Care Checklist */
+.plp-care-checklist {
+  background: var(--plp-bg-light);
+  border-radius: var(--plp-radius-lg);
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--plp-border);
+}
+
+.plp-care-check-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--plp-text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.plp-care-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0;
+  font-size: 0.88rem;
+  color: var(--plp-text-body);
+  border-bottom: 1px dashed rgba(226, 232, 240, 0.8);
+}
+
+.plp-care-check-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.plp-care-check-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--plp-emerald-100);
+  color: var(--plp-emerald-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.plp-care-check-icon.pending {
+  background: var(--plp-coral-light);
+  color: var(--plp-coral);
+}
+
+.plp-pawly-action-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--plp-navy-900), #1e293b);
+  color: #ffffff;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.95rem 1.5rem;
+  border-radius: var(--plp-radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  transition: var(--plp-transition);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
+}
+
+.plp-pawly-action-btn:hover {
+  background: linear-gradient(135deg, var(--plp-coral), var(--plp-coral-hover));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 107, 74, 0.35);
+}
+
+/* Dark mode enhancements for Pawly */
+.plp-wrapper[data-theme="dark"] .plp-bento-hero-panel {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+.plp-wrapper[data-theme="dark"] .plp-vitals-score-row {
+  background: rgba(255, 107, 74, 0.08);
+  border-color: rgba(255, 107, 74, 0.3);
+}
+
+.plp-wrapper[data-theme="dark"] .plp-vitals-ring-text {
+  color: #ffffff;
+}
+
+.plp-wrapper[data-theme="dark"] .plp-mini-bento-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.plp-wrapper[data-theme="dark"] .plp-mini-bento-val {
+  color: #ffffff;
+}
+
+.plp-wrapper[data-theme="dark"] .plp-care-checklist {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.plp-wrapper[data-theme="dark"] .plp-care-check-item {
+  color: #e2e8f0;
+  border-bottom-color: #334155;
 }
