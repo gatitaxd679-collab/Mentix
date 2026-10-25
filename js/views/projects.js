@@ -274,10 +274,15 @@ window.ProjectsView = {
 
     const u = window.appState.currentUser;
     const isTeacherOrAdmin = this.isTeacherOrAdmin();
-    // En MENTIX, los proyectos abarcan: Presentaciones, Video Clases, Documentos Didácticos y Enlaces Web/URL
-    const allProjects = (window.appState.challenges || []).filter(c => 
-      c.projectType === 'presentation' || c.projectType === 'video' || c.projectType === 'document' || c.projectType === 'url'
+    // En MENTIX, los proyectos abarcan: Presentaciones, Video Clases, Documentos Didácticos, Enlaces Web/URL y Proyectos GovData Nexus
+    const rawProjects = (window.appState.challenges || []).filter(c => 
+      c.projectType === 'presentation' || c.projectType === 'video' || c.projectType === 'document' || c.projectType === 'url' || c.isGovDataProject
     );
+
+    if (this.viewMode === 'wizard' && window.ProjectWizard) {
+      window.ProjectWizard.render(container);
+      return;
+    }
 
     if (this.viewMode === 'selector') {
       this.renderProjectSelectorView(container);
@@ -285,9 +290,16 @@ window.ProjectsView = {
     }
 
     if (this.viewMode === 'landing') {
-      this.renderLandingPageView(container, allProjects);
+      this.renderLandingPageView(container, rawProjects);
       return;
     }
+
+    // Filtrar borradores/archivados para que solo los vea su autor o profesor/admin
+    const allProjects = rawProjects.filter(c => {
+      if (!c.publicationStatus || c.publicationStatus === 'published' || c.publicationStatus === 'approved') return true;
+      const isOwner = window.appRouter ? window.appRouter.isChallengeOwner(c) : false;
+      return isOwner || isTeacherOrAdmin;
+    });
 
     const categories = (window.appState.categories || []).filter(c => {
       if (!c || !c.id) return false;
@@ -364,6 +376,9 @@ window.ProjectsView = {
           </div>
 
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-start;">
+            <button class="btn btn-lg" onclick="window.ProjectWizard.openWizard()" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35); font-weight: 900; padding: 0.85rem 1.45rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <span>✨</span> <span>Asistente Inteligente de Proyecto</span>
+            </button>
             ${isTeacherOrAdmin ? `
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem;">
               <button class="btn btn-cyan btn-lg" onclick="window.ProjectsView.openCreateProjectModal()" style="box-shadow: 0 6px 24px rgba(0,245,212,0.4); font-weight: 900; padding: 0.85rem 1.65rem; font-size: 1.05rem;">
@@ -381,6 +396,40 @@ window.ProjectsView = {
             </button>
           </div>
         </div>
+
+        ${(() => {
+          const drafts = window.ProjectWizard ? window.ProjectWizard.getAllSavedDrafts() : [];
+          if (!drafts.length) return '';
+          return `
+            <div class="glass-panel animate-fade-in" style="padding: 1.15rem 1.4rem; margin-bottom: 1.65rem; border: 1.5px solid rgba(16, 185, 129, 0.45); background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.9)); border-radius: 16px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-size: 1.35rem;">🧭</span>
+                  <div>
+                    <strong style="color: #10b981; font-size: 0.95rem; display: block;">Asistente Inteligente GovData Nexus — Borradores Guardados (${drafts.length})</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">Retoma la creación de tu proyecto exactamente en el paso donde quedaste.</span>
+                  </div>
+                </div>
+                <button class="btn btn-sm" onclick="window.ProjectWizard.startNewWizard()" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 800; padding: 0.4rem 0.85rem; border-radius: 8px; cursor: pointer;">
+                  + Nuevo Proyecto Guiado
+                </button>
+              </div>
+              <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                ${drafts.slice(0, 4).map(dr => `
+                  <div style="display: inline-flex; align-items: center; gap: 0.6rem; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12); padding: 0.45rem 0.85rem; border-radius: 10px;">
+                    <div>
+                      <div style="font-weight: 800; font-size: 0.85rem; color: #fff;">${this.escapeHtml(dr.title || 'Proyecto sin título')}</div>
+                      <div style="font-size: 0.72rem; color: #94a3b8;">Paso ${dr.currentStep || 1} de 8 • ${dr.lastSavedAt ? new Date(dr.lastSavedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Guardado'}</div>
+                    </div>
+                    <button class="btn btn-cyan btn-sm" onclick="window.ProjectWizard.openWizard('${dr.id}')" style="padding: 0.3rem 0.65rem; font-size: 0.76rem; font-weight: 800;">
+                      Continuar →
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        })()}
 
         ${isTeacherOrAdmin ? `
           <!-- Banner Exclusivo para Profesores y Administradores -->
@@ -734,9 +783,12 @@ window.ProjectsView = {
 
     return `
       <div class="challenge-card" onclick="window.ProjectsView.openProjectLanding('${c.id}')" style="display: flex; flex-direction: column; height: 100%; cursor: pointer;">
-        <div class="challenge-banner" style="background-image: url('${c.banner || defaultBanner}'); position: relative; height: 160px;">
-          <div style="position: absolute; top: 0.6rem; left: 0.6rem; display: flex; gap: 0.35rem;">
+        <div class="challenge-banner" style="background-image: url('${c.banner || c.coverImage || defaultBanner}'); position: relative; height: 160px;">
+          <div style="position: absolute; top: 0.6rem; left: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
             ${typeBadge}
+            ${c.publicationStatus === 'draft' || c.publicationStatus === 'in_preparation' ? '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.92); color: #fff;">📝 Borrador</span>' : ''}
+            ${c.publicationStatus === 'ready_for_review' ? '<span class="badge-tag" style="background: rgba(59, 130, 246, 0.92); color: #fff;">🔎 En Revisión</span>' : ''}
+            ${c.publicationStatus === 'published' && c.isGovDataProject ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.92); color: #fff;">🚀 Publicado</span>' : ''}
           </div>
           <span class="badge-tag" style="position: absolute; bottom: 0.6rem; left: 0.6rem; background: rgba(0,0,0,0.65); color: white;">
             ${countBadge}
@@ -777,7 +829,17 @@ window.ProjectsView = {
               <span style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.author || 'Docente'}</span>
             </div>
 
-            <div style="display: flex; gap: 0.45rem; align-items: center;">
+            <div style="display: flex; gap: 0.45rem; align-items: center; flex-wrap: wrap;">
+              ${isAuthor ? `
+                <button 
+                  class="btn btn-outline" 
+                  title="Abrir en el Asistente Inteligente de Proyectos (GovData Nexus)" 
+                  style="padding: 0.42rem 0.68rem; font-size: 0.8rem; border-color: rgba(16, 185, 129, 0.55); color: #10b981; font-weight: 800;" 
+                  onclick="event.stopPropagation(); window.ProjectWizard.openWizard('${c.id}')"
+                >
+                  ✨ Asistente
+                </button>
+              ` : ''}
               ${projectType === 'presentation' ? `
                 ${isAuthor ? `
                   <button 
@@ -915,7 +977,14 @@ window.ProjectsView = {
   // Al hacer clic en un proyecto se muestra su landing page
   openProjectLanding(projectId) {
     this.selectedProjectId = projectId;
+    this.isWizardPreview = false;
     this.viewMode = 'landing';
+    const proj = (window.appState.challenges || []).find(x => x.id === projectId);
+    if (proj) {
+      try {
+        localStorage.setItem('mentix_active_landing_project', JSON.stringify(proj));
+      } catch (e) {}
+    }
     if (window.soundEngine) window.soundEngine.playClick();
     this.render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -954,54 +1023,136 @@ window.ProjectsView = {
   renderLandingPageView(container, allProjects = []) {
     this.currentSlideIndex = 0;
     const currentTheme = this.getLandingTheme();
-    const selected = allProjects.find(x => x.id === this.selectedProjectId);
-    const selectedTitle = selected ? this.escapeHtml(selected.title || 'Proyecto') : '';
+    const selected = allProjects.find(x => x.id === this.selectedProjectId) || (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    if (selected) {
+      try {
+        localStorage.setItem('mentix_active_landing_project', JSON.stringify(selected));
+      } catch (e) {}
+    }
+
+    const pub = (selected && selected.publication) ? selected.publication : {};
+    const vp = (selected && selected.valueProposition) ? selected.valueProposition : {};
+    const vid = (selected && selected.video) ? selected.video : {};
+
+    const brandTitle = this.escapeHtml((selected && (selected.categoryName || pub.visibleCategory)) || 'Gobierno de Datos e IA');
+    const brandSubtitle = this.escapeHtml((selected && (pub.publicName || selected.title)) || 'Proyecto Innovatech');
+    const selectedTitle = selected ? this.escapeHtml(pub.publicName || selected.title || 'Proyecto') : 'Proyecto Innovatech';
+    const heroEyebrow = this.escapeHtml((selected && (selected.subtitle || selected.categoryName)) || 'ðŸš€ InnovaciÃ³n TecnolÃ³gica & Gobernanza Inteligente');
+    const heroMainTitle = selected
+      ? `${this.escapeHtml(pub.landingTitle || selected.title || 'Proyecto Innovatech')}`
+      : `Transformando el Futuro: <span>Proyecto Innovatech</span>`;
+    const heroSubtitle = this.escapeHtml(
+      (selected && (pub.publicDescription || selected.shortDescription || selected.description)) ||
+      'Plataforma integral de Gobierno de Datos e Inteligencia Artificial diseÃ±ada para impulsar decisiones estratÃ©gicas con Ã©tica, transparencia y alto impacto.'
+    );
+
+    const ctaText = this.escapeHtml((selected && (pub.ctaText || selected.ctaText || vp.visitorAction)) || 'Unirse / Colaborar');
+    const ctaUrl = (selected && (pub.ctaUrl || selected.ctaUrl)) || '';
+    const coverPoster = (selected && (pub.coverImage || selected.coverImage || selected.banner)) || 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80';
+
+    // Video pÃºblico (respeta visibilidad independiente)
+    const isVideoPublic = vid.visibility ? (vid.visibility === 'public' && pub.featuredVideoPublic !== false) : true;
+    const videoTitle = this.escapeHtml((vid && vid.title) || (selected && selected.title ? `Video Explicativo: ${selected.title}` : 'Video Explicativo: Proyecto Innovatech'));
+    const videoDuration = this.escapeHtml((selected && selected.duration) || (vid && vid.verified ? 'Verificado â€¢ HD' : '03:45 min â€¢ Full HD'));
+
+    // MisiÃ³n, Problema y Beneficios
+    const missionText = this.escapeHtml(
+      (selected && (selected.mainObjective || vp.problemSolved || selected.fullDescription || selected.description)) ||
+      'Estructurar un ecosistema de Gobierno de Datos e Inteligencia Artificial que garantice la calidad, seguridad e interoperabilidad de la informaciÃ³n para potenciar la innovaciÃ³n educativa y empresarial.'
+    );
+    const visionText = this.escapeHtml(
+      (selected && (selected.userBenefits || vp.resultsOffered || vp.differentiator || selected.problemAddressed)) ||
+      'Convertirnos en el referente regional en analÃ­tica Ã©tica y automatizaciÃ³n inteligente, reduciendo brechas tecnolÃ³gicas y generando valor sostenible para toda la comunidad.'
+    );
+    const howItWorksText = selected && (vp.howItWorks || vp.keyFeatures)
+      ? `<p class="plp-hero-def-text"><strong>CÃ³mo funciona y Funcionalidades:</strong> ${this.escapeHtml(vp.howItWorks || vp.keyFeatures)}</p>`
+      : '';
+
+    // Filtrar estrictamente recursos pÃºblicos (un proyecto publicado NUNCA expone archivos privados)
+    const publicResources = (selected && Array.isArray(selected.resources))
+      ? selected.resources.filter(r => r && r.visibility !== 'private').sort((a, b) => (a.order || 1) - (b.order || 1))
+      : [];
+
+    // Filtrar activos visuales pÃºblicos
+    const publicVisuals = (selected && Array.isArray(selected.visualAssets))
+      ? selected.visualAssets.filter(v => v && v.visibility !== 'private').sort((a, b) => (a.order || 1) - (b.order || 1))
+      : [];
+
+    // Filtrar enlaces externos pÃºblicos
+    const publicLinks = (selected && Array.isArray(selected.externalLinks))
+      ? selected.externalLinks.filter(l => l && l.visibility !== 'private').sort((a, b) => (a.order || 1) - (b.order || 1))
+      : [];
+
+    // FAQs pÃºblicas
+    const publicFaqs = (selected && Array.isArray(selected.faqs)) ? selected.faqs : [];
+
+    // Diapositivas para el carrusel (usa selected.slides si existen, o las 4 por defecto)
+    const customSlides = (selected && Array.isArray(selected.slides) && selected.slides.length > 0)
+      ? selected.slides
+      : null;
+    const totalCarouselSlides = customSlides ? customSlides.length : 4;
+
+    const fullScreenHref = selected
+      ? `proyecto-landing.html?id=${encodeURIComponent(selected.id)}${selected.slug ? '&slug=' + encodeURIComponent(selected.slug) : ''}`
+      : 'proyecto-landing.html';
 
     container.innerHTML = `
       <div style="max-width: 1340px; margin: 0 auto; padding: 1.25rem 1rem 4rem;">
         <div class="plp-wrapper animate-fade-in" data-theme="${currentTheme}">
           
-          <!-- Barra superior de control Mentix (Volver a la lista de proyectos / abrir el proyecto / dos sobres) -->
+          <!-- Barra superior de control Mentix (Volver a la lista de proyectos / Asistente / dos sobres) -->
           <div class="plp-mentix-bar">
             <div class="plp-mentix-bar-left">
-              <span class="plp-mentix-badge">✨ Landing Page del Proyecto</span>
+              <span class="plp-mentix-badge">${this.isWizardPreview ? 'ðŸ‘ï¸ Vista Previa del Asistente' : 'âœ¨ Landing Page del Proyecto'}</span>
               <span style="font-weight: 700; color: #ffffff;">${selectedTitle}</span>
 
               <!-- DOS SOBRES INTERACTIVOS PARA TEMA CLARO Y OSCURO -->
               <div class="plp-envelopes-control" role="group" aria-label="Cambiar tema de la landing page con dos sobres">
-                <span class="plp-envelopes-title">✉️ Sobres:</span>
+                <span class="plp-envelopes-title">âœ‰ï¸ Sobres:</span>
                 <button type="button" class="plp-envelope-btn light ${currentTheme === 'light' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('light')" title="Poner landing page en modo claro (Sobre Claro)">
-                  <span class="plp-envelope-icon">✉️</span>
+                  <span class="plp-envelope-icon">âœ‰ï¸</span>
                   <span>Sobre Claro</span>
-                  <span class="plp-envelope-badge">☀️</span>
+                  <span class="plp-envelope-badge">â˜€ï¸</span>
                 </button>
                 <button type="button" class="plp-envelope-btn dark ${currentTheme === 'dark' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('dark')" title="Poner landing page en modo oscuro (Sobre Oscuro)">
-                  <span class="plp-envelope-icon">✉️</span>
+                  <span class="plp-envelope-icon">âœ‰ï¸</span>
                   <span>Sobre Oscuro</span>
-                  <span class="plp-envelope-badge">🌙</span>
+                  <span class="plp-envelope-badge">ðŸŒ™</span>
                 </button>
               </div>
             </div>
             <div class="plp-mentix-actions">
-              <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.switchViewMode('list')">
-                <span>←</span> Volver a Mis Proyectos
-              </button>
-              ${selected ? `
-              <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectsView.openSelectedProject()">
-                <span>📂</span> Abrir Proyecto
-              </button>` : ''}
-              <a href="proyecto-landing.html" target="_blank" class="plp-mentix-btn" style="text-decoration:none;">
-                <span>↗</span> Abrir en Pantalla Completa
+              ${this.isWizardPreview ? `
+                <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.isWizardPreview = false; window.ProjectsView.switchViewMode('wizard')">
+                  <span>â†</span> Volver al Asistente (Paso 8)
+                </button>
+                <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectWizard.publishProject()">
+                  <span>ðŸš€</span> Publicar Ahora
+                </button>
+              ` : `
+                <button type="button" class="plp-mentix-btn" onclick="window.ProjectsView.switchViewMode('list')">
+                  <span>â†</span> Volver a Mis Proyectos
+                </button>
+                ${selected ? `
+                <button type="button" class="plp-mentix-btn" onclick="window.ProjectWizard.openWizard('${selected.id}')">
+                  <span>âœ¨</span> Editar en Asistente
+                </button>
+                <button type="button" class="plp-mentix-btn primary" onclick="window.ProjectsView.openSelectedProject()">
+                  <span>ðŸ“‚</span> Abrir Proyecto
+                </button>` : ''}
+              `}
+              <a href="${fullScreenHref}" target="_blank" class="plp-mentix-btn" style="text-decoration:none;">
+                <span>â†—</span> Abrir en Pantalla Completa
               </a>
             </div>
           </div>
 
           <!-- ================================================================
-               1. BARRA DE NAVEGACIÓN (HEADER) - FIJA (STICKY)
+               1. BARRA DE NAVEGACIÃ“N (HEADER) - FIJA (STICKY)
                ================================================================ -->
-          <header class="plp-header" role="banner" aria-label="Navegación principal del proyecto">
+          <header class="plp-header" role="banner" aria-label="NavegaciÃ³n principal del proyecto">
             <!-- Izquierda: Logotipo e Isotipo Moderno -->
-            <div class="plp-brand" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-inicio')" role="button" tabindex="0" aria-label="Gobierno de Datos e IA - Inicio">
+            <div class="plp-brand" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-inicio')" role="button" tabindex="0" aria-label="${brandTitle} - Inicio">
               <div class="plp-brand-isotipo" aria-hidden="true">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -1010,189 +1161,233 @@ window.ProjectsView = {
                 </svg>
               </div>
               <div class="plp-brand-text">
-                <span class="plp-brand-title">Gobierno de Datos e IA</span>
-                <span class="plp-brand-subtitle">Proyecto Innovatech</span>
+                <span class="plp-brand-title">${brandTitle}</span>
+                <span class="plp-brand-subtitle">${brandSubtitle}</span>
               </div>
             </div>
 
-            <!-- Centro: Enlaces de navegación rápida con efecto hover suave -->
-            <nav class="plp-nav" role="navigation" aria-label="Enlaces de navegación rápida">
+            <!-- Centro: Enlaces de navegaciÃ³n rÃ¡pida con efecto hover suave -->
+            <nav class="plp-nav" role="navigation" aria-label="Enlaces de navegaciÃ³n rÃ¡pida">
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-inicio')">Inicio</button>
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-sobre')">Sobre el Proyecto</button>
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">Recursos</button>
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-presentaciones')">Presentaciones</button>
-              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-galeria')">Galería</button>
+              <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-galeria')">GalerÃ­a</button>
               <button type="button" class="plp-nav-link" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-contacto')">Contacto</button>
             </nav>
 
-            <!-- Derecha: Buscador funcional discreto + Dos sobres de acceso directo + Botón CTA -->
+            <!-- Derecha: Buscador funcional discreto + Dos sobres de acceso directo + BotÃ³n CTA -->
             <div class="plp-header-right">
-              <!-- Dos sobres de acceso rápido en el header -->
+              <!-- Dos sobres de acceso rÃ¡pido en el header -->
               <div class="plp-envelopes-control" style="background: var(--plp-bg-subtle); border-color: var(--plp-border);">
-                <button type="button" class="plp-envelope-btn light ${currentTheme === 'light' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('light')" title="Sobre Claro (Día)">
-                  <span class="plp-envelope-icon">✉️</span>
+                <button type="button" class="plp-envelope-btn light ${currentTheme === 'light' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('light')" title="Sobre Claro (DÃ­a)">
+                  <span class="plp-envelope-icon">âœ‰ï¸</span>
                   <span class="plp-envelope-hide-mobile">Claro</span>
-                  <span class="plp-envelope-badge">☀️</span>
+                  <span class="plp-envelope-badge">â˜€ï¸</span>
                 </button>
                 <button type="button" class="plp-envelope-btn dark ${currentTheme === 'dark' ? 'active' : ''}" onclick="window.ProjectsView.setLandingTheme('dark')" title="Sobre Oscuro (Noche)">
-                  <span class="plp-envelope-icon">✉️</span>
+                  <span class="plp-envelope-icon">âœ‰ï¸</span>
                   <span class="plp-envelope-hide-mobile">Oscuro</span>
-                  <span class="plp-envelope-badge">🌙</span>
+                  <span class="plp-envelope-badge">ðŸŒ™</span>
                 </button>
               </div>
 
               <div class="plp-search-box" role="search">
-                <span class="plp-search-icon" aria-hidden="true">🔍</span>
+                <span class="plp-search-icon" aria-hidden="true">ðŸ”</span>
                 <input
                   type="search"
                   class="plp-search-input"
-                  placeholder="Buscar recurso o sección..."
+                  placeholder="Buscar recurso o secciÃ³n..."
                   aria-label="Buscar en el proyecto"
                   oninput="window.ProjectsView.filterLandingSearch(this.value)"
                 />
               </div>
-              <button type="button" class="plp-cta-btn" onclick="window.ProjectsView.previewLandingDoc('Unirse / Colaborar en el Proyecto Innovatech')">
-                Unirse / Colaborar
-              </button>
+              ${ctaUrl ? `
+                <a href="${this.escapeHtml(ctaUrl)}" target="_blank" rel="noopener noreferrer" class="plp-cta-btn" style="text-decoration:none;">
+                  ${ctaText}
+                </a>
+              ` : `
+                <button type="button" class="plp-cta-btn" onclick="window.ProjectsView.previewLandingDoc('${ctaText} â€” ${selectedTitle}')">
+                  ${ctaText}
+                </button>
+              `}
             </div>
           </header>
 
           <!-- ================================================================
-               2. SECCIÓN PRINCIPAL (HERO) - DEFINICIÓN DEL PROYECTO
+               2. SECCIÃ“N PRINCIPAL (HERO) - DEFINICIÃ“N DEL PROYECTO
                ================================================================ -->
           <section class="plp-hero" id="plp-sec-inicio" aria-labelledby="plp-hero-title">
             <div class="plp-hero-heading-wrap" id="plp-sec-sobre">
-              <span class="plp-eyebrow">🚀 Innovación Tecnológica & Gobernanza Inteligente</span>
+              <span class="plp-eyebrow">${heroEyebrow}</span>
               <h1 class="plp-hero-main-title" id="plp-hero-title">
-                Transformando el Futuro: <span>Proyecto Innovatech</span>
+                ${heroMainTitle}
               </h1>
               <p class="plp-section-subtitle">
-                Plataforma integral de Gobierno de Datos e Inteligencia Artificial diseñada para impulsar decisiones estratégicas con ética, transparencia y alto impacto.
+                ${heroSubtitle}
               </p>
             </div>
 
             <div class="plp-hero-grid">
-              <!-- Columna Izquierda (Video): Reproductor integrado con miniatura personalizada y botón Play central -->
+              <!-- Columna Izquierda (Video o Portada): Reproductor integrado con miniatura personalizada y botÃ³n Play central -->
               <div class="plp-video-card" id="plp-hero-video-box" aria-label="Video explicativo del proyecto">
-                <div
-                  class="plp-video-poster"
-                  style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80');"
-                  onclick="window.ProjectsView.playLandingVideo()"
-                  role="button"
-                  tabindex="0"
-                  aria-label="Reproducir video explicativo de Proyecto Innovatech"
-                >
-                  <div class="plp-play-btn" aria-hidden="true">▶</div>
-                  <div class="plp-video-caption">
-                    <span>🎬 Video Explicativo: Proyecto Innovatech</span>
-                    <span>03:45 min • Full HD</span>
+                ${isVideoPublic ? `
+                  <div
+                    class="plp-video-poster"
+                    style="background-image: url('${coverPoster}');"
+                    onclick="window.ProjectsView.playLandingVideo()"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Reproducir ${videoTitle}"
+                  >
+                    <div class="plp-play-btn" aria-hidden="true">â–¶</div>
+                    <div class="plp-video-caption">
+                      <span>ðŸŽ¬ ${videoTitle}</span>
+                      <span>${videoDuration}</span>
+                    </div>
                   </div>
-                </div>
+                ` : `
+                  <div class="plp-video-poster" style="background-image: url('${coverPoster}'); cursor: default;">
+                    <div class="plp-video-caption">
+                      <span>ðŸ–¼ï¸ ${selectedTitle}</span>
+                      <span>Portada Oficial</span>
+                    </div>
+                  </div>
+                `}
               </div>
 
-              <!-- Columna Derecha (Definición): Misión, Visión, Impacto y Botón "Saber Más" -->
+              <!-- Columna Derecha (DefiniciÃ³n): MisiÃ³n, VisiÃ³n, Impacto y BotÃ³n "Saber MÃ¡s" -->
               <article class="plp-hero-definition">
-                <h2 class="plp-hero-def-title">Definición del Proyecto</h2>
+                <h2 class="plp-hero-def-title">DefiniciÃ³n del Proyecto</h2>
                 <p class="plp-hero-def-text">
-                  <strong>Misión:</strong> Estructurar un ecosistema de Gobierno de Datos e Inteligencia Artificial que garantice la calidad, seguridad e interoperabilidad de la información para potenciar la innovación educativa y empresarial.
+                  <strong>Objetivo y PropÃ³sito:</strong> ${missionText}
                 </p>
                 <p class="plp-hero-def-text">
-                  <strong>Visión e Impacto:</strong> Convertirnos en el referente regional en analítica ética y automatización inteligente, reduciendo brechas tecnológicas y generando valor sostenible para toda la comunidad.
+                  <strong>Beneficios e Impacto:</strong> ${visionText}
                 </p>
+                ${howItWorksText}
 
                 <div class="plp-hero-pillars">
                   <div class="plp-pillar-chip">
-                    <strong>99.4%</strong>
-                    <span>Calidad de Datos</span>
+                    <strong>${this.escapeHtml((selected && (selected.projectState || 'Activo')).toString().replace('_', ' ').toUpperCase())}</strong>
+                    <span>Estado del Proyecto</span>
                   </div>
                   <div class="plp-pillar-chip">
-                    <strong>+45</strong>
-                    <span>Modelos IA</span>
+                    <strong>${this.escapeHtml((selected && (selected.targetAudience || 'Comunidad')).toString().slice(0, 18))}</strong>
+                    <span>PÃºblico Objetivo</span>
                   </div>
                   <div class="plp-pillar-chip">
-                    <strong>ISO/IEC</strong>
-                    <span>Estándar Ético</span>
+                    <strong>${this.escapeHtml((selected && (selected.teamResponsible || selected.author || 'GovData IA')).toString().slice(0, 18))}</strong>
+                    <span>Equipo / Autor</span>
                   </div>
                 </div>
 
                 <button type="button" class="plp-btn-secondary" onclick="window.ProjectsView.scrollToLandingSection('plp-sec-recursos')">
-                  <span>Saber Más</span>
-                  <span class="plp-arrow" aria-hidden="true">→</span>
+                  <span>Explorar Recursos PÃºblicos (${publicResources.length || 3})</span>
+                  <span class="plp-arrow" aria-hidden="true">â†’</span>
                 </button>
               </article>
             </div>
           </section>
 
           <!-- ================================================================
-               3. SECCIÓN DE DOCUMENTOS Y RECURSOS (CARDS INTERACTIVOS)
+               3. SECCIÃ“N DE DOCUMENTOS Y RECURSOS (CARDS INTERACTIVOS)
                ================================================================ -->
           <section class="plp-section-alt" id="plp-sec-recursos" aria-labelledby="plp-docs-heading">
             <div class="plp-section-alt-inner">
               <div class="plp-section-header">
-                <span class="plp-eyebrow">📄 Documentación Oficial</span>
-                <h2 class="plp-section-title" id="plp-docs-heading">Documentos y Recursos</h2>
+                <span class="plp-eyebrow">ðŸ“„ DocumentaciÃ³n Oficial (Solo Recursos PÃºblicos)</span>
+                <h2 class="plp-section-title" id="plp-docs-heading">Documentos, GuÃ­as y Recursos</h2>
                 <p class="plp-section-subtitle">
-                  Explora y descarga los informes estratégicos, estudios de impacto y el paquete técnico completo del proyecto.
+                  Explora y descarga los informes estratÃ©gicos, guÃ­as de usuario, manuales tÃ©cnicos y recursos autorizados para consulta pÃºblica.
                 </p>
               </div>
 
               <div class="plp-docs-grid">
-                <!-- Card 1: Plan de Negocios -->
-                <article class="plp-doc-card" data-plp-search="plan de negocios pdf estrategia modelo">
-                  <div>
-                    <div class="plp-doc-icon-wrap" aria-hidden="true">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                      </svg>
+                ${publicResources.length > 0 ? publicResources.map(res => `
+                  <article class="plp-doc-card" data-plp-search="${this.escapeHtml((res.name || '') + ' ' + (res.category || '') + ' ' + (res.format || '') + ' ' + (res.description || ''))}">
+                    <div>
+                      <div class="plp-doc-icon-wrap" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                      </div>
+                      <span class="plp-doc-meta">${this.escapeHtml((res.format || 'DOC').toUpperCase())} â€¢ ${this.escapeHtml(res.sizeFormatted || 'Recurso PÃºblico')}</span>
+                      <h3 class="plp-doc-title">${this.escapeHtml(res.name || 'Recurso del Proyecto')}</h3>
+                      <p class="plp-doc-desc">
+                        ${this.escapeHtml(res.description || 'Recurso oficial verificado y habilitado para consulta y descarga pÃºblica.')}
+                      </p>
                     </div>
-                    <span class="plp-doc-meta">DOCUMENTO PDF • 4.2 MB</span>
-                    <h3 class="plp-doc-title">Plan de Negocios</h3>
-                    <p class="plp-doc-desc">
-                      Arquitectura financiera, estrategia de adopción institucional, modelo de sostenibilidad y hoja de ruta 2026–2030.
-                    </p>
-                  </div>
-                  <div class="plp-doc-actions">
-                    <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Plan de Negocios — Proyecto Innovatech')">
-                      👁️ Visualizar
-                    </button>
-                    <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Plan_de_Negocios_Innovatech.pdf')">
-                      ⬇ Descargar
-                    </button>
-                  </div>
-                </article>
-
-                <!-- Card 2: Estudio de Impacto -->
-                <article class="plp-doc-card" data-plp-search="estudio de impacto metricas resultados pdf">
-                  <div>
-                    <div class="plp-doc-icon-wrap" aria-hidden="true">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <path d="M8 17v-3"></path>
-                        <path d="M12 17v-6"></path>
-                        <path d="M16 17v-4"></path>
-                      </svg>
+                    <div class="plp-doc-actions">
+                      <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewCustomLandingResource('${res.id}')">
+                        ðŸ‘ï¸ Visualizar
+                      </button>
+                      <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadCustomLandingResource('${res.id}')">
+                        â¬‡ Descargar
+                      </button>
                     </div>
-                    <span class="plp-doc-meta">DOCUMENTO PDF • 6.8 MB</span>
-                    <h3 class="plp-doc-title">Estudio de Impacto</h3>
-                    <p class="plp-doc-desc">
-                      Evaluación detallada de indicadores de desempeño (KPIs), optimización de procesos y auditoría de transparencia algorítmica.
-                    </p>
-                  </div>
-                  <div class="plp-doc-actions">
-                    <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Estudio de Impacto — Proyecto Innovatech')">
-                      👁️ Visualizar
-                    </button>
-                    <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Estudio_de_Impacto_Innovatech.pdf')">
-                      ⬇ Descargar
-                    </button>
-                  </div>
-                </article>
+                  </article>
+                `).join('') : `
+                  <!-- Card 1: Plan de Negocios -->
+                  <article class="plp-doc-card" data-plp-search="plan de negocios pdf estrategia modelo">
+                    <div>
+                      <div class="plp-doc-icon-wrap" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                      </div>
+                      <span class="plp-doc-meta">DOCUMENTO PDF â€¢ 4.2 MB</span>
+                      <h3 class="plp-doc-title">Plan de Negocios</h3>
+                      <p class="plp-doc-desc">
+                        Arquitectura financiera, estrategia de adopciÃ³n institucional, modelo de sostenibilidad y hoja de ruta 2026â€“2030.
+                      </p>
+                    </div>
+                    <div class="plp-doc-actions">
+                      <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Plan de Negocios â€” ${selectedTitle}')">
+                        ðŸ‘ï¸ Visualizar
+                      </button>
+                      <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Plan_de_Negocios_Innovatech.pdf')">
+                        â¬‡ Descargar
+                      </button>
+                    </div>
+                  </article>
 
-                <!-- Card 3: Descargar todo -->
+                  <!-- Card 2: Estudio de Impacto -->
+                  <article class="plp-doc-card" data-plp-search="estudio de impacto metricas resultados pdf">
+                    <div>
+                      <div class="plp-doc-icon-wrap" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <path d="M8 17v-3"></path>
+                          <path d="M12 17v-6"></path>
+                          <path d="M16 17v-4"></path>
+                        </svg>
+                      </div>
+                      <span class="plp-doc-meta">DOCUMENTO PDF â€¢ 6.8 MB</span>
+                      <h3 class="plp-doc-title">Estudio de Impacto</h3>
+                      <p class="plp-doc-desc">
+                        EvaluaciÃ³n detallada de indicadores de desempeÃ±o (KPIs), optimizaciÃ³n de procesos y auditorÃ­a de transparencia algorÃ­tmica.
+                      </p>
+                    </div>
+                    <div class="plp-doc-actions">
+                      <button type="button" class="plp-doc-btn outline" onclick="window.ProjectsView.previewLandingDoc('Estudio de Impacto â€” ${selectedTitle}')">
+                        ðŸ‘ï¸ Visualizar
+                      </button>
+                      <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.downloadLandingDoc('Estudio_de_Impacto_Innovatech.pdf')">
+                        â¬‡ Descargar
+                      </button>
+                    </div>
+                  </article>
+                `}
+
+                <!-- Card Descargar todo -->
                 <article class="plp-doc-card" data-plp-search="descargar todo paquete masivo zip recursos">
                   <div>
                     <div class="plp-doc-icon-wrap" aria-hidden="true">
@@ -1202,16 +1397,16 @@ window.ProjectsView = {
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                       </svg>
                     </div>
-                    <span class="plp-doc-meta">DESCARGA MASIVA (.ZIP) • 18.5 MB</span>
-                    <h3 class="plp-doc-title">Descargar todo</h3>
+                    <span class="plp-doc-meta">DESCARGA MASIVA (.TXT / .ZIP) â€¢ ${publicResources.length || 2} RECURSOS</span>
+                    <h3 class="plp-doc-title">Descargar Resumen Completo</h3>
                     <p class="plp-doc-desc">
-                      Paquete integral con todos los documentos PDF, manuales de arquitectura, datasets de ejemplo y guías de implementación.
+                      Ficha tÃ©cnica consolidada del proyecto con su descripciÃ³n ejecutiva, enlaces pÃºblicos y listado de recursos autorizados.
                     </p>
                   </div>
                   <div>
                     <div class="plp-doc-actions">
                       <button type="button" class="plp-doc-btn" onclick="window.ProjectsView.triggerLandingBulkDownload()">
-                        📦 Descargar todo
+                        ðŸ“¦ Descargar todo
                       </button>
                     </div>
                     <div class="plp-progress-wrap" id="plp-bulk-progress-wrap" aria-live="polite">
@@ -1227,232 +1422,250 @@ window.ProjectsView = {
           </section>
 
           <!-- ================================================================
-               4. SECCIÓN DE PRESENTACIONES (CARRUSEL INTERACTIVO)
+               4. SECCIÃ“N DE PRESENTACIONES (CARRUSEL INTERACTIVO)
                ================================================================ -->
           <section class="plp-section" id="plp-sec-presentaciones" aria-labelledby="plp-pres-heading">
             <div class="plp-section-header">
-              <span class="plp-eyebrow">📊 Diapositivas Ejecutivas</span>
+              <span class="plp-eyebrow">ðŸ“Š Diapositivas Ejecutivas</span>
               <h2 class="plp-section-title" id="plp-pres-heading">Presentaciones del Proyecto</h2>
               <p class="plp-section-subtitle">
-                Recorre las miniaturas de la presentación actual utilizando las flechas laterales o los indicadores inferiores.
+                Recorre las diapositivas de la presentaciÃ³n utilizando las flechas laterales o los indicadores inferiores.
               </p>
             </div>
 
             <div class="plp-carousel-container" role="region" aria-roledescription="carrusel" aria-label="Presentaciones del Proyecto">
-              <button type="button" class="plp-carousel-arrow prev" onclick="window.ProjectsView.moveLandingSlide(-1)" aria-label="Diapositiva anterior">❮</button>
-              <button type="button" class="plp-carousel-arrow next" onclick="window.ProjectsView.moveLandingSlide(1)" aria-label="Siguiente diapositiva">❯</button>
+              <button type="button" class="plp-carousel-arrow prev" onclick="window.ProjectsView.moveLandingSlide(-1)" aria-label="Diapositiva anterior">â®</button>
+              <button type="button" class="plp-carousel-arrow next" onclick="window.ProjectsView.moveLandingSlide(1)" aria-label="Siguiente diapositiva">â¯</button>
 
               <div class="plp-carousel-viewport">
                 <div class="plp-carousel-track" id="plp-landing-carousel-track">
-                  <!-- Slide 1 -->
-                  <div class="plp-slide-item">
-                    <div class="plp-slide-preview">
-                      <span class="plp-slide-badge">Diapositiva 01 / 04</span>
-                      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Arquitectura de Gobierno de Datos" loading="lazy" />
-                    </div>
-                    <div class="plp-slide-info">
-                      <h3>1. Arquitectura de Gobierno de Datos</h3>
-                      <p>Estructura centralizada de ingesta, catalogación inteligente y trazabilidad de extremo a extremo con estándares de seguridad corporativa.</p>
-                      <div class="plp-slide-kpis">
-                        <span class="plp-slide-kpi">✔ Catálogo Maestro</span>
-                        <span class="plp-slide-kpi">✔ Linaje Automatizado</span>
+                  ${customSlides ? customSlides.map((sl, idx) => `
+                    <div class="plp-slide-item">
+                      <div class="plp-slide-preview">
+                        <span class="plp-slide-badge">Diapositiva ${String(idx + 1).padStart(2, '0')} / ${String(customSlides.length).padStart(2, '0')}</span>
+                        <img src="${sl.image || sl.mediaUrl || coverPoster}" alt="${this.escapeHtml(sl.title || `Diapositiva ${idx + 1}`)}" loading="lazy" />
+                      </div>
+                      <div class="plp-slide-info">
+                        <h3>${idx + 1}. ${this.escapeHtml(sl.title || `Diapositiva ${idx + 1}`)}</h3>
+                        <p>${this.escapeHtml(sl.content || sl.text || heroSubtitle)}</p>
+                        <div class="plp-slide-kpis">
+                          <span class="plp-slide-kpi">âœ” ${brandSubtitle}</span>
+                          <span class="plp-slide-kpi">âœ” LÃ¡mina ${idx + 1}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  `).join('') : `
+                    <!-- Slide 1 -->
+                    <div class="plp-slide-item">
+                      <div class="plp-slide-preview">
+                        <span class="plp-slide-badge">Diapositiva 01 / 04</span>
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Arquitectura de Gobierno de Datos" loading="lazy" />
+                      </div>
+                      <div class="plp-slide-info">
+                        <h3>1. Arquitectura de Gobierno de Datos</h3>
+                        <p>Estructura centralizada de ingesta, catalogaciÃ³n inteligente y trazabilidad de extremo a extremo con estÃ¡ndares de seguridad corporativa.</p>
+                        <div class="plp-slide-kpis">
+                          <span class="plp-slide-kpi">âœ” CatÃ¡logo Maestro</span>
+                          <span class="plp-slide-kpi">âœ” Linaje Automatizado</span>
+                        </div>
+                      </div>
+                    </div>
 
-                  <!-- Slide 2 -->
-                  <div class="plp-slide-item">
-                    <div class="plp-slide-preview">
-                      <span class="plp-slide-badge">Diapositiva 02 / 04</span>
-                      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Modelos de IA y Analítica Predictiva" loading="lazy" />
-                    </div>
-                    <div class="plp-slide-info">
-                      <h3>2. Modelos de IA y Analítica Predictiva</h3>
-                      <p>Despliegue de algoritmos auditables que transforman grandes volúmenes de datos en proyecciones accionables en tiempo real.</p>
-                      <div class="plp-slide-kpis">
-                        <span class="plp-slide-kpi">✔ +38% Precisión</span>
-                        <span class="plp-slide-kpi">✔ IA Explicable</span>
+                    <!-- Slide 2 -->
+                    <div class="plp-slide-item">
+                      <div class="plp-slide-preview">
+                        <span class="plp-slide-badge">Diapositiva 02 / 04</span>
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80" alt="Modelos de IA y AnalÃ­tica Predictiva" loading="lazy" />
+                      </div>
+                      <div class="plp-slide-info">
+                        <h3>2. Modelos de IA y AnalÃ­tica Predictiva</h3>
+                        <p>Despliegue de algoritmos auditables que transforman grandes volÃºmenes de datos en proyecciones accionables en tiempo real.</p>
+                        <div class="plp-slide-kpis">
+                          <span class="plp-slide-kpi">âœ” +38% PrecisiÃ³n</span>
+                          <span class="plp-slide-kpi">âœ” IA Explicable</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Slide 3 -->
-                  <div class="plp-slide-item">
-                    <div class="plp-slide-preview">
-                      <span class="plp-slide-badge">Diapositiva 03 / 04</span>
-                      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Ética y Privacidad por Diseño" loading="lazy" />
-                    </div>
-                    <div class="plp-slide-info">
-                      <h3>3. Ética, Privacidad y Cumplimiento</h3>
-                      <p>Protocolos de protección de datos personales, anonimización avanzada y comités de validación ética en cada ciclo de vida del modelo.</p>
-                      <div class="plp-slide-kpis">
-                        <span class="plp-slide-kpi">✔ Privacidad Total</span>
-                        <span class="plp-slide-kpi">✔ ISO/IEC 42001</span>
+                    <!-- Slide 3 -->
+                    <div class="plp-slide-item">
+                      <div class="plp-slide-preview">
+                        <span class="plp-slide-badge">Diapositiva 03 / 04</span>
+                        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Ã‰tica y Privacidad por DiseÃ±o" loading="lazy" />
+                      </div>
+                      <div class="plp-slide-info">
+                        <h3>3. Ã‰tica, Privacidad y Cumplimiento</h3>
+                        <p>Protocolos de protecciÃ³n de datos personales, anonimizaciÃ³n avanzada y comitÃ©s de validaciÃ³n Ã©tica en cada ciclo de vida del modelo.</p>
+                        <div class="plp-slide-kpis">
+                          <span class="plp-slide-kpi">âœ” Privacidad Total</span>
+                          <span class="plp-slide-kpi">âœ” ISO/IEC 42001</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Slide 4 -->
-                  <div class="plp-slide-item">
-                    <div class="plp-slide-preview">
-                      <span class="plp-slide-badge">Diapositiva 04 / 04</span>
-                      <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80" alt="Escalabilidad e Impacto" loading="lazy" />
-                    </div>
-                    <div class="plp-slide-info">
-                      <h3>4. Escalabilidad e Impacto Regional</h3>
-                      <p>Resultados alcanzados en instituciones aliadas, transferencia tecnológica y próximos hitos de expansión del Proyecto Innovatech.</p>
-                      <div class="plp-slide-kpis">
-                        <span class="plp-slide-kpi">✔ 12 Nodos Activos</span>
-                        <span class="plp-slide-kpi">✔ Red Colaborativa</span>
+                    <!-- Slide 4 -->
+                    <div class="plp-slide-item">
+                      <div class="plp-slide-preview">
+                        <span class="plp-slide-badge">Diapositiva 04 / 04</span>
+                        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80" alt="Escalabilidad e Impacto" loading="lazy" />
+                      </div>
+                      <div class="plp-slide-info">
+                        <h3>4. Escalabilidad e Impacto Regional</h3>
+                        <p>Resultados alcanzados en instituciones aliadas, transferencia tecnolÃ³gica y prÃ³ximos hitos de expansiÃ³n del Proyecto Innovatech.</p>
+                        <div class="plp-slide-kpis">
+                          <span class="plp-slide-kpi">âœ” 12 Nodos Activos</span>
+                          <span class="plp-slide-kpi">âœ” Red Colaborativa</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  `}
                 </div>
               </div>
 
               <!-- Dots inferiores -->
               <div class="plp-carousel-thumbs" role="tablist">
-                <button type="button" class="plp-carousel-dot active" onclick="window.ProjectsView.goToLandingSlide(0)" aria-label="Diapositiva 1"></button>
-                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(1)" aria-label="Diapositiva 2"></button>
-                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(2)" aria-label="Diapositiva 3"></button>
-                <button type="button" class="plp-carousel-dot" onclick="window.ProjectsView.goToLandingSlide(3)" aria-label="Diapositiva 4"></button>
+                ${Array.from({ length: totalCarouselSlides }).map((_, idx) => `
+                  <button type="button" class="plp-carousel-dot ${idx === 0 ? 'active' : ''}" onclick="window.ProjectsView.goToLandingSlide(${idx})" aria-label="Diapositiva ${idx + 1}"></button>
+                `).join('')}
               </div>
             </div>
 
             <div class="plp-carousel-cta-wrap">
-              <button type="button" class="plp-btn-emerald-lg" onclick="window.ProjectsView.previewLandingDoc('Presentación Completa — Proyecto Innovatech (Pantalla Completa)')">
-                <span>🖥️ Ver Presentación Completa</span>
+              <button type="button" class="plp-btn-emerald-lg" onclick="${selected && selected.projectType === 'presentation' ? `window.ProjectsView.openSelectedProject()` : `window.ProjectsView.previewLandingDoc('PresentaciÃ³n Completa â€” ${selectedTitle}')`}">
+                <span>ðŸ–¥ï¸ Ver PresentaciÃ³n Completa</span>
               </button>
             </div>
           </section>
 
           <!-- ================================================================
-               5. SECCIÓN DE GALERÍA DE IMÁGENES (GRID DINÁMICO / MASONRY)
+               5. SECCIÃ“N DE GALERÃA DE IMÃGENES (GRID DINÃMICO / MASONRY)
                ================================================================ -->
           <section class="plp-section-alt" id="plp-sec-galeria" aria-labelledby="plp-gallery-heading">
             <div class="plp-section-alt-inner">
               <div class="plp-section-header">
-                <span class="plp-eyebrow">📸 Galería Visual</span>
-                <h2 class="plp-section-title" id="plp-gallery-heading">Imágenes del Proyecto</h2>
+                <span class="plp-eyebrow">ðŸ“¸ GalerÃ­a Visual</span>
+                <h2 class="plp-section-title" id="plp-gallery-heading">ImÃ¡genes y Capturas del Proyecto</h2>
                 <p class="plp-section-subtitle">
-                  Cuadrícula fotográfica con sesiones de trabajo, prototipos e indicadores visuales. Haz clic en cualquier imagen para abrir el visor Lightbox.
+                  CuadrÃ­cula visual con capturas, diagramas e infografÃ­as pÃºblicas del proyecto. Haz clic en cualquier imagen para abrir el visor Lightbox.
                 </p>
               </div>
 
               <div class="plp-masonry-grid">
-                <figure
-                  class="plp-gallery-item span-7 row-2"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=85', 'Equipo multidisciplinario en sesión de arquitectura de datos')"
-                >
-                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80" alt="Equipo trabajando" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Equipo & Co-creación</span>
-                    <p class="plp-gallery-caption">Sesión de diseño de arquitectura de Gobierno de Datos</p>
-                  </figcaption>
-                </figure>
+                ${publicVisuals.length > 0 ? publicVisuals.map((img, idx) => {
+                  const spanClass = idx === 0 ? 'span-7 row-2' : (idx < 3 ? 'span-5' : 'span-4');
+                  const safeUrl = img.url || coverPoster;
+                  const safeTitle = this.escapeHtml(img.title || 'Imagen del Proyecto');
+                  const safeCat = this.escapeHtml(img.category || 'GalerÃ­a');
+                  return `
+                    <figure
+                      class="plp-gallery-item ${spanClass}"
+                      onclick="window.ProjectsView.openLandingLightbox('${safeUrl.replace(/'/g, "\\'")}', '${safeTitle.replace(/'/g, "\\'")}')"
+                    >
+                      <img src="${safeUrl}" alt="${safeTitle}" loading="lazy" />
+                      <figcaption class="plp-gallery-overlay">
+                        <span class="plp-gallery-tag">${safeCat}</span>
+                        <p class="plp-gallery-caption">${safeTitle}</p>
+                      </figcaption>
+                    </figure>
+                  `;
+                }).join('') : `
+                  <figure
+                    class="plp-gallery-item span-7 row-2"
+                    onclick="window.ProjectsView.openLandingLightbox('${coverPoster}', '${selectedTitle} â€” Portada Principal')"
+                  >
+                    <img src="${coverPoster}" alt="Portada del proyecto" loading="lazy" />
+                    <figcaption class="plp-gallery-overlay">
+                      <span class="plp-gallery-tag">Portada Principal</span>
+                      <p class="plp-gallery-caption">${selectedTitle}</p>
+                    </figcaption>
+                  </figure>
 
-                <figure
-                  class="plp-gallery-item span-5"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85', 'Prototipo de Dashboard Analítico en Tiempo Real')"
-                >
-                  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="Prototipo de dashboard" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Prototipo Funcional</span>
-                    <p class="plp-gallery-caption">Panel de monitoreo de modelos e indicadores</p>
-                  </figcaption>
-                </figure>
+                  <figure
+                    class="plp-gallery-item span-5"
+                    onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85', 'Prototipo de Dashboard AnalÃ­tico en Tiempo Real')"
+                  >
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="Prototipo de dashboard" loading="lazy" />
+                    <figcaption class="plp-gallery-overlay">
+                      <span class="plp-gallery-tag">Prototipo Funcional</span>
+                      <p class="plp-gallery-caption">Panel de monitoreo de modelos e indicadores</p>
+                    </figcaption>
+                  </figure>
 
-                <figure
-                  class="plp-gallery-item span-5"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=85', 'Validación experimental de algoritmos de IA')"
-                >
-                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" alt="Laboratorio de IA" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Laboratorio IA</span>
-                    <p class="plp-gallery-caption">Pruebas de rendimiento y calibración de modelos</p>
-                  </figcaption>
-                </figure>
-
-                <figure
-                  class="plp-gallery-item span-4"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1400&q=85', 'Revisión ejecutiva de métricas trimestrales')"
-                >
-                  <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80" alt="Comité directivo" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Estrategia</span>
-                    <p class="plp-gallery-caption">Presentación de hitos ante el comité directivo</p>
-                  </figcaption>
-                </figure>
-
-                <figure
-                  class="plp-gallery-item span-4"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=1400&q=85', 'Gráficos de redes neuronales y visualización de datos')"
-                >
-                  <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80" alt="Gráficos de datos" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Analítica</span>
-                    <p class="plp-gallery-caption">Visualización avanzada de flujos de información</p>
-                  </figcaption>
-                </figure>
-
-                <figure
-                  class="plp-gallery-item span-4"
-                  onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=85', 'Talleres de transferencia tecnológica con la comunidad')"
-                >
-                  <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80" alt="Comunidad colaborativa" loading="lazy" />
-                  <figcaption class="plp-gallery-overlay">
-                    <span class="plp-gallery-tag">Comunidad</span>
-                    <p class="plp-gallery-caption">Jornadas abiertas de formación y adopción</p>
-                  </figcaption>
-                </figure>
+                  <figure
+                    class="plp-gallery-item span-5"
+                    onclick="window.ProjectsView.openLandingLightbox('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=85', 'ValidaciÃ³n experimental de algoritmos de IA')"
+                  >
+                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" alt="Laboratorio de IA" loading="lazy" />
+                    <figcaption class="plp-gallery-overlay">
+                      <span class="plp-gallery-tag">Laboratorio IA</span>
+                      <p class="plp-gallery-caption">Pruebas de rendimiento y calibraciÃ³n de modelos</p>
+                    </figcaption>
+                  </figure>
+                `}
               </div>
             </div>
           </section>
 
           <!-- ================================================================
-               6. SECCIÓN DE ENLACES DE INTERÉS (ENLACES RÁPIDOS)
+               6. SECCIÃ“N DE ENLACES DE INTERÃ‰S Y PREGUNTAS FRECUENTES (FAQ)
                ================================================================ -->
           <section class="plp-section" id="plp-sec-contacto" aria-labelledby="plp-links-heading">
             <div class="plp-section-header">
-              <span class="plp-eyebrow">🔗 Accesos Directos</span>
-              <h2 class="plp-section-title" id="plp-links-heading">Enlaces de Interés</h2>
+              <span class="plp-eyebrow">ðŸ”— Accesos Directos & Preguntas Frecuentes</span>
+              <h2 class="plp-section-title" id="plp-links-heading">Enlaces Externos y Recursos Web</h2>
               <p class="plp-section-subtitle">
-                Conecta con nuestras plataformas aliadas, código fuente abierto, métricas de impacto y soporte.
+                Conecta con los enlaces oficiales pÃºblicos, demos interactivas, repositorios y preguntas frecuentes del proyecto.
               </p>
             </div>
 
             <div class="plp-links-grid">
-              <!-- Sitio Web Aliado -->
-              <a href="https://mentix.edutic.co" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="sitio web aliado portal">
-                <div class="plp-link-icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="plp-link-title">Sitio Web Aliado</h3>
-                  <p class="plp-link-desc">Portal oficial de la red interinstitucional de innovación.</p>
-                </div>
-              </a>
+              ${publicLinks.length > 0 ? publicLinks.map(lnk => `
+                <a href="${this.escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="${this.escapeHtml((lnk.name || '') + ' ' + (lnk.category || '') + ' ' + (lnk.description || ''))}">
+                  <div class="plp-link-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="plp-link-title">${this.escapeHtml(lnk.name || 'Enlace Externo')} ${lnk.verified ? '<span style="font-size:0.7rem;color:#10b981;font-weight:800;">âœ” Verificado</span>' : ''}</h3>
+                    <p class="plp-link-desc">${this.escapeHtml(lnk.description || lnk.url)}</p>
+                  </div>
+                </a>
+              `).join('') : `
+                <!-- Sitio Web Aliado -->
+                <a href="https://mentixs.vercel.app" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="sitio web aliado portal">
+                  <div class="plp-link-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="plp-link-title">Plataforma Oficial Mentix</h3>
+                    <p class="plp-link-desc">Portal oficial de la red interinstitucional de innovaciÃ³n y proyectos.</p>
+                  </div>
+                </a>
 
-              <!-- Repositorio de Código -->
-              <a href="https://github.com/meli030814abc-sys/Mentix" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="repositorio de codigo github desarrollo">
-                <div class="plp-link-icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="plp-link-title">Repositorio de Código</h3>
-                  <p class="plp-link-desc">Código fuente, arquitecturas de referencia y scripts en GitHub.</p>
-                </div>
-              </a>
+                <!-- Repositorio de CÃ³digo -->
+                <a href="https://github.com/meli030814abc-sys/Mentix" target="_blank" rel="noopener noreferrer" class="plp-link-card" data-plp-search="repositorio de codigo github desarrollo">
+                  <div class="plp-link-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="16 18 22 12 16 6"></polyline>
+                      <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="plp-link-title">Repositorio de CÃ³digo</h3>
+                    <p class="plp-link-desc">CÃ³digo fuente, arquitecturas de referencia y scripts en GitHub.</p>
+                  </div>
+                </a>
+              `}
 
-              <!-- Impactos Frecuentes -->
-              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.previewLandingDoc('Impactos Frecuentes y Métricas Verificadas')" data-plp-search="impactos frecuentes metricas resultados">
+              <!-- Impactos y Beneficios -->
+              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.previewLandingDoc('Impactos y Beneficios â€” ${selectedTitle}')" data-plp-search="impactos frecuentes metricas resultados">
                 <div class="plp-link-icon" aria-hidden="true">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -1461,13 +1674,13 @@ window.ProjectsView = {
                   </svg>
                 </div>
                 <div>
-                  <h3 class="plp-link-title">Impactos Frecuentes</h3>
-                  <p class="plp-link-desc">Tablero de indicadores clave, retorno social y casos de éxito.</p>
+                  <h3 class="plp-link-title">Impactos y Resultados</h3>
+                  <p class="plp-link-desc">Beneficios clave, alcance para usuarios y propuesta de valor del proyecto.</p>
                 </div>
               </div>
 
               <!-- Preguntas Frecuentes (FAQ) -->
-              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.previewLandingDoc('Preguntas Frecuentes (FAQ) — Centro de Ayuda')" data-plp-search="preguntas frecuentes faq soporte ayuda">
+              <div class="plp-link-card" role="button" tabindex="0" onclick="window.ProjectsView.openProjectFaqModal()" data-plp-search="preguntas frecuentes faq soporte ayuda">
                 <div class="plp-link-icon" aria-hidden="true">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -1477,7 +1690,7 @@ window.ProjectsView = {
                 </div>
                 <div>
                   <h3 class="plp-link-title">Preguntas Frecuentes (FAQ)</h3>
-                  <p class="plp-link-desc">Respuestas rápidas sobre uso, gobernanza y soporte técnico.</p>
+                  <p class="plp-link-desc">${publicFaqs.length > 0 ? `${publicFaqs.length} preguntas respondidas sobre el uso del proyecto.` : 'Respuestas rÃ¡pidas sobre uso, gobernanza y soporte tÃ©cnico.'}</p>
                 </div>
               </div>
             </div>
@@ -1486,10 +1699,10 @@ window.ProjectsView = {
           <!-- Footer -->
           <footer class="plp-footer">
             <div>
-              <strong>Gobierno de Datos e IA — Proyecto Innovatech</strong> • © 2026
+              <strong>${brandTitle} â€” ${brandSubtitle}</strong> â€¢ Â© 2026
             </div>
             <div>
-              Experiencia UX/UI Corporativa • Accesibilidad & Diseño Responsivo
+              Experiencia UX/UI Corporativa â€¢ Accesibilidad & DiseÃ±o Responsivo
             </div>
           </footer>
 
@@ -1510,6 +1723,32 @@ window.ProjectsView = {
   playLandingVideo() {
     const box = document.getElementById('plp-hero-video-box');
     if (!box) return;
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const vid = (selected && selected.video) ? selected.video : {};
+    const rawUrl = vid.url || vid.embedUrl || (selected && selected.videoUrl) || '';
+
+    if (vid.sourceType === 'upload' && vid.fileDataUrl) {
+      box.innerHTML = `<video src="${vid.fileDataUrl}" controls autoplay style="width:100%; height:100%; display:block; background:#000;"></video>`;
+      return;
+    }
+
+    if (rawUrl) {
+      const ytMatch = rawUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+      const vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+      if (ytMatch) {
+        box.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" title="Video del Proyecto" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:0; width:100%; height:100%; display:block;"></iframe>`;
+        return;
+      }
+      if (vimeoMatch) {
+        box.innerHTML = `<iframe width="100%" height="100%" src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1" title="Video del Proyecto" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="border:0; width:100%; height:100%; display:block;"></iframe>`;
+        return;
+      }
+      if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(rawUrl) || rawUrl.startsWith('data:video/')) {
+        box.innerHTML = `<video src="${rawUrl}" controls autoplay style="width:100%; height:100%; display:block; background:#000;"></video>`;
+        return;
+      }
+    }
+
     box.innerHTML = `
       <iframe
         width="100%"
@@ -1525,7 +1764,8 @@ window.ProjectsView = {
   },
 
   goToLandingSlide(index) {
-    const total = 4;
+    const slides = document.querySelectorAll('#plp-landing-carousel-track .plp-slide-item');
+    const total = slides.length || 4;
     this.currentSlideIndex = (index + total) % total;
     const track = document.getElementById('plp-landing-carousel-track');
     if (track) {
@@ -1540,24 +1780,102 @@ window.ProjectsView = {
     this.goToLandingSlide((this.currentSlideIndex || 0) + step);
   },
 
+  previewCustomLandingResource(resId) {
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const res = ((selected && selected.resources) || []).find(r => r.id === resId && r.visibility !== 'private');
+    if (!res) return;
+    if (res.textExtract) {
+      this.previewLandingDoc(`${res.name} â€” Extracto:\n${res.textExtract.slice(0, 600)}`);
+      return;
+    }
+    const targetUrl = res.url || res.fileDataUrl;
+    if (targetUrl && (targetUrl.startsWith('http') || targetUrl.startsWith('data:image/'))) {
+      if (res.format === 'PNG' || res.format === 'JPG' || res.format === 'WEBP' || targetUrl.startsWith('data:image/')) {
+        this.openLandingLightbox(targetUrl, res.name || 'Recurso grÃ¡fico');
+      } else {
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+    this.previewLandingDoc(res.name || 'Recurso del Proyecto');
+  },
+
+  downloadCustomLandingResource(resId) {
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const res = ((selected && selected.resources) || []).find(r => r.id === resId && r.visibility !== 'private');
+    if (!res) return;
+    const targetUrl = res.fileDataUrl || res.url;
+    if (targetUrl) {
+      const a = document.createElement('a');
+      a.href = targetUrl;
+      a.download = res.fileName || `${(res.name || 'recurso').replace(/\s+/g, '_')}`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+    this.downloadLandingDoc(`${(res.name || 'Recurso').replace(/\s+/g, '_')}.txt`);
+  },
+
+  openProjectFaqModal() {
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const faqs = (selected && Array.isArray(selected.faqs) && selected.faqs.length > 0)
+      ? selected.faqs
+      : [
+          { question: 'Â¿CuÃ¡l es el propÃ³sito principal de este proyecto?', answer: (selected && (selected.mainObjective || selected.description)) || 'Facilitar el acceso a recursos estructurados, documentaciÃ³n oficial y herramientas interactivas.' },
+          { question: 'Â¿QuÃ© recursos estÃ¡n disponibles pÃºblicamente?', answer: 'Todos los documentos, presentaciones y enlaces marcados como pÃºblicos por el equipo responsable.' }
+        ];
+    const modal = document.getElementById('plp-inline-lightbox');
+    const body = document.getElementById('plp-inline-lightbox-body');
+    if (!modal || !body) return;
+    const isDark = (document.querySelector('.plp-wrapper')?.getAttribute('data-theme') || this.getLandingTheme()) === 'dark';
+    const bg = isDark ? '#0f172a' : '#ffffff';
+    const titleColor = isDark ? '#ffffff' : '#0a192f';
+    const textColor = isDark ? '#e2e8f0' : '#334155';
+
+    body.innerHTML = `
+      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">âœ•</button>
+      <div style="padding:2.25rem; background:${bg}; border-radius:var(--plp-radius-lg); max-height:80vh; overflow-y:auto;">
+        <span class="plp-eyebrow">â“ Preguntas Frecuentes (FAQ)</span>
+        <h2 style="margin:0.4rem 0 1.25rem; color:${titleColor};">${this.escapeHtml((selected && selected.title) || 'Proyecto Innovatech')}</h2>
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          ${faqs.map(f => `
+            <div style="padding:1rem 1.2rem; border-radius:12px; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.06);">
+              <strong style="display:block; color:${titleColor}; margin-bottom:0.35rem;">${this.escapeHtml(f.question || '')}</strong>
+              <p style="margin:0; color:${textColor}; line-height:1.55; font-size:0.94rem;">${this.escapeHtml(f.answer || '')}</p>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <button class="plp-btn-secondary" onclick="window.ProjectsView.closeLandingLightbox()">Cerrar</button>
+        </div>
+      </div>
+    `;
+    modal.classList.add('active');
+  },
+
   triggerLandingBulkDownload() {
     const wrap = document.getElementById('plp-bulk-progress-wrap');
     const fill = document.getElementById('plp-bulk-progress-fill');
     const status = document.getElementById('plp-bulk-progress-status');
     if (!wrap || !fill || !status) return;
 
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const safeSlug = (selected && selected.slug) ? selected.slug : 'Innovatech';
+
     wrap.classList.add('active');
     let progress = 0;
     fill.style.width = '0%';
-    status.textContent = 'Empaquetando documentos PDF y anexos... 0%';
+    status.textContent = 'Empaquetando documentos pÃºblicos y ficha tÃ©cnica... 0%';
 
     const timer = setInterval(() => {
       progress += 25;
       if (progress >= 100) {
         clearInterval(timer);
         fill.style.width = '100%';
-        status.textContent = '✔ ¡Paquete Innovatech_Completo.zip descargado!';
-        this.downloadLandingDoc('Innovatech_Repositorio_Completo.txt');
+        status.textContent = `âœ” Â¡Resumen pÃºblico ${safeSlug}_Completo.txt descargado!`;
+        this.downloadLandingDoc(`${safeSlug}_Ficha_Publica.txt`);
       } else {
         fill.style.width = progress + '%';
         status.textContent = `Descargando paquete... ${progress}%`;
@@ -1566,7 +1884,14 @@ window.ProjectsView = {
   },
 
   downloadLandingDoc(filename) {
-    const content = `PROYECTO INNOVATECH - GOBIERNO DE DATOS E IA\nDocumento: ${filename}\nFecha: ${new Date().toLocaleDateString()}\n\n1. Definición Estratégica y Gobernanza de Datos.\n2. Arquitectura de Modelos de Inteligencia Artificial.\n3. Indicadores de Impacto y Sostenibilidad.`;
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
+    const title = (selected && selected.title) || 'PROYECTO INNOVATECH - GOBIERNO DE DATOS E IA';
+    const desc = (selected && (selected.fullDescription || selected.description)) || 'Plataforma integral de Gobierno de Datos e Inteligencia Artificial.';
+    const obj = (selected && selected.mainObjective) || 'DefiniciÃ³n EstratÃ©gica y Gobernanza de Datos.';
+    const ben = (selected && selected.userBenefits) || 'Indicadores de Impacto y Sostenibilidad.';
+    const pubRes = ((selected && selected.resources) || []).filter(r => r.visibility !== 'private').map((r, i) => `  ${i + 1}. ${r.name} (${r.format || 'DOC'})`).join('\n');
+
+    const content = `${title.toUpperCase()}\nDocumento: ${filename}\nFecha: ${new Date().toLocaleDateString()}\n\n1. DESCRIPCIÃ“N:\n${desc}\n\n2. OBJETIVO PRINCIPAL:\n${obj}\n\n3. BENEFICIOS:\n${ben}\n\n4. RECURSOS PÃšBLICOS INCLUIDOS:\n${pubRes || '  - DocumentaciÃ³n general del proyecto'}`;
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1583,7 +1908,7 @@ window.ProjectsView = {
     const body = document.getElementById('plp-inline-lightbox-body');
     if (!modal || !body) return;
     body.innerHTML = `
-      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">✕</button>
+      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">âœ•</button>
       <img src="${imgUrl}" alt="${this.escapeHtml(caption)}" style="width:100%; max-height:75vh; object-fit:contain; background:#0a192f; display:block;" />
       <div style="padding:1.25rem 1.75rem; background:#ffffff;">
         <h3 style="margin:0; font-size:1.15rem; color:#0a192f;">${this.escapeHtml(caption)}</h3>
@@ -1596,23 +1921,23 @@ window.ProjectsView = {
     const modal = document.getElementById('plp-inline-lightbox');
     const body = document.getElementById('plp-inline-lightbox-body');
     if (!modal || !body) return;
+    const selected = (window.appState.challenges || []).find(x => x.id === this.selectedProjectId);
     const isDark = (document.querySelector('.plp-wrapper')?.getAttribute('data-theme') || this.getLandingTheme()) === 'dark';
     const bg = isDark ? '#0f172a' : '#ffffff';
     const titleColor = isDark ? '#ffffff' : '#0a192f';
     const textColor = isDark ? '#e2e8f0' : '#334155';
     const border = isDark ? '1px solid #334155' : 'none';
+    const summaryText = (selected && (selected.fullDescription || selected.description)) || 'Recurso oficial del Proyecto Innovatech â€” Gobierno de Datos e IA. Incluye lineamientos estratÃ©gicos, protocolos de calidad de datos, arquitectura tÃ©cnica y mÃ©tricas de impacto verificadas.';
 
     body.innerHTML = `
-      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">✕</button>
+      <button class="plp-lightbox-close" onclick="window.ProjectsView.closeLandingLightbox()" aria-label="Cerrar">âœ•</button>
       <div style="padding:2.5rem; background:${bg}; border:${border}; border-radius:var(--plp-radius-lg);">
         <span class="plp-eyebrow">Vista Previa Interactiva</span>
         <h2 style="margin:0.5rem 0 1rem; color:${titleColor};">${this.escapeHtml(title)}</h2>
-        <p style="color:${textColor}; line-height:1.7;">
-          Recurso oficial del <strong>Proyecto Innovatech — Gobierno de Datos e IA</strong>. Incluye lineamientos estratégicos, protocolos de calidad de datos, arquitectura técnica y métricas de impacto verificadas.
-        </p>
+        <p style="color:${textColor}; line-height:1.7; white-space:pre-line;">${this.escapeHtml(summaryText)}</p>
         <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <button class="plp-cta-btn" onclick="window.ProjectsView.downloadLandingDoc('${this.escapeHtml(title.replace(/\s+/g, '_'))}.pdf'); window.ProjectsView.closeLandingLightbox();">
-            ⬇ Descargar Documento
+          <button class="plp-cta-btn" onclick="window.ProjectsView.downloadLandingDoc('${this.escapeHtml(title.replace(/\s+/g, '_').slice(0, 40))}.txt'); window.ProjectsView.closeLandingLightbox();">
+            â¬‡ Descargar Ficha
           </button>
           <button class="plp-btn-secondary" onclick="window.ProjectsView.closeLandingLightbox()">
             Cerrar
@@ -1622,7 +1947,6 @@ window.ProjectsView = {
     `;
     modal.classList.add('active');
   },
-
   closeLandingLightbox() {
     const modal = document.getElementById('plp-inline-lightbox');
     if (modal) modal.classList.remove('active');

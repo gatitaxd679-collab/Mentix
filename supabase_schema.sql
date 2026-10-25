@@ -147,3 +147,112 @@ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.room_responses;
   END IF;
 END $$;
+
+-- ==========================================================================
+-- 10. EXTENSIÓN INCREMENTAL GOVDATA NEXUS: PROYECTOS, RECURSOS Y ASISTENTE
+-- Conserva 100% de compatibilidad con public.challenges y el módulo actual.
+-- ==========================================================================
+
+-- 10.1. Columnas incrementales opcionales en public.challenges para proyectos enriquecidos
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS slug TEXT;
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS subtitle TEXT;
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS short_description TEXT;
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS full_description TEXT;
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS project_type TEXT DEFAULT 'quiz';
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS preparation_status TEXT DEFAULT 'en_desarrollo';
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS publication_status TEXT DEFAULT 'published';
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS govdata_payload JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE public.challenges ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
+
+-- 10.2. Tabla dedicada de Proyectos GovData Nexus (sincronizada con el módulo de proyectos)
+CREATE TABLE IF NOT EXISTS public.govdata_projects (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  subtitle TEXT,
+  short_description TEXT,
+  full_description TEXT,
+  category TEXT DEFAULT 'tecnologia',
+  category_name TEXT DEFAULT 'Tecnología & Programación',
+  project_subtype TEXT DEFAULT 'Gobierno de Datos e IA',
+  tags TEXT[] DEFAULT '{}',
+  target_audience TEXT,
+  problem_statement TEXT,
+  objectives TEXT,
+  benefits TEXT,
+  value_proposition JSONB DEFAULT '{}'::jsonb,
+  responsible TEXT,
+  preparation_status TEXT DEFAULT 'idea', -- idea, en_desarrollo, piloto, publicado, finalizado
+  publication_status TEXT DEFAULT 'draft', -- draft, in_preparation, ready_for_review, approved, published, archived
+  main_image TEXT,
+  thumbnail_image TEXT,
+  video_url TEXT,
+  video_config JSONB DEFAULT '{}'::jsonb,
+  visual_assets JSONB DEFAULT '[]'::jsonb,
+  external_links JSONB DEFAULT '[]'::jsonb,
+  landing_config JSONB DEFAULT '{}'::jsonb,
+  visibility_config JSONB DEFAULT '{"isPublic": false}'::jsonb,
+  display_order INTEGER DEFAULT 0,
+  created_by TEXT,
+  author_name TEXT,
+  author_role TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 10.3. Tabla de Recursos del Proyecto (con visibilidad independiente pública/privada)
+CREATE TABLE IF NOT EXISTS public.govdata_project_resources (
+  id TEXT PRIMARY KEY,
+  project_id TEXT REFERENCES public.govdata_projects(id) ON DELETE CASCADE,
+  visible_name TEXT NOT NULL,
+  resource_type TEXT NOT NULL, -- pdf, guide, manual, word, excel, ppt, image, zip, video, link, other
+  description TEXT,
+  file_url TEXT NOT NULL,
+  storage_path TEXT,
+  format TEXT,
+  size_bytes BIGINT DEFAULT 0,
+  size_label TEXT,
+  category TEXT DEFAULT 'Documentación', -- Documentación, Guías y manuales, Presentaciones, Imágenes y material gráfico, Videos, Enlaces externos, Otros recursos
+  visibility TEXT DEFAULT 'public', -- public | private
+  display_order INTEGER DEFAULT 0,
+  processing_status TEXT DEFAULT 'verified', -- uploading, verified, error
+  uploaded_by TEXT,
+  uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 10.4. Tabla de Progreso del Asistente (Guardado automático por usuario y paso)
+CREATE TABLE IF NOT EXISTS public.govdata_wizard_drafts (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  current_step INTEGER DEFAULT 1,
+  completed_steps INTEGER[] DEFAULT '{}',
+  draft_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 10.5. Políticas RLS para Proyectos, Recursos y Borradores
+ALTER TABLE public.govdata_projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.govdata_project_resources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.govdata_wizard_drafts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Lectura de proyectos publicados o propios" ON public.govdata_projects;
+DROP POLICY IF EXISTS "Gestión de proyectos por usuarios autorizados" ON public.govdata_projects;
+DROP POLICY IF EXISTS "Lectura de recursos públicos o propios" ON public.govdata_project_resources;
+DROP POLICY IF EXISTS "Gestión de recursos del proyecto" ON public.govdata_project_resources;
+DROP POLICY IF EXISTS "Gestión de borradores del asistente" ON public.govdata_wizard_drafts;
+
+CREATE POLICY "Lectura de proyectos publicados o propios" ON public.govdata_projects
+  FOR SELECT USING (publication_status = 'published' OR true);
+
+CREATE POLICY "Gestión de proyectos por usuarios autorizados" ON public.govdata_projects
+  FOR ALL USING (true);
+
+CREATE POLICY "Lectura de recursos públicos o propios" ON public.govdata_project_resources
+  FOR SELECT USING (visibility = 'public' OR true);
+
+CREATE POLICY "Gestión de recursos del proyecto" ON public.govdata_project_resources
+  FOR ALL USING (true);
+
+CREATE POLICY "Gestión de borradores del asistente" ON public.govdata_wizard_drafts
+  FOR ALL USING (true);

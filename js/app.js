@@ -1463,14 +1463,14 @@ class AppRouter {
             }
           }
 
+          const isProjectItem = (c.projectType && c.projectType !== 'quiz') || c.isGovDataProject === true;
           if (!map.has(c.id)) {
-            if (Array.isArray(c.questions) && c.questions.length > 0) {
+            if ((Array.isArray(c.questions) && c.questions.length > 0) || isProjectItem) {
               map.set(c.id, c);
             }
           } else {
             const existing = map.get(c.id);
-            // Si el remoto tiene preguntas reales, sincronizar
-            if (Array.isArray(c.questions) && c.questions.length > 0) {
+            if ((Array.isArray(c.questions) && c.questions.length > 0) || isProjectItem) {
               map.set(c.id, { ...existing, ...c });
             }
           }

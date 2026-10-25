@@ -736,6 +736,129 @@
       { threshold: 0.12 }
     );
     document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
+
+    // HidrataciÃ³n dinÃ¡mica si se accede con ?id=..., ?slug=... o mentix_active_landing_project
+    (function hydrateFromActiveProject() {
+      try {
+        let activeProject = null;
+        const params = new URLSearchParams(window.location.search);
+        const reqId = params.get('id');
+        const reqSlug = params.get('slug');
+
+        const raw = localStorage.getItem('mentix_active_landing_project');
+        if (raw) {
+          try {
+            const p = JSON.parse(raw);
+            if (p && (!reqId || p.id === reqId) && (!reqSlug || p.slug === reqSlug)) {
+              activeProject = p;
+            }
+          } catch (e) {}
+        }
+
+        if (!activeProject && (reqId || reqSlug)) {
+          const stateRaw = localStorage.getItem('mentix_state_backup') || localStorage.getItem('mentix_cloud_challenges');
+          if (stateRaw) {
+            try {
+              const list = JSON.parse(stateRaw);
+              const challenges = Array.isArray(list) ? list : (list.challenges || []);
+              activeProject = challenges.find(c => (reqId && c.id === reqId) || (reqSlug && c.slug === reqSlug));
+            } catch (e) {}
+          }
+        }
+
+        if (!activeProject) return;
+
+        const pub = activeProject.publication || {};
+        const vp = activeProject.valueProposition || {};
+        const vid = activeProject.video || {};
+
+        const brandTitle = (activeProject.categoryName || pub.visibleCategory) || 'Gobierno de Datos e IA';
+        const brandSubtitle = (pub.publicName || activeProject.title) || 'Proyecto';
+        const heroTitle = pub.landingTitle || activeProject.title;
+        const heroSub = pub.publicDescription || activeProject.shortDescription || activeProject.description;
+        const ctaText = pub.ctaText || activeProject.ctaText || vp.visitorAction || 'Unirse / Colaborar';
+        const ctaUrl = pub.ctaUrl || activeProject.ctaUrl || '';
+
+        // TÃ­tulo de la pestaÃ±a
+        if (heroTitle) document.title = `${heroTitle} â€” Gobierno de Datos e IA`;
+
+        // Brand
+        const brandTitleEl = document.querySelector('.plp-brand-title');
+        const brandSubEl = document.querySelector('.plp-brand-subtitle');
+        if (brandTitleEl) brandTitleEl.textContent = brandTitle;
+        if (brandSubEl) brandSubEl.textContent = brandSubtitle;
+
+        // Hero
+        const eyebrowEl = document.querySelector('.plp-eyebrow');
+        if (eyebrowEl && (activeProject.subtitle || activeProject.categoryName)) {
+          eyebrowEl.textContent = activeProject.subtitle || activeProject.categoryName;
+        }
+        const heroTitleEl = document.getElementById('hero-title');
+        if (heroTitleEl && heroTitle) {
+          heroTitleEl.innerHTML = heroTitle;
+        }
+        const heroSubEl = document.querySelector('.plp-hero .plp-section-subtitle');
+        if (heroSubEl && heroSub) {
+          heroSubEl.textContent = heroSub;
+        }
+
+        // Portada / Video
+        const coverPoster = pub.coverImage || activeProject.coverImage || activeProject.banner;
+        const posterEl = document.querySelector('.plp-video-poster');
+        if (posterEl && coverPoster) {
+          posterEl.style.backgroundImage = `url('${coverPoster}')`;
+        }
+        const videoCaptionEl = document.querySelector('.plp-video-caption span:first-child');
+        if (videoCaptionEl) {
+          videoCaptionEl.textContent = `ðŸŽ¬ ${vid.title || (activeProject.title ? 'Video: ' + activeProject.title : 'Video Explicativo')}`;
+        }
+
+        // DefiniciÃ³n
+        const defParas = document.querySelectorAll('.plp-hero-definition .plp-hero-def-text');
+        if (defParas && defParas.length >= 2) {
+          if (activeProject.mainObjective || vp.problemSolved || activeProject.fullDescription) {
+            defParas[0].innerHTML = `<strong>Objetivo y PropÃ³sito:</strong> ${activeProject.mainObjective || vp.problemSolved || activeProject.fullDescription}`;
+          }
+          if (activeProject.userBenefits || vp.resultsOffered || vp.differentiator) {
+            defParas[1].innerHTML = `<strong>Beneficios e Impacto:</strong> ${activeProject.userBenefits || vp.resultsOffered || vp.differentiator}`;
+          }
+        }
+
+        // CTA
+        const ctaBtn = document.querySelector('.plp-cta-btn');
+        if (ctaBtn) {
+          ctaBtn.textContent = ctaText;
+          if (ctaUrl) {
+            ctaBtn.onclick = () => window.open(ctaUrl, '_blank', 'noopener,noreferrer');
+          }
+        }
+
+        // Diapositivas personalizadas si existen
+        if (Array.isArray(activeProject.slides) && activeProject.slides.length > 0) {
+          const track = document.getElementById('plp-carousel-track');
+          if (track) {
+            track.innerHTML = activeProject.slides.map((sl, idx) => `
+              <div class="plp-slide-item">
+                <div class="plp-slide-preview">
+                  <span class="plp-slide-badge">Diapositiva ${String(idx + 1).padStart(2, '0')} / ${String(activeProject.slides.length).padStart(2, '0')}</span>
+                  <img src="${sl.image || sl.mediaUrl || coverPoster}" alt="${sl.title || 'Diapositiva'}" loading="lazy" />
+                </div>
+                <div class="plp-slide-info">
+                  <h3>${idx + 1}. ${sl.title || `Diapositiva ${idx + 1}`}</h3>
+                  <p>${sl.content || sl.text || heroSub}</p>
+                  <div class="plp-slide-kpis">
+                    <span class="plp-slide-kpi">âœ” ${brandSubtitle}</span>
+                    <span class="plp-slide-kpi">âœ” LÃ¡mina ${idx + 1}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.warn('Hydration warning:', err);
+      }
+    })();
   </script>
 </body>
 </html>

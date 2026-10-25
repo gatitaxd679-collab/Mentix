@@ -145,9 +145,18 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Reto inválido o incompleto' });
       }
 
-      // Asegurar que sea público y accesible para todos los usuarios en el mundo
-      challenge.isPublic = true;
+      // Asegurar visibilidad según estado de publicación (borradores y archivados no se exponen públicamente)
+      if (challenge.publicationStatus) {
+        challenge.isPublic = (challenge.publicationStatus === 'published');
+      } else if (challenge.isPublic === undefined) {
+        challenge.isPublic = true;
+      }
       challenge.projectType = challenge.projectType || 'quiz';
+      // Validación del lado del servidor para recursos adjuntos (seguridad de extensiones)
+      if (Array.isArray(challenge.resources)) {
+        const FORBIDDEN_EXT = /\.(exe|bat|cmd|sh|vbs|scr|msi|com|pif|ps1|jar)$/i;
+        challenge.resources = challenge.resources.filter(r => !r || !FORBIDDEN_EXT.test(String(r.fileName || r.url || '')));
+      }
       challenge.updatedAt = new Date().toISOString();
       if (!challenge.createdAt) challenge.createdAt = new Date().toISOString();
 

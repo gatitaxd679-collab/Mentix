@@ -159,6 +159,115 @@ class SupabaseService {
       console.warn('Error sincronizando retos:', e);
     }
   }
+
+  // Guardar borrador progresivo del asistente en Supabase
+  async saveWizardDraft(draftId, projectId, userId, currentStep, completedSteps, draftData) {
+    if (!this.client || !this.isConnected) return false;
+    try {
+      const { error } = await this.client.from('govdata_wizard_drafts').upsert({
+        id: draftId,
+        project_id: projectId,
+        user_id: userId || 'anon',
+        current_step: currentStep || 1,
+        completed_steps: completedSteps || [],
+        draft_data: draftData || {},
+        updated_at: new Date().toISOString()
+      });
+      return !error;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Guardar proyecto completo de GovData Nexus y sus recursos en Supabase
+  async saveGovDataProject(projectObj) {
+    if (!this.client || !this.isConnected || !projectObj || !projectObj.id) return false;
+    try {
+      const row = {
+        id: projectObj.id,
+        slug: projectObj.slug || projectObj.id,
+        name: projectObj.title || projectObj.name || 'Proyecto Sin Título',
+        subtitle: projectObj.subtitle || '',
+        short_description: projectObj.shortDescription || projectObj.description || '',
+        full_description: projectObj.fullDescription || '',
+        category: projectObj.category || 'tecnologia',
+        category_name: projectObj.categoryName || 'Tecnología & Programación',
+        project_subtype: projectObj.projectSubtype || 'Gobierno de Datos e IA',
+        tags: Array.isArray(projectObj.tags) ? projectObj.tags : [],
+        target_audience: projectObj.targetAudience || '',
+        problem_statement: projectObj.problemStatement || '',
+        objectives: projectObj.mainObjective || '',
+        benefits: projectObj.benefits || '',
+        value_proposition: projectObj.valueProposition || {},
+        responsible: projectObj.teamLead || projectObj.author || '',
+        preparation_status: projectObj.preparationStatus || 'en_desarrollo',
+        publication_status: projectObj.publicationStatus || 'draft',
+        main_image: projectObj.mainImage || projectObj.banner || '',
+        thumbnail_image: projectObj.thumbnailImage || '',
+        video_url: projectObj.videoConfig?.url || '',
+        video_config: projectObj.videoConfig || {},
+        visual_assets: projectObj.visualAssets || [],
+        external_links: projectObj.externalLinks || [],
+        landing_config: projectObj.landingConfig || {},
+        visibility_config: { isPublic: projectObj.publicationStatus === 'published' },
+        display_order: Number(projectObj.displayOrder || 0),
+        created_by: projectObj.authorId || projectObj.author || '',
+        author_name: projectObj.author || '',
+        author_role: projectObj.authorRole || 'teacher',
+        updated_at: new Date().toISOString()
+      };
+      await this.client.from('govdata_projects').upsert(row);
+
+      if (Array.isArray(projectObj.resources) && projectObj.resources.length > 0) {
+        const resRows = projectObj.resources.map((r, idx) => ({
+          id: r.id || `${projectObj.id}_res_${idx}`,
+          project_id: projectObj.id,
+          visible_name: r.name || 'Recurso',
+          resource_type: r.type || 'pdf',
+          description: r.description || '',
+          file_url: r.url || '',
+          storage_path: r.storagePath || '',
+          format: r.format || 'PDF',
+          size_bytes: Number(r.sizeBytes || 0),
+          size_label: r.sizeLabel || '',
+          category: r.category || 'Documentación',
+          visibility: r.visibility === 'private' ? 'private' : 'public',
+          display_order: idx,
+          processing_status: r.status || 'verified',
+          uploaded_by: projectObj.author || 'Usuario'
+        }));
+        await this.client.from('govdata_project_resources').upsert(resRows);
+      }
+      return true;
+    } catch (e) {
+      console.warn('Aviso al sincronizar proyecto en tabla govdata_projects:', e);
+      return false;
+    }
+  }
+
+  // Subir archivo a Supabase Storage separando buckets públicos y privados
+  async uploadProjectFile(file, projectId, visibility = 'public') {
+    if (!this.client || !this.isConnected || !file) return null;
+    try {
+      const bucket = visibility === 'private' ? 'govdata-private' : 'govdata-public';
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80);
+      const storagePath = `${projectId}/${Date.now()}_${safeName}`;
+      const { data, error } = await this.client.storage.from(bucket).upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+      if (error || !data) return null;
+      if (visibility === 'private') {
+        const { data: signed } = await this.client.storage.from(bucket).createSignedUrl(storagePath, 60 * 60 * 24 * 7);
+        return { url: signed?.signedUrl || '', storagePath, bucket };
+      } else {
+        const { data: pub } = this.client.storage.from(bucket).getPublicUrl(storagePath);
+        return { url: pub?.publicUrl || '', storagePath, bucket };
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 window.supabaseService = new SupabaseService();
